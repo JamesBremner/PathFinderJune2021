@@ -10,6 +10,63 @@ void cPathFinder::start(const std::string &start)
 
 void cPathFinder::path()
 {
+    // https://www.geeksforgeeks.org/dijkstras-shortest-path-algorithm-greedy-algo-7/
+
+    int V = nodeCount();
+    myDist.clear();
+    myDist.resize(V);
+    myPred.clear();
+    myPred.resize(V);
+    std::vector<std::vector<int>> adjacencyMatrix(
+        V, std::vector<int>(V));
+
+    for (auto &e : myGraph.edge_list())
+    {
+        int cost = myLink[e].myCost;
+        adjacencyMatrix[e.first][e.second] = cost;
+        adjacencyMatrix[e.second][e.first] = cost;
+    }
+
+    bool sptSet[V]; // sptSet[i] will be true if vertex i is included in shortest
+    // path tree or shortest distance from src to i is finalized
+
+    // Initialize all distances as INFINITE and stpSet[] as false
+    for (int i = 0; i < V; i++)
+        myDist[i] = INT_MAX, sptSet[i] = false;
+
+    // Distance of source vertex from itself is always 0
+    myDist[myStart] = 0;
+    myPred[myStart] = 0;
+
+    // Find shortest path for all vertices
+    for (int count = 0; count < V - 1; count++)
+    {
+        // Pick the minimum distance vertex from the set of vertices not
+        // yet processed. u is always equal to src in the first iteration.
+        int min = INT_MAX, u;
+
+        for (int v = 0; v < V; v++)
+            if (sptSet[v] == false && myDist[v] <= min)
+                min = myDist[v], u = v;
+
+        // Mark the picked vertex as processed
+        sptSet[u] = true;
+
+        // Update dist value of the adjacent vertices of the picked vertex.
+        for (int v = 0; v < V; v++)
+
+            // Update dist[v] only if is not in sptSet, there is an edge from
+            // u to v, and total weight of path from src to  v through u is
+            // smaller than current value of dist[v]
+            if (!sptSet[v] && adjacencyMatrix[u][v] && myDist[u] != INT_MAX && myDist[u] + adjacencyMatrix[u][v] < myDist[v])
+            {
+                myDist[v] = myDist[u] + adjacencyMatrix[u][v];
+                myPred[v] = u;
+            }
+    }
+
+
+    pathPick(myEnd);
 }
 
 void cPathFinder::clear()
@@ -31,13 +88,39 @@ int cPathFinder::findoradd(const std::string &name)
     {
         n = nodeCount();
         myGraph.insert_vertex(n);
-        myNode.push_back( cNode( name ));
+        myNode.push_back(cNode(name));
     }
     return n;
 }
 
 std::vector<int> cPathFinder::pathPick(int end)
 {
+    myPath.clear();
+    // std::cout << "->cPathFinder::pathPick "
+    //     << myStart <<" " << end << "\n";
+
+    if (end < 0)
+        throw std::runtime_error("cPathFinder::pathPick bad end node");
+    if (myPred[end] == end)
+        throw std::runtime_error("There is no path from " + std::to_string(myStart) + " to " + std::to_string(end));
+
+    // pick out path, starting at goal and finishing at start
+    myPath.push_back(end);
+    int prev = end;
+    while (1)
+    {
+        //std::cout << prev << " " << myPred[prev] << ", ";
+        int next = myPred[prev];
+        myPath.push_back(next);
+        if (next == myStart)
+            break;
+        prev = next;
+    }
+
+    // reverse so path goes from start to goal
+    std::reverse(myPath.begin(), myPath.end());
+
+    return myPath;
 }
 
 std::string cPathFinder::nodeName(int n) const
@@ -56,8 +139,8 @@ void cPathFinder::addLink(
     else
         myGraph.insert_edge(u, v);
 
-    myLink.insert( std::make_pair(
-        std::make_pair( u, v), cEdge( cost ) ));
+    myLink.insert(std::make_pair(
+        std::make_pair(u, v), cEdge(cost)));
 }
 
 void cPathFinder::addLink(
@@ -83,18 +166,40 @@ int cPathFinder::nodeCount()
 std::string cPathFinder::linksText()
 {
     std::stringstream ss;
-    auto el = myGraph.edge_list();
-    for( auto& e : el )
+    for (auto &e : myGraph.edge_list())
     {
-                ss << "("
+        ss << "("
            << myNode[e.first].myName << ","
            << myNode[e.second].myName << ","
-           << myLink[make_pair(e.first,e.second)].myCost
+           << myLink[e].myCost
            << ") ";
     }
     return ss.str();
 }
 
-std::string cPathFinder::pathText() {}
+std::string cPathFinder::pathText()
+{
+    std::stringstream ss;
+    for (auto n : myPath)
+    {
+        std::string sn;
+        sn = myNode[n].myName;
+
+        if (sn == "???")
+            sn = std::to_string(n);
+        ss << sn << " -> ";
+        //ss << std::to_string(n) << " -> ";
+    }
+
+    if (myPath.size())
+    {
+        //std::cout << "dbg " << myDist[myPath.back()] << " " << myMaxNegCost << " " << myPath.size() << "\n";
+        ss << " Cost is "
+           << myDist[myPath.back()] + myMaxNegCost * (myPath.size() - 1)
+           << "\n";
+    }
+
+    return ss.str();
+}
 
 std::string cPathFinder::spanText() {}

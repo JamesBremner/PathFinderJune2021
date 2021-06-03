@@ -1,0 +1,9 @@
+l john monica 1
+l john jeffrey 1
+l monica william 1
+l jeffrey george 1
+l william rachel 1
+s john
+e all
+
+

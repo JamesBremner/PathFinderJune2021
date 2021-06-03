@@ -1,0 +1,12 @@
+format shaun
+n 0 5
+n 1 4
+n 2 5
+n 3 7
+n 4 2
+l 0 1
+l 0 4
+l 1 2
+l 2 3
+l 3 4
+
