@@ -9,7 +9,7 @@
 
 enum class eOption
 {
-    file,
+    none,
     costs,
     req,
     sales,
@@ -19,7 +19,7 @@ enum class eOption
     islands,
 };
 
-eOption opt = eOption::file;
+eOption opt = eOption::none;
 
 void replaceAll(std::string &str, const std::string &from, const std::string &to)
 {
@@ -161,31 +161,6 @@ void doPreReqs(
     std::cout << " )\n";
 }
 
-void ChangeActiveOption(
-    wex::menu &mOption,
-    eOption option)
-{
-    mOption.check(0, false);
-    mOption.check(1, false);
-    mOption.check(2, false);
-    mOption.check((int)option);
-}
-
-void OptionMenuConstructor(
-    wex::menu &mOption)
-{
-    mOption.append("File", [&](const std::string &title) {
-        opt = eOption::costs;
-        ChangeActiveOption(mOption, opt);
-    });
-    mOption.append("Prerequisites", [&](const std::string &title) {
-        opt = eOption::req;
-        ChangeActiveOption(mOption, opt);
-    });
-
-    mOption.check(0);
-}
-
 int main()
 {
     cPathFinder finder;
@@ -206,11 +181,6 @@ int main()
 
     wex::menubar mbar(form);
     wex::menu mfile(form);
-    mfile.append("New", [&](const std::string &title) {
-        finder.clear();
-        RunDOT(finder);
-        form.update();
-    });
     mfile.append("Edit", [&](const std::string &title) {
         wex::filebox fb(form);
         auto fname = fb.open();
@@ -249,8 +219,7 @@ int main()
         if (fname.empty())
             return;
         cPathFinderReader reader(finder);
-        if (opt == eOption::file)
-        {
+
             try
             {
                 switch (reader.open(fname))
@@ -287,19 +256,6 @@ int main()
                 wex::msgbox m(e.what());
                 return;
             }
-        }
-        else
-        {
-            reader.set(fname);
-            switch (opt)
-            {
-
-            case eOption::req:
-                doPreReqs(finder, reader);
-                break;
-
-            }
-        }
 
         RunDOT(finder);
         editPanel.show(false);
@@ -308,41 +264,6 @@ int main()
         form.update();
     });
     mbar.append("File", mfile);
-
-    wex::menu madd(form);
-    madd.append("Link", [&](const std::string &title) {
-        wex::inputbox ib;
-        ib.text("Add link");
-        ib.add("src", "");
-        ib.add("dst", "");
-        ib.add("cost", "1");
-        ib.showModal();
-        finder.addLink(
-            finder.findoradd(ib.value("src")),
-            finder.findoradd(ib.value("dst")),
-            atoi(ib.value("cost").c_str()));
-        RunDOT(finder);
-        form.update();
-    });
-
-    madd.append("Start, End", [&](const std::string &title) {
-        wex::inputbox ib;
-        ib.text("identify start, end nodes");
-        ib.add("start", "");
-        ib.add("end", "");
-        ib.showModal();
-        finder.start(ib.value("start"));
-        finder.end(ib.value("end"));
-        finder.path();
-        RunDOT(finder);
-        form.update();
-    });
-
-    mbar.append("Add", madd);
-
-    wex::menu mOption(form);
-    OptionMenuConstructor(mOption);
-    mbar.append("Option", mOption);
 
     form.events().draw([&](PAINTSTRUCT &ps) {
         wex::shapes s(ps);
