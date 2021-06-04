@@ -2,20 +2,58 @@
 
 std::string cPathFinder::pathViz()
 {
-    return "";
+    std::string graphvizgraph = "graph";
+    std::string graphvizlink = "--";
+    if (myfDirected)
+    {
+        graphvizgraph = "digraph";
+        graphvizlink = "->";
+    }
+
+    std::stringstream f;
+    f << graphvizgraph << " G {\n";
+    for (auto &n : myNode)
+    {
+        f << n.myName
+          << " [color=\"" << n.myColor << "\"  penwidth = 3.0 ];\n";
+    }
+
+    // loop over links
+    for (auto &e : myGraph.edge_list())
+    {
+        // check if link between two nodes on path
+        bool onpath = false;
+        auto pathItsrc = std::find(myPath.begin(), myPath.end(), e.first);
+        auto pathItdst = std::find(myPath.begin(), myPath.end(), e.second);
+        if (pathItsrc != myPath.end() && pathItdst != myPath.end())
+            if (pathItsrc == pathItdst + 1 || pathItsrc == pathItdst - 1)
+                onpath = true;
+
+        f << myNode[e.first].myName << graphvizlink
+          << myNode[e.second].myName;
+        if (onpath)
+            f << "[color=\"red\"] ";
+        f << "\n";
+    }
+
+    f << "}\n";
+    return f.str();
 }
 void cPathFinder::start(const std::string &start)
 {
+    myStart = find(start);
+    if (myStart < 0)
+        throw std::runtime_error("cPathFinder::bad start node");
 }
 
-cPathFinder::cEdge& cPathFinder::linkProps( int u, int v )
+cPathFinder::cEdge &cPathFinder::linkProps(int u, int v)
 {
-    return myLink[std::make_pair(u,v)];
+    return myLink[std::make_pair(u, v)];
 }
 
-int cPathFinder::linkCost( int u, int v )
+int cPathFinder::linkCost(int u, int v)
 {
-    return linkProps(u,v).myCost;
+    return linkProps(u, v).myCost;
 }
 
 void cPathFinder::path()
@@ -60,7 +98,7 @@ void cPathFinder::path()
 
             // Update dist[v] only if total weight of path from src to  v through u is
             // smaller than current value of dist[v]
-            int cost =  linkCost( u, v );
+            int cost = linkCost(u, v);
             if (myDist[u] + cost < myDist[v])
             {
                 myDist[v] = myDist[u] + cost;
