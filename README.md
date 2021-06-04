@@ -15,4 +15,4 @@ Menu item `File | Save` saves file displayed in editor.
 Menu item `File | Calulate` reads and calculates path through graph specified in space delimited text file.  The exact calculation performed is specified by the first line in the file.  Options are:
 
 
- - __Costs.__ Input specifies undirected links, link costs, starting and ending nodes, then uses the Dijsktra algorithm to find optimal path.
+ - __Costs.__ Input specifies undirected links, link costs, starting and ending nodes, then uses the Dijsktra algorithm to find optimal path. [Detailed Documentation](https://github.com/JamesBremner/PathFinder2/wiki/Costs)
