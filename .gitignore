@@ -1,1 +1,3 @@
 bin/gui.exe
+build/vscode/obj/*
+

@@ -8,24 +8,24 @@ void cPathFinder::start(const std::string &start)
 {
 }
 
+cPathFinder::cEdge& cPathFinder::linkProps( int u, int v )
+{
+    return myLink[std::make_pair(u,v)];
+}
+
+int cPathFinder::linkCost( int u, int v )
+{
+    return linkProps(u,v).myCost;
+}
+
 void cPathFinder::path()
 {
-    // https://www.geeksforgeeks.org/dijkstras-shortest-path-algorithm-greedy-algo-7/
-
     int V = nodeCount();
+
     myDist.clear();
     myDist.resize(V);
     myPred.clear();
     myPred.resize(V);
-    std::vector<std::vector<int>> adjacencyMatrix(
-        V, std::vector<int>(V));
-
-    for (auto &e : myGraph.edge_list())
-    {
-        int cost = myLink[e].myCost;
-        adjacencyMatrix[e.first][e.second] = cost;
-        adjacencyMatrix[e.second][e.first] = cost;
-    }
 
     bool sptSet[V]; // sptSet[i] will be true if vertex i is included in shortest
     // path tree or shortest distance from src to i is finalized
@@ -53,24 +53,30 @@ void cPathFinder::path()
         sptSet[u] = true;
 
         // Update dist value of the adjacent vertices of the picked vertex.
-        for (int v = 0; v < V; v++)
+        for (int v : myGraph.all_neighbors(u))
+        {
+            if (sptSet[v])
+                continue; // already processed
 
-            // Update dist[v] only if is not in sptSet, there is an edge from
-            // u to v, and total weight of path from src to  v through u is
+            // Update dist[v] only if total weight of path from src to  v through u is
             // smaller than current value of dist[v]
-            if (!sptSet[v] && adjacencyMatrix[u][v] && myDist[u] != INT_MAX && myDist[u] + adjacencyMatrix[u][v] < myDist[v])
+            int cost =  linkCost( u, v );
+            if (myDist[u] + cost < myDist[v])
             {
-                myDist[v] = myDist[u] + adjacencyMatrix[u][v];
+                myDist[v] = myDist[u] + cost;
                 myPred[v] = u;
             }
+        }
+
+        pathPick(myEnd);
     }
-
-
-    pathPick(myEnd);
 }
 
 void cPathFinder::clear()
 {
+    myGraph.clear();
+    myNode.clear();
+    myLink.clear();
 }
 
 int cPathFinder::find(const std::string &name)

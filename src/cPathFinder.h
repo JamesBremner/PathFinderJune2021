@@ -95,6 +95,9 @@ public:
     {
         myEnd = find(end);
     }
+
+    int linkCost( int u, int v );
+
     /** @brief Find optimum path from start to end node
  *
  * The path from attributes myStart to myEnd
@@ -217,7 +220,7 @@ public:
 
     void flows();
 
-protected:
+
     /// edge properties
     class cEdge
     {
@@ -244,7 +247,7 @@ protected:
         std::string myName;
         std::string myColor;
     };
-
+protected:
     NGraph::Graph myGraph;
     std::vector< cNode > myNode;
     std::map< std::pair<int,int>, cEdge > myLink;
@@ -258,6 +261,8 @@ protected:
     int mySpanCost;                       // total cost of links in spanning tree
     bool myfDirected;                     // true if links are directed
     int myMaxNegCost;
+
+    cEdge& linkProps( int u, int v );
 
     template <typename T>
     std::string linksTextT(T &g);
