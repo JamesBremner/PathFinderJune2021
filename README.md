@@ -23,3 +23,5 @@ Calculation Options are:
  - __Costs.__ Input specifies undirected links, link costs, starting and ending nodes, then uses the Dijsktra algorithm to find optimal path. [Detailed Documentation](https://github.com/JamesBremner/PathFinder2/wiki/Costs)
 
  - __Spans__ Input specifies undirected links, with costs then uses Pim's algorithm to find minimum cost links that connect all nodes together. [Detailed Documentation](https://github.com/JamesBremner/PathFinder2/wiki/Spans)
+
+ - __Sales__  Input specifies undirected links, with costs then finds a route that will visit every node once.
