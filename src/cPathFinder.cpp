@@ -63,7 +63,7 @@ std::string cPathFinder::spanViz(bool all)
     {
         f << myNode[e.first].myName << graphvizlink
           << myNode[e.second].myName;
-        if (mySpanTree.includes_edge(e.first,e.second))
+        if (mySpanTree.includes_edge(e.first, e.second))
             f << "[color=\"red\"] ";
         f << "\n";
     }
@@ -277,10 +277,9 @@ std::string cPathFinder::pathText()
         if (sn == "???")
             sn = std::to_string(n);
         ss << sn << " -> ";
-        //ss << std::to_string(n) << " -> ";
     }
 
-    if (myPath.size())
+    if (myPath.size() && myDist.size())
     {
         //std::cout << "dbg " << myDist[myPath.back()] << " " << myMaxNegCost << " " << myPath.size() << "\n";
         ss << " Cost is "
@@ -356,4 +355,48 @@ std::string cPathFinder::spanText()
            << ") ";
     }
     return ss.str();
+}
+
+void cPathFinder::depthFirst(int v)
+{
+    myPath.clear();
+    myPath.resize(nodeCount(), 0);
+    myPred.clear();
+
+    depthRecurse(v);
+}
+
+void cPathFinder::depthRecurse(int v)
+{
+    // record new node on the search
+    myPred.push_back(v);
+
+    // remember this node has been visted
+    myPath[v] = 1;
+
+    // look for new adjacent nodes
+    for (int w : myGraph.all_neighbors(v))
+        if (!myPath[w])
+        {
+            // search from new node
+            depthRecurse(w);
+        }
+}
+
+void cPathFinder::tsp()
+{
+    // calculate spanning tree
+    span();
+    //std::cout << "span " << spanText() << "\n";
+
+    // construct pathFinder from spanning tree
+    cPathFinder pf;
+    pf.myGraph = mySpanTree;
+    pf.myNode = myNode;
+
+    // depth first search of spanning tree
+    pf.depthFirst(0);
+    myPath = pf.myPred;
+
+    std::cout << "route " << pathText() << "\n";
 }

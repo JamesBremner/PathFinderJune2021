@@ -264,15 +264,18 @@ protected:
 
     cEdge& linkProps( int u, int v );
 
-    template <typename T>
-    std::string linksTextT(T &g);
+    void depthFirst( int v );
+    void depthRecurse( int v );
 
-    template <typename T>
-    void pathsT(int start, T &g);
+    // template <typename T>
+    // std::string linksTextT(T &g);
 
-    template <typename T>
-    std::string pathVizT(
-        const std::vector<int> &vp,
-        bool all,
-        T &g);
+    // template <typename T>
+    // void pathsT(int start, T &g);
+
+    // template <typename T>
+    // std::string pathVizT(
+    //     const std::vector<int> &vp,
+    //     bool all,
+    //     T &g);
 };

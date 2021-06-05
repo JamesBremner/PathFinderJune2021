@@ -44,6 +44,7 @@ void RunDOT(cPathFinder &finder)
     switch (opt)
     {
     case eOption::costs:
+    case eOption::sales:
         f << finder.pathViz() << "\n";
         break;
     case eOption::span:
@@ -248,12 +249,14 @@ int main()
                                  "Cannot open " + fname);
 
                          case cPathFinderReader::eFormat::costs:
-                         case cPathFinderReader::eFormat::sales:
                          case cPathFinderReader::eFormat::hills:
                          case cPathFinderReader::eFormat::cams:
                          case cPathFinderReader::eFormat::gsingh:
                          case cPathFinderReader::eFormat::shaun:
                          case cPathFinderReader::eFormat::flows:
+                             break;
+                         case cPathFinderReader::eFormat::sales:
+                             opt = eOption::sales;
                              break;
                          case cPathFinderReader::eFormat::spans:
                              opt = eOption::span;
