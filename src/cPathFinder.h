@@ -257,7 +257,7 @@ protected:
     std::vector<int> myPath;              // vector of node indices visited
     std::vector<int> myDist;              // cost to reach each node from start
     std::vector<int> myPred;              // previous node to each node from start
-    std::vector<std::vector<int>> mySpan; // edges in minimum spanning tree
+    NGraph::Graph    mySpanTree;          // minimum spanning tree
     int mySpanCost;                       // total cost of links in spanning tree
     bool myfDirected;                     // true if links are directed
     int myMaxNegCost;

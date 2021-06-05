@@ -40,7 +40,19 @@ void RunDOT(cPathFinder &finder)
     std::ofstream f(gdot);
     if (!f.is_open())
         throw std::runtime_error("Cannot open " + gdot.string());
-    f << finder.pathViz() << "\n";
+
+    switch (opt)
+    {
+    case eOption::costs:
+        f << finder.pathViz() << "\n";
+        break;
+    case eOption::span:
+        f << finder.spanViz() << "\n";
+        break;
+    default:
+        return;
+    }
+
     f.close();
 
     STARTUPINFO si;
@@ -181,119 +193,127 @@ int main()
 
     wex::menubar mbar(form);
     wex::menu mfile(form);
-    mfile.append("Edit", [&](const std::string &title) {
-        wex::filebox fb(form);
-        auto fname = fb.open();
-        if (fname.empty())
-            return;
-        std::ifstream f(fname);
-        if (!f.is_open())
-            throw std::runtime_error("Cannot open " + fname);
-        std::stringstream buffer;
-        buffer << f.rdbuf();
-        auto snr = buffer.str();
-        replaceAll(snr, "\n", "\r\n");
-        editPanel.text(snr);
-        editPanel.show();
-        graphPanel.show(false);
-        editPanel.update();
-    });
-    mfile.append("Save", [&](const std::string &title) {
-        wex::filebox fb(form);
-        auto fname = fb.save();
-        if (fname.empty())
-            return;  
-        std::ofstream f(fname);
-        if (!f.is_open()) {
-            wex::msgbox m("Cannot open " + fname);
-            return;
-        }
-        auto s = editPanel.text();  
-        replaceAll(s,"\r\n","\n" );
-        f << s;
-        });  
-    mfile.append("Calculate", [&](const std::string &title) {
-        finder.clear();
-        wex::filebox fb(form);
-        auto fname = fb.open();
-        if (fname.empty())
-            return;
-        cPathFinderReader reader(finder);
+    mfile.append("Edit", [&](const std::string &title)
+                 {
+                     wex::filebox fb(form);
+                     auto fname = fb.open();
+                     if (fname.empty())
+                         return;
+                     std::ifstream f(fname);
+                     if (!f.is_open())
+                         throw std::runtime_error("Cannot open " + fname);
+                     std::stringstream buffer;
+                     buffer << f.rdbuf();
+                     auto snr = buffer.str();
+                     replaceAll(snr, "\n", "\r\n");
+                     editPanel.text(snr);
+                     editPanel.show();
+                     graphPanel.show(false);
+                     editPanel.update();
+                 });
+    mfile.append("Save", [&](const std::string &title)
+                 {
+                     wex::filebox fb(form);
+                     auto fname = fb.save();
+                     if (fname.empty())
+                         return;
+                     std::ofstream f(fname);
+                     if (!f.is_open())
+                     {
+                         wex::msgbox m("Cannot open " + fname);
+                         return;
+                     }
+                     auto s = editPanel.text();
+                     replaceAll(s, "\r\n", "\n");
+                     f << s;
+                 });
+    mfile.append("Calculate", [&](const std::string &title)
+                 {
+                     finder.clear();
+                     wex::filebox fb(form);
+                     auto fname = fb.open();
+                     if (fname.empty())
+                         return;
+                     cPathFinderReader reader(finder);
 
-            try
-            {
-                switch (reader.open(fname))
-                {
-                case cPathFinderReader::eFormat::none:
-                    throw std::runtime_error(
-                        "File format not specified");
-                case cPathFinderReader::eFormat::not_open:
-                    throw std::runtime_error(
-                        "Cannot open " + fname);
+                     try
+                     {
+                         switch (reader.open(fname))
+                         {
+                         case cPathFinderReader::eFormat::none:
+                             throw std::runtime_error(
+                                 "File format not specified");
+                         case cPathFinderReader::eFormat::not_open:
+                             throw std::runtime_error(
+                                 "Cannot open " + fname);
 
-                case cPathFinderReader::eFormat::costs:
-                case cPathFinderReader::eFormat::spans:
-                case cPathFinderReader::eFormat::sales:
-                case cPathFinderReader::eFormat::hills:
-                case cPathFinderReader::eFormat::cams:
-                case cPathFinderReader::eFormat::gsingh:
-                case cPathFinderReader::eFormat::shaun:
-                case cPathFinderReader::eFormat::flows:
-                    break;
-                case cPathFinderReader::eFormat::islands:
-                    opt = eOption::islands;
-                    break;
-                case cPathFinderReader::eFormat::maze_ascii_art:
-                    break;
+                         case cPathFinderReader::eFormat::costs:
+                         case cPathFinderReader::eFormat::sales:
+                         case cPathFinderReader::eFormat::hills:
+                         case cPathFinderReader::eFormat::cams:
+                         case cPathFinderReader::eFormat::gsingh:
+                         case cPathFinderReader::eFormat::shaun:
+                         case cPathFinderReader::eFormat::flows:
+                             break;
+                         case cPathFinderReader::eFormat::spans:
+                             opt = eOption::span;
+                             break;
+                         case cPathFinderReader::eFormat::islands:
+                             opt = eOption::islands;
+                             break;
+                         case cPathFinderReader::eFormat::maze_ascii_art:
+                             break;
 
-                default:
-                    throw std::runtime_error(
-                        "UNrecognized file format");
-                }
-            }
-            catch (std::runtime_error &e)
-            {
-                wex::msgbox m(e.what());
-                return;
-            }
+                         default:
+                             throw std::runtime_error(
+                                 "UNrecognized file format");
+                         }
+                     }
+                     catch (std::runtime_error &e)
+                     {
+                         wex::msgbox m(e.what());
+                         return;
+                     }
 
-        RunDOT(finder);
-        editPanel.show(false);
-        form.text("Path Finder GUI " + fname);
+                     RunDOT(finder);
+                     editPanel.show(false);
+                     form.text("Path Finder GUI " + fname);
 
-        form.update();
-    });
+                     form.update();
+                 });
     mbar.append("File", mfile);
 
-    form.events().draw([&](PAINTSTRUCT &ps) {
-        wex::shapes s(ps);
-        switch (opt)
-        {
-        case eOption::costs:
-        case eOption::sales:
-            s.text(
-                finder.pathText(),
-                {5, 5});
-            break;
-        case eOption::span:
-            s.text(
-                finder.spanText(),
-                {5, 5});
-            break;
-        case eOption::islands:
-            // s.text(
-            //     "There are " + std::to_string( finder.islandCount() ) + " islands",
-            //     {5, 5});
-            break;
-        }
-    });
+    form.events().draw([&](PAINTSTRUCT &ps)
+                       {
+                           wex::shapes s(ps);
+                           switch (opt)
+                           {
+                           case eOption::costs:
+                           case eOption::sales:
+                               s.text(
+                                   finder.pathText(),
+                                   {5, 5});
+                               break;
+                           case eOption::span:
+                               s.text(
+                                   finder.spanText(),
+                                   {5, 5});
+                               break;
+                           case eOption::islands:
+                               // s.text(
+                               //     "There are " + std::to_string( finder.islandCount() ) + " islands",
+                               //     {5, 5});
+                               break;
+                           }
+                       });
 
-    graphPanel.events().draw([&](PAINTSTRUCT &ps) {
-        wex::window2file w2f;
-        auto path = std::filesystem::temp_directory_path();
-        auto sample = path / "sample.png";
-        w2f.draw(graphPanel, sample.string());
-    });
+    graphPanel.events().draw([&](PAINTSTRUCT &ps)
+                             {
+                                 wex::window2file w2f;
+                                 auto path = std::filesystem::temp_directory_path();
+                                 auto sample = path / "sample.png";
+                                 w2f.draw(graphPanel, sample.string());
+                             });
 
     std::error_code ec;
     std::filesystem::remove(

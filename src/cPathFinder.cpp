@@ -39,6 +39,38 @@ std::string cPathFinder::pathViz()
     f << "}\n";
     return f.str();
 }
+
+std::string cPathFinder::spanViz(bool all)
+{
+    std::string graphvizgraph = "graph";
+    std::string graphvizlink = "--";
+    if (myfDirected)
+    {
+        graphvizgraph = "digraph";
+        graphvizlink = "->";
+    }
+
+    std::stringstream f;
+    f << graphvizgraph << " G {\n";
+    for (auto &n : myNode)
+    {
+        f << n.myName
+          << " [color=\"" << n.myColor << "\"  penwidth = 3.0 ];\n";
+    }
+
+    // loop over links
+    for (auto &e : myGraph.edge_list())
+    {
+        f << myNode[e.first].myName << graphvizlink
+          << myNode[e.second].myName;
+        if (mySpanTree.includes_edge(e.first,e.second))
+            f << "[color=\"red\"] ";
+        f << "\n";
+    }
+
+    f << "}\n";
+    return f.str();
+}
 void cPathFinder::start(const std::string &start)
 {
     myStart = find(start);
@@ -48,12 +80,25 @@ void cPathFinder::start(const std::string &start)
 
 cPathFinder::cEdge &cPathFinder::linkProps(int u, int v)
 {
-    return myLink[std::make_pair(u, v)];
+    return myLink.at(std::make_pair(u, v));
 }
 
+/** link cost
+ * @param[in] u node index
+ * @param[in] v node index
+ * @return cost of link between u and v
+ * If u and v are not adjacent, returns INT_MAX
+ */
 int cPathFinder::linkCost(int u, int v)
 {
-    return linkProps(u, v).myCost;
+    try
+    {
+        return linkProps(u, v).myCost;
+    }
+    catch (...)
+    {
+        return INT_MAX;
+    }
 }
 
 void cPathFinder::path()
@@ -246,4 +291,69 @@ std::string cPathFinder::pathText()
     return ss.str();
 }
 
-std::string cPathFinder::spanText() {}
+void cPathFinder::span()
+{
+    int V = nodeCount();
+    std::vector<bool> Q(V, false); // set true when node added to spanning tree
+    mySpanTree.clear();            // the spanning tree
+
+    // add initial arbitrary link
+    int v = 0;
+    int w = *myGraph.all_neighbors(0).begin();
+    mySpanTree.insert_undirected_edge(v, w);
+    Q[0] = true;
+    Q[w] = true;
+
+    // while nodes remain outside of span
+    while (1)
+    {
+        int v;      // node in span
+        int w = -1; //node not yet in span
+        int min_cost = INT_MAX;
+
+        // loop over nodes in span
+        for (int kv = 0; kv < Q.size(); kv++)
+        {
+            if (!Q[kv])
+                continue;
+
+            // loop over nodes not in span
+            for (int kw = 0; kw < Q.size(); kw++)
+            {
+                if (Q[kw])
+                    continue;
+
+                // find cheapest link that adds node to span
+                int cost = linkCost(kv, kw);
+                if (cost < min_cost)
+                {
+                    min_cost = cost;
+                    v = kv;
+                    w = kw;
+                }
+            }
+        }
+
+        // check if any nodes were found not yet in span
+        if (w == -1)
+            break;
+
+        // add node to span
+        Q[w] = true;
+        mySpanTree.insert_undirected_edge(v, w);
+    }
+}
+
+std::string cPathFinder::spanText()
+{
+    std::stringstream ss;
+    for (auto &e : mySpanTree.edge_list())
+    {
+        ss << "("
+           << myNode[e.first].myName << ","
+           << myNode[e.second].myName << ","
+           << myLink[e].myCost
+           << ") ";
+    }
+    return ss.str();
+}

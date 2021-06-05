@@ -4,7 +4,7 @@ cPathFinderReader::eFormat
 cPathFinderReader::open(
     const std::string &fname)
 {
-        eFormat ret = eFormat::none;
+    eFormat ret = eFormat::none;
     myFile.open(fname);
     if (!myFile.is_open())
         return eFormat::not_open;
@@ -12,12 +12,19 @@ cPathFinderReader::open(
     getline(myFile, line);
     if (line.find("format") != 0)
         return eFormat::none;
-            if (line.find("costs") != -1)
+    if (line.find("costs") != -1)
     {
         costs();
         myFinder.path();
         std::cout << myFinder.pathText() << "\n";
         return eFormat::costs;
+    }
+    else if (line.find("spans") != -1)
+    {
+        costs();
+        myFinder.span();
+        std::cout << myFinder.spanText() << "\n";
+        return eFormat::spans;
     }
     return ret;
 }
@@ -44,13 +51,12 @@ std::vector<std::string> cPathFinderReader::ParseSpaceDelimited(
     return token;
 }
 
-
 void cPathFinderReader::costs(
     bool weights,
-    bool directed )
+    bool directed)
 {
     myFinder.clear();
-    if( directed )
+    if (directed)
         myFinder.directed();
     int cost;
     int maxNegCost = 0;
@@ -103,7 +109,7 @@ void cPathFinderReader::costs(
     {
         std::cout << "Negative link costs present\n"
                   << "Adding positive offset to all link costs\n";
-//        myFinder.makeCostsPositive(maxNegCost);
+        //        myFinder.makeCostsPositive(maxNegCost);
     }
 
     std::cout << myFinder.linksText() << "\n";
@@ -112,4 +118,3 @@ void cPathFinderReader::costs(
 std::vector<std::string> cPathFinderReader::singleParentTree()
 {
 }
-
