@@ -33,6 +33,12 @@ cPathFinderReader::open(
         myFinder.tsp();
         return eFormat::sales;
     }
+    else if (line.find("cams") != -1)
+    {
+        costs(false);
+        myFinder.cams();
+        return eFormat::cams;
+    }
     return ret;
 }
 
@@ -206,4 +212,6 @@ void cPathFinderReader::sales()
 
 std::vector<std::string> cPathFinderReader::singleParentTree()
 {
+    std::vector<std::string> ret;
+    return ret;
 }

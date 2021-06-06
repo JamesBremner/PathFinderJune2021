@@ -359,10 +359,10 @@ namespace NGraph
     void remove_edge(const vertex &a, const vertex &b)
     {
       iterator pa = find(a);
-      if (pa != end())
+      if (pa == end())
         return;
       iterator pb = find(b);
-      if (pb != end())
+      if (pb == end())
         return;
       remove_edge(pa, pb);
     }

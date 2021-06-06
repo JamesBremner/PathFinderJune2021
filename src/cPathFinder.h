@@ -157,6 +157,8 @@ public:
      */
     std::string spanViz(bool all = true);
 
+    std::string camsViz();
+
     /** @brief Find node by name
  * 
  * @param[in] name

@@ -40,6 +40,36 @@ std::string cPathFinder::pathViz()
     return f.str();
 }
 
+std::string cPathFinder::camsViz()
+{
+      std::string graphvizgraph = "graph";
+    std::string graphvizlink = "--";
+    if (myfDirected)
+    {
+        graphvizgraph = "digraph";
+        graphvizlink = "->";
+    }
+
+    std::stringstream f;
+    f << graphvizgraph << " G {\n";
+    for (auto &n : myNode)
+    {
+        f << n.myName
+          << " [color=\"" << n.myColor << "\"  penwidth = 3.0 ];\n";
+    }
+
+    // loop over links
+    for (auto &e : myGraph.edge_list())
+    {
+        f << myNode[e.first].myName << graphvizlink
+          << myNode[e.second].myName
+          << "\n";
+    }
+
+    f << "}\n";
+    return f.str();
+}
+  
 std::string cPathFinder::spanViz(bool all)
 {
     std::string graphvizgraph = "graph";
@@ -214,6 +244,9 @@ std::vector<int> cPathFinder::pathPick(int end)
 
 std::string cPathFinder::nodeName(int n) const
 {
+    if (0 > n || n >= myNode.size())
+        return "???";
+    return myNode[n].myName;
 }
 
 void cPathFinder::addLink(
@@ -398,5 +431,79 @@ void cPathFinder::tsp()
     pf.depthFirst(0);
     myPath = pf.myPred;
 
+    //return to starting point
+    myPath.push_back(myPath[0]);
+
     std::cout << "route " << pathText() << "\n";
+}
+
+void cPathFinder::cams()
+{
+    myPath.clear();
+
+    // working copy on input graph
+    auto work = myGraph;
+
+    // The nodes that connect leaf nodes to the rest of the graph must be in cover set
+    for (int leaf = 0; leaf < nodeCount(); leaf++)
+    {
+        auto ns = myGraph.all_neighbors(leaf);
+        if (ns.size() > 1)
+            continue;
+        
+        // we have a leaf node
+        // get node that connects it
+        // add to cover set
+        int leafcover = *ns.begin();
+        myPath.push_back(leafcover);
+
+        // remove all covered links from working graph
+        for (int t : work.all_neighbors(leafcover))
+        {
+            work.remove_edge(leafcover, t);
+            work.remove_edge(t, leafcover);
+        }
+    }
+
+    // loop until all links are covered
+    while (work.num_edges())
+    {
+        int u, v;
+        for (auto it = work.begin();
+             it != work.end();
+             it++)
+        {
+            if (work.degree(it))
+            {
+                u = it->first;
+                v = *work.all_neighbors(u).begin();
+                break;
+            }
+        }
+
+        auto sun = work.all_neighbors(u);
+        auto svn = work.all_neighbors(v);
+
+        // add non leaf nodes on selected link to cover
+        if (sun.size() > 1) {
+            myPath.push_back(u);
+        }
+        if (svn.size() > 1) {
+            myPath.push_back(v);
+        }
+
+        // remove all links that can be seen from new cover nodes
+        for (int t : sun)
+        {
+            work.remove_edge(u, t);
+            work.remove_edge(t, u);
+        }
+        for (int t : svn)
+        {
+            work.remove_edge(v, t);
+            work.remove_edge(t, v);
+        }
+    }
+    for( int n : myPath )
+        myNode[n].myColor = "red";
 }

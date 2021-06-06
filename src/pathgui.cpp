@@ -50,6 +50,9 @@ void RunDOT(cPathFinder &finder)
     case eOption::span:
         f << finder.spanViz() << "\n";
         break;
+    case eOption::cams:
+        f << finder.camsViz() << "\n";
+        break;
     default:
         return;
     }
@@ -250,7 +253,6 @@ int main()
 
                          case cPathFinderReader::eFormat::costs:
                          case cPathFinderReader::eFormat::hills:
-                         case cPathFinderReader::eFormat::cams:
                          case cPathFinderReader::eFormat::gsingh:
                          case cPathFinderReader::eFormat::shaun:
                          case cPathFinderReader::eFormat::flows:
@@ -260,6 +262,9 @@ int main()
                              break;
                          case cPathFinderReader::eFormat::spans:
                              opt = eOption::span;
+                             break;
+                         case cPathFinderReader::eFormat::cams:
+                             opt = eOption::cams;
                              break;
                          case cPathFinderReader::eFormat::islands:
                              opt = eOption::islands;
@@ -286,37 +291,40 @@ int main()
                  });
     mbar.append("File", mfile);
 
-    form.events().draw([&](PAINTSTRUCT &ps)
-                       {
-                           wex::shapes s(ps);
-                           switch (opt)
-                           {
-                           case eOption::costs:
-                           case eOption::sales:
-                               s.text(
-                                   finder.pathText(),
-                                   {5, 5});
-                               break;
-                           case eOption::span:
-                               s.text(
-                                   finder.spanText(),
-                                   {5, 5});
-                               break;
-                           case eOption::islands:
-                               // s.text(
-                               //     "There are " + std::to_string( finder.islandCount() ) + " islands",
-                               //     {5, 5});
-                               break;
-                           }
-                       });
+    form.events().draw(
+        [&](PAINTSTRUCT &ps)
+        {
+            wex::shapes s(ps);
+            switch (opt)
+            {
+            case eOption::costs:
+            case eOption::sales:
+            case eOption::cams:
+                s.text(
+                    finder.pathText(),
+                    {5, 5});
+                break;
+            case eOption::span:
+                s.text(
+                    finder.spanText(),
+                    {5, 5});
+                break;
+            case eOption::islands:
+                // s.text(
+                //     "There are " + std::to_string( finder.islandCount() ) + " islands",
+                //     {5, 5});
+                break;
+            }
+        });
 
-    graphPanel.events().draw([&](PAINTSTRUCT &ps)
-                             {
-                                 wex::window2file w2f;
-                                 auto path = std::filesystem::temp_directory_path();
-                                 auto sample = path / "sample.png";
-                                 w2f.draw(graphPanel, sample.string());
-                             });
+    graphPanel.events().draw(
+        [&](PAINTSTRUCT &ps)
+        {
+            wex::window2file w2f;
+            auto path = std::filesystem::temp_directory_path();
+            auto sample = path / "sample.png";
+            w2f.draw(graphPanel, sample.string());
+        });
 
     std::error_code ec;
     std::filesystem::remove(
