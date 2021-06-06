@@ -26,4 +26,5 @@ Calculation Options are:
 
  - __Sales__  Input specifies undirected links, with costs then finds a route that will visit every node once. [Detailed Documentation](https://github.com/JamesBremner/PathFinder2/wiki/Sales)
 
- - __Cams__ Find a set of nodes that cover every link.  Input specifies undirected links.
+ - __Cams__ Find a set of nodes that cover every link.  Input specifies undirected links.  [Detailed Documentation](https://github.com/JamesBremner/PathFinder2/wiki/Cams)
+
