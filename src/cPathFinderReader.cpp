@@ -6,6 +6,7 @@ cPathFinderReader::open(
     const std::string &fname)
 {
     eFormat ret = eFormat::none;
+    myFile.close();
     myFile.open(fname);
     if (!myFile.is_open())
         return eFormat::not_open;

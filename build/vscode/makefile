@@ -20,11 +20,17 @@ ODIR=./obj
 _GUI = pathgui.o cPathFinder.o cPathFinderReader.o
 GUI = $(patsubst %,$(ODIR)/%,$(_GUI))
 
+_TST = pathtest.o cPathFinder.o cPathFinderReader.o
+TST = $(patsubst %,$(ODIR)/%,$(_TST))
+
 $(ODIR)/%.o: %.cpp $(DEPS)
 	g++   -std=c++17 -g -c -o $@ $< $(INCS) $(WEXINC)
 
 gui: $(GUI)
 	g++ -o ../../bin/gui.exe $^ $(WEXLIBS)
+
+test: $(TST)
+	g++ -o ../../bin/pathtest.exe $^
 
 .PHONY: clean
 
