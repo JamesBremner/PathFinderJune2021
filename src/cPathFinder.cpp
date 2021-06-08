@@ -293,11 +293,17 @@ std::string cPathFinder::pathText()
     return ss.str();
 }
 
+void cPathFinder::copyNodes( const graph::cGraph& other )
+{
+    myGraph.copyNodes( other );
+}
+
 void cPathFinder::span()
 {
     int V = nodeCount();
     std::vector<bool> Q(V, false); // set true when node added to spanning tree
     mySpanTree.clear();            // the spanning tree
+    mySpanTree.copyNodes( myGraph );
 
     // add initial arbitrary link
     int v = 0;
@@ -323,6 +329,9 @@ void cPathFinder::span()
             for (int kw = 0; kw < Q.size(); kw++)
             {
                 if (Q[kw])
+                    continue;
+
+                if( ! myGraph.includes_link( kv,kw ) )
                     continue;
 
                 // find cheapest link that adds node to span

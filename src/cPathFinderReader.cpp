@@ -128,7 +128,7 @@ void cPathFinderReader::costs(
         //        myFinder.makeCostsPositive(maxNegCost);
     }
 
-    //std::cout << myFinder.linksText() << "\n";
+    //std::cout << "<-costs\n" <<myFinder.linksText() << "\n";
 }
 
 void cPathFinderReader::sales()

@@ -244,6 +244,8 @@ private:
     void depthFirst( int v );
     void depthRecurse( int v );
 
+    void copyNodes( const graph::cGraph& other );
+
     // template <typename T>
     // std::string linksTextT(T &g);
 

@@ -45,7 +45,7 @@ namespace graph
             //myAdj.clear();
             myfDirected = false;
         }
-        void directed( bool f = true )
+        void directed(bool f = true)
         {
             myfDirected = f;
         }
@@ -54,11 +54,10 @@ namespace graph
             const std::string &dstname,
             double cost = 1)
         {
-            int nsrc = findoradd(srcname);
-            int ndst = findoradd(dstname);
-            myLink.insert(std::make_pair(std::make_pair(nsrc, ndst), cEdge(cost)));
-            if( ! myfDirected )
-                myLink.insert(std::make_pair(std::make_pair(ndst,nsrc), cEdge(cost)));
+            addLink(
+                findoradd(srcname),
+                findoradd(dstname),
+                cost);
         }
         void addLink(int u, int v, double cost = 1)
         {
@@ -66,6 +65,8 @@ namespace graph
                 throw std::runtime_error(
                     "addLink bad node index");
             myLink.insert(std::make_pair(std::make_pair(u, v), cEdge(cost)));
+            if (!myfDirected)
+                myLink.insert(std::make_pair(std::make_pair(v, u), cEdge(cost)));
         }
         int find(const std::string &name)
         {
@@ -89,12 +90,14 @@ namespace graph
             return n;
         }
 
-        void removeLink( int u, int v )
+        void removeLink(int u, int v)
         {
-            auto it = myLink.find( std::make_pair(u,v));
-            if( it == myLink.end() )
+            auto it = myLink.find(std::make_pair(u, v));
+            if (it == myLink.end())
                 return;
-            myLink.erase( it );
+            myLink.erase(it);
+            if (!myfDirected)
+                removeLink(v, u);
         }
 
         std::string linksText()
@@ -102,16 +105,20 @@ namespace graph
             std::stringstream ss;
             for (auto l : myLink)
             {
-                ss << linkText(l) << "\n";
+                ss << linkText(l);
             }
             return ss.str();
         }
         std::string linkText(const link_t &l)
         {
+            if (!myfDirected)
+                if (l.first.first > l.first.second)
+                    return "";
             std::stringstream ss;
             ss << myG[l.first.first].myName << " -> "
                << myG[l.first.second].myName
-               << " cost " << l.second.myCost;
+               << " cost " << l.second.myCost
+               << "\n";
             return ss.str();
         }
 
@@ -147,9 +154,9 @@ namespace graph
         {
             //return myAdj[i];
             std::vector<int> ret;
-            for( auto& l : myLink )
-                if( l.first.first == i )
-                    ret.push_back( l.first.second );
+            for (auto &l : myLink)
+                if (l.first.first == i)
+                    ret.push_back(l.first.second);
             return ret;
         }
         int nodeCount() const
@@ -160,12 +167,16 @@ namespace graph
         {
             return myLink.size();
         }
-        std::string& name( int i )
+        std::string &name(int i)
         {
-            if( 0 > i || i >= myG.size() )
+            if (0 > i || i >= myG.size())
                 throw std::runtime_error(
                     "cGraph::name bad index");
             return myG[i].myName;
+        }
+        void copyNodes(const cGraph &other)
+        {
+            myG = other.myG;
         }
 
     private:
