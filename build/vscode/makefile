@@ -5,7 +5,7 @@ VPATH = ../../src
 INCS = \
 	-I../../../boost/boost1_72
 
-#DEPS = cPathFinder.h
+DEPS = cPathFinder.h cGraph.h
 
 WEXINC = \
 	-I../../../windex/include
@@ -20,7 +20,7 @@ ODIR=./obj
 _GUI = pathgui.o cPathFinder.o cPathFinderReader.o
 GUI = $(patsubst %,$(ODIR)/%,$(_GUI))
 
-_TST = pathtest.o cPathFinder.o
+_TST = pathtest.o cPathFinder.o cPathFinderReader.o
 TST = $(patsubst %,$(ODIR)/%,$(_TST))
 
 $(ODIR)/%.o: %.cpp $(DEPS)

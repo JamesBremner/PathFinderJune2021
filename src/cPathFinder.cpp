@@ -182,9 +182,8 @@ void cPathFinder::path()
                 myPred[v] = u;
             }
         }
-
-        pathPick(myEnd);
     }
+    pathPick(myEnd);
 }
 
 void cPathFinder::clear()

@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <iostream>
 #include <sstream>
 #include <vector>
 #include <map>
@@ -41,7 +42,12 @@ namespace graph
         {
             myG.clear();
             myLink.clear();
-            myAdj.clear();
+            //myAdj.clear();
+            myfDirected = false;
+        }
+        void directed( bool f = true )
+        {
+            myfDirected = f;
         }
         void addLink(
             const std::string &srcname,
@@ -51,6 +57,8 @@ namespace graph
             int nsrc = findoradd(srcname);
             int ndst = findoradd(dstname);
             myLink.insert(std::make_pair(std::make_pair(nsrc, ndst), cEdge(cost)));
+            if( ! myfDirected )
+                myLink.insert(std::make_pair(std::make_pair(ndst,nsrc), cEdge(cost)));
         }
         void addLink(int u, int v, double cost = 1)
         {
@@ -131,9 +139,18 @@ namespace graph
         {
             return (myLink.find(e) != myLink.end());
         }
+        /** Adjacent nodes
+         * @param[in] i index of node to find which nodes it connects to
+         * @return vector of connected node indices
+         */
         std::vector<int> adjacent(int i)
         {
-            return myAdj[i];
+            //return myAdj[i];
+            std::vector<int> ret;
+            for( auto& l : myLink )
+                if( l.first.first == i )
+                    ret.push_back( l.first.second );
+            return ret;
         }
         int nodeCount() const
         {
@@ -143,10 +160,18 @@ namespace graph
         {
             return myLink.size();
         }
+        std::string& name( int i )
+        {
+            if( 0 > i || i >= myG.size() )
+                throw std::runtime_error(
+                    "cGraph::name bad index");
+            return myG[i].myName;
+        }
 
     private:
         std::map<int, cNode> myG;                    // the nodes
         std::map<std::pair<int, int>, cEdge> myLink; // the links
-        std::vector<std::vector<int>> myAdj;         // the adjacency matrix
+        //std::vector<std::vector<int>> myAdj;         // the adjacency matrix
+        bool myfDirected;
     };
 }
