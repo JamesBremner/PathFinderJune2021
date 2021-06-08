@@ -20,7 +20,7 @@ ODIR=./obj
 _GUI = pathgui.o cPathFinder.o cPathFinderReader.o
 GUI = $(patsubst %,$(ODIR)/%,$(_GUI))
 
-_TST = pathtest.o cPathFinder.o cPathFinderReader.o
+_TST = pathtest.o cPathFinder.o
 TST = $(patsubst %,$(ODIR)/%,$(_TST))
 
 $(ODIR)/%.o: %.cpp $(DEPS)

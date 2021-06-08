@@ -1,8 +1,9 @@
 #pragma once
 #include <iostream>
 #include <fstream>
+#include <vector>
 #include <map>
-#include "ngraph.hpp"
+#include "cGraph.h"
 
 /** @brief general purpose path finder
  * 
@@ -59,12 +60,12 @@ public:
     void addLink(
         int u,
         int v,
-        float cost);
+        double cost = 1 );
 
     void addLink(
         const std::string &su,
         const std::string &sv,
-        float cost);
+        double cost = 1);
 
     int addNode(const std::string &name);
 
@@ -178,7 +179,7 @@ public:
 
     std::string nodeColor(int n) const;
     void nodeColor(int n, const std::string &color);
-    std::string nodeName(int n) const;
+    std::string nodeName(int n);
 
     /** @brief set graph links type
      * 
@@ -223,48 +224,22 @@ public:
     void flows();
 
 
-    /// edge properties
-    class cEdge
-    {
-    public:
-        cEdge( int c = 1 )
-            : myCost(c)
-        {
-        }
-        int myCost;
-    };
+private:
 
-    /// node properties
-    class cNode
-    {
-    public:
-        cNode(const std::string &name)
-            : myName(name)
-        {
-        }
-        cNode()
-            : myName("???")
-        {
-        }
-        std::string myName;
-        std::string myColor;
-    };
-protected:
-    NGraph::Graph myGraph;
-    std::vector< cNode > myNode;
-    std::map< std::pair<int,int>, cEdge > myLink;
+    graph::cGraph myGraph;
+
 
     int myStart;                          // starting node index
     int myEnd;                            // ending node index
     std::vector<int> myPath;              // vector of node indices visited
     std::vector<int> myDist;              // cost to reach each node from start
     std::vector<int> myPred;              // previous node to each node from start
-    NGraph::Graph    mySpanTree;          // minimum spanning tree
+    graph::cGraph          mySpanTree;          // minimum spanning tree
     int mySpanCost;                       // total cost of links in spanning tree
     bool myfDirected;                     // true if links are directed
     int myMaxNegCost;
 
-    cEdge& linkProps( int u, int v );
+    //cEdge& linkProps( int u, int v );
 
     void depthFirst( int v );
     void depthRecurse( int v );

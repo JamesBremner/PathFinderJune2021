@@ -1,4 +1,6 @@
 #include <math.h>
+#include <sstream>
+#include <algorithm>
 #include "cPathFinderReader.h"
 
 cPathFinderReader::eFormat

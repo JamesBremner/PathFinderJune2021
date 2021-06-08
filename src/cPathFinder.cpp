@@ -1,3 +1,5 @@
+#include <sstream>
+#include <algorithm>
 #include "cPathFinder.h"
 
 std::string cPathFinder::pathViz()
@@ -12,25 +14,25 @@ std::string cPathFinder::pathViz()
 
     std::stringstream f;
     f << graphvizgraph << " G {\n";
-    for (auto &n : myNode)
+    for (auto n : myGraph.nodes() )
     {
-        f << n.myName
-          << " [color=\"" << n.myColor << "\"  penwidth = 3.0 ];\n";
+        f << n.second.myName
+          << " [color=\"" << n.second.myColor << "\"  penwidth = 3.0 ];\n";
     }
 
     // loop over links
-    for (auto &e : myGraph.edge_list())
+    for (auto &e : myGraph.links())
     {
         // check if link between two nodes on path
         bool onpath = false;
-        auto pathItsrc = std::find(myPath.begin(), myPath.end(), e.first);
-        auto pathItdst = std::find(myPath.begin(), myPath.end(), e.second);
+        auto pathItsrc = std::find(myPath.begin(), myPath.end(), e.first.first);
+        auto pathItdst = std::find(myPath.begin(), myPath.end(), e.first.second);
         if (pathItsrc != myPath.end() && pathItdst != myPath.end())
             if (pathItsrc == pathItdst + 1 || pathItsrc == pathItdst - 1)
                 onpath = true;
 
-        f << myNode[e.first].myName << graphvizlink
-          << myNode[e.second].myName;
+        f << myGraph.node(e.first.first).myName << graphvizlink
+          << myGraph.node(e.first.second).myName;
         if (onpath)
             f << "[color=\"red\"] ";
         f << "\n";
@@ -52,17 +54,17 @@ std::string cPathFinder::camsViz()
 
     std::stringstream f;
     f << graphvizgraph << " G {\n";
-    for (auto &n : myNode)
+    for (auto &n : myGraph.nodes())
     {
-        f << n.myName
-          << " [color=\"" << n.myColor << "\"  penwidth = 3.0 ];\n";
+        f << n.second.myName
+          << " [color=\"" << n.second.myColor << "\"  penwidth = 3.0 ];\n";
     }
 
     // loop over links
-    for (auto &e : myGraph.edge_list())
+    for (auto &e : myGraph.links())
     {
-        f << myNode[e.first].myName << graphvizlink
-          << myNode[e.second].myName
+        f << myGraph.node(e.first.first).myName << graphvizlink
+          << myGraph.node(e.first.second).myName
           << "\n";
     }
 
@@ -82,18 +84,18 @@ std::string cPathFinder::spanViz(bool all)
 
     std::stringstream f;
     f << graphvizgraph << " G {\n";
-    for (auto &n : myNode)
+    for (auto &n : myGraph.nodes())
     {
-        f << n.myName
-          << " [color=\"" << n.myColor << "\"  penwidth = 3.0 ];\n";
+        f << n.second.myName
+          << " [color=\"" << n.second.myColor << "\"  penwidth = 3.0 ];\n";
     }
 
     // loop over links
-    for (auto &e : myGraph.edge_list())
+    for (auto &e : myGraph.links())
     {
-        f << myNode[e.first].myName << graphvizlink
-          << myNode[e.second].myName;
-        if (mySpanTree.includes_edge(e.first, e.second))
+        f <<  myGraph.node(e.first.first).myName << graphvizlink
+          <<  myGraph.node(e.first.second).myName;
+        if (mySpanTree.includes_link(e.first))
             f << "[color=\"red\"] ";
         f << "\n";
     }
@@ -108,10 +110,10 @@ void cPathFinder::start(const std::string &start)
         throw std::runtime_error("cPathFinder::bad start node");
 }
 
-cPathFinder::cEdge &cPathFinder::linkProps(int u, int v)
-{
-    return myLink.at(std::make_pair(u, v));
-}
+// cPathFinder::cEdge &cPathFinder::linkProps(int u, int v)
+// {
+//     return myLink.at(std::make_pair(u, v));
+// }
 
 /** link cost
  * @param[in] u node index
@@ -123,7 +125,7 @@ int cPathFinder::linkCost(int u, int v)
 {
     try
     {
-        return linkProps(u, v).myCost;
+        return myGraph.link( u, v ).myCost;
     }
     catch (...)
     {
@@ -166,7 +168,7 @@ void cPathFinder::path()
         sptSet[u] = true;
 
         // Update dist value of the adjacent vertices of the picked vertex.
-        for (int v : myGraph.all_neighbors(u))
+        for (int v : myGraph.adjacent(u))
         {
             if (sptSet[v])
                 continue; // already processed
@@ -188,28 +190,16 @@ void cPathFinder::path()
 void cPathFinder::clear()
 {
     myGraph.clear();
-    myNode.clear();
-    myLink.clear();
 }
 
 int cPathFinder::find(const std::string &name)
 {
-    for (int n = 0; n < nodeCount(); n++)
-        if (myNode[n].myName == name)
-            return n;
-    return -1;
+    return myGraph.find( name );
 }
 
 int cPathFinder::findoradd(const std::string &name)
 {
-    int n = find(name);
-    if (n == -1)
-    {
-        n = nodeCount();
-        myGraph.insert_vertex(n);
-        myNode.push_back(cNode(name));
-    }
-    return n;
+    return myGraph.findoradd( name );
 }
 
 std::vector<int> cPathFinder::pathPick(int end)
@@ -242,61 +232,42 @@ std::vector<int> cPathFinder::pathPick(int end)
     return myPath;
 }
 
-std::string cPathFinder::nodeName(int n) const
+std::string cPathFinder::nodeName(int n) 
 {
-    if (0 > n || n >= myNode.size())
-        return "???";
-    return myNode[n].myName;
+    return myGraph.node( n ).myName;
 }
 
 void cPathFinder::addLink(
     int u,
     int v,
-    float cost)
+    double cost)
 {
-    if (u < 0 || v < 0)
-        throw std::runtime_error("cPathFinder::addLink bad node");
-    if (!myfDirected)
-        myGraph.insert_undirected_edge(u, v);
-    else
-        myGraph.insert_edge(u, v);
-
-    myLink.insert(std::make_pair(
-        std::make_pair(u, v), cEdge(cost)));
+    myGraph.addLink( 
+        std::to_string(u),
+         std::to_string(v),
+          cost );
 }
 
 void cPathFinder::addLink(
     const std::string &su,
     const std::string &sv,
-    float cost)
+    double cost)
 {
-    addLink(
-        findoradd(su),
-        findoradd(sv),
-        cost);
+    myGraph.addLink( su, sv, cost );
 }
 
 int cPathFinder::linkCount()
 {
-    return myGraph.num_edges();
+    return myGraph.linkCount();
 }
 int cPathFinder::nodeCount()
 {
-    return myGraph.num_vertices();
+    return myGraph.nodeCount();
 }
 
 std::string cPathFinder::linksText()
 {
-    std::stringstream ss;
-    for (auto &e : myGraph.edge_list())
-    {
-        ss << "("
-           << myNode[e.first].myName << ","
-           << myNode[e.second].myName << ","
-           << myLink[e].myCost
-           << ") ";
-    }
-    return ss.str();
+    return myGraph.linksText();
 }
 
 std::string cPathFinder::pathText()
@@ -305,7 +276,7 @@ std::string cPathFinder::pathText()
     for (auto n : myPath)
     {
         std::string sn;
-        sn = myNode[n].myName;
+        sn = myGraph.node(n).myName;
 
         if (sn == "???")
             sn = std::to_string(n);
@@ -331,8 +302,8 @@ void cPathFinder::span()
 
     // add initial arbitrary link
     int v = 0;
-    int w = *myGraph.all_neighbors(0).begin();
-    mySpanTree.insert_undirected_edge(v, w);
+    int w = *myGraph.adjacent(0).begin();
+    mySpanTree.addLink(v, w);
     Q[0] = true;
     Q[w] = true;
 
@@ -372,22 +343,13 @@ void cPathFinder::span()
 
         // add node to span
         Q[w] = true;
-        mySpanTree.insert_undirected_edge(v, w);
+        mySpanTree.addLink(v, w);
     }
 }
 
 std::string cPathFinder::spanText()
 {
-    std::stringstream ss;
-    for (auto &e : mySpanTree.edge_list())
-    {
-        ss << "("
-           << myNode[e.first].myName << ","
-           << myNode[e.second].myName << ","
-           << myLink[e].myCost
-           << ") ";
-    }
-    return ss.str();
+    return mySpanTree.linksText();
 }
 
 void cPathFinder::depthFirst(int v)
@@ -408,7 +370,7 @@ void cPathFinder::depthRecurse(int v)
     myPath[v] = 1;
 
     // look for new adjacent nodes
-    for (int w : myGraph.all_neighbors(v))
+    for (int w : myGraph.adjacent(v))
         if (!myPath[w])
         {
             // search from new node
@@ -425,7 +387,6 @@ void cPathFinder::tsp()
     // construct pathFinder from spanning tree
     cPathFinder pf;
     pf.myGraph = mySpanTree;
-    pf.myNode = myNode;
 
     // depth first search of spanning tree
     pf.depthFirst(0);
@@ -447,7 +408,7 @@ void cPathFinder::cams()
     // The nodes that connect leaf nodes to the rest of the graph must be in cover set
     for (int leaf = 0; leaf < nodeCount(); leaf++)
     {
-        auto ns = myGraph.all_neighbors(leaf);
+        auto ns = myGraph.adjacent(leaf);
         if (ns.size() > 1)
             continue;
         
@@ -458,31 +419,22 @@ void cPathFinder::cams()
         myPath.push_back(leafcover);
 
         // remove all covered links from working graph
-        for (int t : work.all_neighbors(leafcover))
+        for (int t : work.adjacent(leafcover))
         {
-            work.remove_edge(leafcover, t);
-            work.remove_edge(t, leafcover);
+            work.removeLink(leafcover, t);
+            work.removeLink(t, leafcover);
         }
     }
 
     // loop until all links are covered
-    while (work.num_edges())
+    while (work.linkCount())
     {
-        int u, v;
-        for (auto it = work.begin();
-             it != work.end();
-             it++)
-        {
-            if (work.degree(it))
-            {
-                u = it->first;
-                v = *work.all_neighbors(u).begin();
-                break;
-            }
-        }
+        auto l = work.links().begin();
+        int u = l->first.first;
+        int v = l->first.second;
 
-        auto sun = work.all_neighbors(u);
-        auto svn = work.all_neighbors(v);
+        auto sun = work.adjacent(u);
+        auto svn = work.adjacent(v);
 
         // add non leaf nodes on selected link to cover
         if (sun.size() > 1) {
@@ -495,15 +447,15 @@ void cPathFinder::cams()
         // remove all links that can be seen from new cover nodes
         for (int t : sun)
         {
-            work.remove_edge(u, t);
-            work.remove_edge(t, u);
+            work.removeLink(u, t);
+            work.removeLink(t, u);
         }
         for (int t : svn)
         {
-            work.remove_edge(v, t);
-            work.remove_edge(t, v);
+            work.removeLink(v, t);
+            work.removeLink(t, v);
         }
     }
     for( int n : myPath )
-        myNode[n].myColor = "red";
+        myGraph.node( n ).myColor = "red";
 }
