@@ -190,7 +190,7 @@ public:
      */
     void directed(bool f = true)
     {
-        myfDirected = f;
+        myGraph.directed( f );
     }
 
     /// add expensive ( INT_MAX ) links between unlinked nodes
@@ -235,7 +235,6 @@ private:
     std::vector<int> myPred;              // previous node to each node from start
     graph::cGraph    mySpanTree;          // minimum spanning tree
     double           myPathCost;          // total cost of links in path
-    bool             myfDirected;         // true if links are directed
     int              myMaxNegCost;
 
     //cEdge& linkProps( int u, int v );
