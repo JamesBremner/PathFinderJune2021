@@ -284,7 +284,7 @@ std::string cPathFinder::pathText()
         ss << sn << " -> ";
     }
 
-    if (myPath.size() && myDist.size())
+    if (myPath.size() && myDist.size() && myPathCost >= 0)
     {
         ss << " Cost is "
            << myPathCost + myMaxNegCost * (myPath.size() - 1)
@@ -478,4 +478,5 @@ void cPathFinder::cams()
     }
     for( int n : myPath )
         myGraph.node( n ).myColor = "red";
+    myPathCost = -1;
 }

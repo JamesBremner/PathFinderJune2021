@@ -37,7 +37,13 @@ main()
     if (expected != finder.pathText())
         throw std::runtime_error("sales.txt failed");
 
-    //std::cout << "t2\n|" << finder.pathText() << "|\n";
+    // link cover
+    reader.open("../dat/cover3.txt");
+    expected = "3 -> 1 -> 0 -> ";
+    if (expected != finder.pathText())
+        throw std::runtime_error("cover3.txt failed");
+
+    std::cout << "t2\n|" << finder.pathText() << "|\n";
 
     std::cout << "All tests passed\n";
 }
