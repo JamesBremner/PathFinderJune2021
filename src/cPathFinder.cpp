@@ -228,6 +228,8 @@ std::vector<int> cPathFinder::pathPick(int end)
     // reverse so path goes from start to goal
     std::reverse(myPath.begin(), myPath.end());
 
+    myPathCost = myDist[myPath.back()] + myMaxNegCost * (myPath.size() - 1);
+
     return myPath;
 }
 
@@ -284,9 +286,8 @@ std::string cPathFinder::pathText()
 
     if (myPath.size() && myDist.size())
     {
-        //std::cout << "dbg " << myDist[myPath.back()] << " " << myMaxNegCost << " " << myPath.size() << "\n";
         ss << " Cost is "
-           << myDist[myPath.back()] + myMaxNegCost * (myPath.size() - 1)
+           << myPathCost + myMaxNegCost * (myPath.size() - 1)
            << "\n";
     }
 
@@ -402,6 +403,17 @@ void cPathFinder::tsp()
 
     //return to starting point
     myPath.push_back(myPath[0]);
+
+    // cost
+    myPathCost = 0;
+    int prev = -1;
+    for( int n : myPath ) {
+        if( prev < 0 ) {
+            prev = n;
+            continue;
+        }
+        myPathCost += myGraph.link( prev, n ).myCost;
+    }
 
     std::cout << "route " << pathText() << "\n";
 }

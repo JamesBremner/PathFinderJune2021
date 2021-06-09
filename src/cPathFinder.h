@@ -228,16 +228,15 @@ private:
 
     graph::cGraph myGraph;
 
-
-    int myStart;                          // starting node index
-    int myEnd;                            // ending node index
+    int              myStart;             // starting node index
+    int              myEnd;               // ending node index
     std::vector<int> myPath;              // vector of node indices visited
     std::vector<int> myDist;              // cost to reach each node from start
     std::vector<int> myPred;              // previous node to each node from start
-    graph::cGraph          mySpanTree;          // minimum spanning tree
-    int mySpanCost;                       // total cost of links in spanning tree
-    bool myfDirected;                     // true if links are directed
-    int myMaxNegCost;
+    graph::cGraph    mySpanTree;          // minimum spanning tree
+    double           myPathCost;          // total cost of links in path
+    bool             myfDirected;         // true if links are directed
+    int              myMaxNegCost;
 
     //cEdge& linkProps( int u, int v );
 

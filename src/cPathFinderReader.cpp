@@ -149,6 +149,8 @@ void cPathFinderReader::sales()
         link,
     } input = eInput::unknown;
 
+    myFinder.clear();
+
     std::string line;
     while (std::getline(myFile, line))
     {
@@ -200,9 +202,9 @@ void cPathFinderReader::sales()
                 // std::cout << vCity[c1].name << " " << vCity[c2].name << " "
                 //           << dx << " " << dy << " " << d << "\n";
                 myFinder.addLink(
-                    myFinder.findoradd(vCity[c1].name),
-                    myFinder.findoradd(vCity[c2].name),
-                    (int)d);
+                    vCity[c1].name,
+                    vCity[c2].name,
+                    d);
             }
         }
     }
