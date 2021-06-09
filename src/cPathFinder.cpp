@@ -6,7 +6,7 @@ std::string cPathFinder::pathViz()
 {
     std::string graphvizgraph = "graph";
     std::string graphvizlink = "--";
-    if (myfDirected)
+    if ( myGraph.isDirected() )
     {
         graphvizgraph = "digraph";
         graphvizlink = "->";
@@ -46,7 +46,7 @@ std::string cPathFinder::camsViz()
 {
       std::string graphvizgraph = "graph";
     std::string graphvizlink = "--";
-    if (myfDirected)
+    if (myGraph.isDirected() )
     {
         graphvizgraph = "digraph";
         graphvizlink = "->";
@@ -76,7 +76,7 @@ std::string cPathFinder::spanViz(bool all)
 {
     std::string graphvizgraph = "graph";
     std::string graphvizlink = "--";
-    if (myfDirected)
+    if (myGraph.isDirected())
     {
         graphvizgraph = "digraph";
         graphvizlink = "->";
@@ -301,6 +301,7 @@ void cPathFinder::copyNodes( const graph::cGraph& other )
 
 void cPathFinder::span()
 {
+    myPathCost = 0;
     int V = nodeCount();
     std::vector<bool> Q(V, false); // set true when node added to spanning tree
     mySpanTree.clear();            // the spanning tree
@@ -353,6 +354,7 @@ void cPathFinder::span()
         // add node to span
         Q[w] = true;
         mySpanTree.addLink(v, w);
+        myPathCost += linkCost( v, w );
     }
 }
 

@@ -37,6 +37,7 @@ namespace graph
     {
     public:
         typedef std::pair<std::pair<int, int>, cEdge> link_t;
+        typedef std::map<std::pair<int, int>, cEdge> linkmap_t;
 
         void clear()
         {
@@ -48,6 +49,10 @@ namespace graph
         void directed(bool f = true)
         {
             myfDirected = f;
+        }
+        bool isDirected() const
+        {
+            return myfDirected;
         }
         void addLink(
             const std::string &srcname,
@@ -126,9 +131,16 @@ namespace graph
         {
             return myG;
         }
-        std::map<std::pair<int, int>, cEdge> &links()
+        linkmap_t links()
         {
-            return myLink;
+            if( myfDirected )
+                return myLink;
+
+            linkmap_t ret;
+            for( auto& l : myLink )
+                if( l.first.first < l.first.second )
+                    ret.insert( l );
+            return ret;
         }
         cNode &node(int i)
         {

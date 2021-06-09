@@ -36,6 +36,7 @@ void replaceAll(std::string &str, const std::string &from, const std::string &to
 void RunDOT(cPathFinder &finder)
 {
     auto path = std::filesystem::temp_directory_path();
+    //std::cout << path;
     auto gdot = path / "g.dot";
     std::ofstream f(gdot);
     if (!f.is_open())
@@ -256,6 +257,7 @@ int main()
                          case cPathFinderReader::eFormat::gsingh:
                          case cPathFinderReader::eFormat::shaun:
                          case cPathFinderReader::eFormat::flows:
+                            opt = eOption::costs;
                              break;
                          case cPathFinderReader::eFormat::sales:
                              opt = eOption::sales;
