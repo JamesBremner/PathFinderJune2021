@@ -223,6 +223,8 @@ public:
 
     void flows();
 
+    void cliques();
+
 
 private:
 

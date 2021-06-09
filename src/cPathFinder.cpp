@@ -6,7 +6,7 @@ std::string cPathFinder::pathViz()
 {
     std::string graphvizgraph = "graph";
     std::string graphvizlink = "--";
-    if ( myGraph.isDirected() )
+    if (myGraph.isDirected())
     {
         graphvizgraph = "digraph";
         graphvizlink = "->";
@@ -14,7 +14,7 @@ std::string cPathFinder::pathViz()
 
     std::stringstream f;
     f << graphvizgraph << " G {\n";
-    for (auto n : myGraph.nodes() )
+    for (auto n : myGraph.nodes())
     {
         f << n.second.myName
           << " [color=\"" << n.second.myColor << "\"  penwidth = 3.0 ];\n";
@@ -44,9 +44,9 @@ std::string cPathFinder::pathViz()
 
 std::string cPathFinder::camsViz()
 {
-      std::string graphvizgraph = "graph";
+    std::string graphvizgraph = "graph";
     std::string graphvizlink = "--";
-    if (myGraph.isDirected() )
+    if (myGraph.isDirected())
     {
         graphvizgraph = "digraph";
         graphvizlink = "->";
@@ -71,7 +71,7 @@ std::string cPathFinder::camsViz()
     f << "}\n";
     return f.str();
 }
-  
+
 std::string cPathFinder::spanViz(bool all)
 {
     std::string graphvizgraph = "graph";
@@ -93,8 +93,8 @@ std::string cPathFinder::spanViz(bool all)
     // loop over links
     for (auto &e : myGraph.links())
     {
-        f <<  myGraph.node(e.first.first).myName << graphvizlink
-          <<  myGraph.node(e.first.second).myName;
+        f << myGraph.node(e.first.first).myName << graphvizlink
+          << myGraph.node(e.first.second).myName;
         if (mySpanTree.includes_link(e.first))
             f << "[color=\"red\"] ";
         f << "\n";
@@ -125,7 +125,7 @@ int cPathFinder::linkCost(int u, int v)
 {
     try
     {
-        return myGraph.link( u, v ).myCost;
+        return myGraph.link(u, v).myCost;
     }
     catch (...)
     {
@@ -193,12 +193,12 @@ void cPathFinder::clear()
 
 int cPathFinder::find(const std::string &name)
 {
-    return myGraph.find( name );
+    return myGraph.find(name);
 }
 
 int cPathFinder::findoradd(const std::string &name)
 {
-    return myGraph.findoradd( name );
+    return myGraph.findoradd(name);
 }
 
 std::vector<int> cPathFinder::pathPick(int end)
@@ -233,9 +233,9 @@ std::vector<int> cPathFinder::pathPick(int end)
     return myPath;
 }
 
-std::string cPathFinder::nodeName(int n) 
+std::string cPathFinder::nodeName(int n)
 {
-    return myGraph.node( n ).myName;
+    return myGraph.node(n).myName;
 }
 
 void cPathFinder::addLink(
@@ -243,10 +243,10 @@ void cPathFinder::addLink(
     int v,
     double cost)
 {
-    myGraph.addLink( 
+    myGraph.addLink(
         std::to_string(u),
-         std::to_string(v),
-          cost );
+        std::to_string(v),
+        cost);
 }
 
 void cPathFinder::addLink(
@@ -254,7 +254,7 @@ void cPathFinder::addLink(
     const std::string &sv,
     double cost)
 {
-    myGraph.addLink( su, sv, cost );
+    myGraph.addLink(su, sv, cost);
 }
 
 int cPathFinder::linkCount()
@@ -294,9 +294,9 @@ std::string cPathFinder::pathText()
     return ss.str();
 }
 
-void cPathFinder::copyNodes( const graph::cGraph& other )
+void cPathFinder::copyNodes(const graph::cGraph &other)
 {
-    myGraph.copyNodes( other );
+    myGraph.copyNodes(other);
 }
 
 void cPathFinder::span()
@@ -305,7 +305,7 @@ void cPathFinder::span()
     int V = nodeCount();
     std::vector<bool> Q(V, false); // set true when node added to spanning tree
     mySpanTree.clear();            // the spanning tree
-    mySpanTree.copyNodes( myGraph );
+    mySpanTree.copyNodes(myGraph);
 
     // add initial arbitrary link
     int v = 0;
@@ -313,8 +313,8 @@ void cPathFinder::span()
     mySpanTree.addLink(v, w);
     Q[v] = true;
     Q[w] = true;
-    std::cout << "adding " << myGraph.name(v) <<" "<< myGraph.name(w) 
-        <<" " << linkCost( v, w ) << "\n";
+    std::cout << "adding " << myGraph.name(v) << " " << myGraph.name(w)
+              << " " << linkCost(v, w) << "\n";
 
     // while nodes remain outside of span
     while (1)
@@ -335,7 +335,7 @@ void cPathFinder::span()
                 if (Q[kw])
                     continue;
 
-                if( ! myGraph.includes_link( kv,kw ) )
+                if (!myGraph.includes_link(kv, kw))
                     continue;
 
                 // find cheapest link that adds node to span
@@ -356,7 +356,7 @@ void cPathFinder::span()
         // add node to span
         Q[w] = true;
         mySpanTree.addLink(v, w);
-        myPathCost += linkCost( v, w );
+        myPathCost += linkCost(v, w);
     }
 }
 
@@ -395,7 +395,7 @@ void cPathFinder::tsp()
 {
     // calculate spanning tree
     span();
- 
+
     // construct pathFinder from spanning tree
     cPathFinder pf;
     pf.myGraph = mySpanTree;
@@ -410,12 +410,14 @@ void cPathFinder::tsp()
     // cost
     myPathCost = 0;
     int prev = -1;
-    for( int n : myPath ) {
-        if( prev < 0 ) {
+    for (int n : myPath)
+    {
+        if (prev < 0)
+        {
             prev = n;
             continue;
         }
-        myPathCost += myGraph.link( prev, n ).myCost;
+        myPathCost += myGraph.link(prev, n).myCost;
         prev = n;
     }
 
@@ -435,7 +437,7 @@ void cPathFinder::cams()
         auto ns = myGraph.adjacent(leaf);
         if (ns.size() > 1)
             continue;
-        
+
         // we have a leaf node
         // get node that connects it
         // add to cover set
@@ -453,6 +455,7 @@ void cPathFinder::cams()
     // loop until all links are covered
     while (work.linkCount())
     {
+        //std::cout << "work.linkCount() " << work.linkCount() << "\n";
         auto l = work.links().begin();
         int u = l->first.first;
         int v = l->first.second;
@@ -461,10 +464,12 @@ void cPathFinder::cams()
         auto svn = work.adjacent(v);
 
         // add non leaf nodes on selected link to cover
-        if (sun.size() > 1) {
+        if (sun.size() > 1)
+        {
             myPath.push_back(u);
         }
-        if (svn.size() > 1) {
+        if (svn.size() > 1)
+        {
             myPath.push_back(v);
         }
 
@@ -480,7 +485,74 @@ void cPathFinder::cams()
             work.removeLink(t, v);
         }
     }
-    for( int n : myPath )
-        myGraph.node( n ).myColor = "red";
+    for (int n : myPath)
+        myGraph.node(n).myColor = "red";
     myPathCost = -1;
+}
+
+void cPathFinder::cliques()
+{
+    // working copy on input graph
+    auto work = myGraph;
+
+    // store for maximal clique collection
+    std::vector<std::vector<int>> vclique;
+
+    while (1)
+    {
+        std::vector<int> clique;
+
+        while (work.nodeCount())
+        {
+            //std::cout << "work.nodeCount " << work.nodeCount() << " " << clique.size() << "\n";
+            if (!clique.size())
+            {
+                // start by moving an arbitrary node to the clique from the work graph
+                auto nit = work.nodes().begin();
+                clique.push_back(nit->first);
+                work.removeNode(nit->first);
+                continue;
+            }
+            bool found = false;
+
+            // loop over nodes remaining in work graph
+            for (auto &u : work.nodes())
+            {
+                // loop over nodes in clique
+                for (int v : clique)
+                {
+                    if (work.includes_link(v, u.first) ||
+                        work.includes_link(u.first, v))
+                    {
+                        // found node in work that is connected to clique nodes.
+                        // move it to clique
+                        //std::cout << "add " << myGraph.name(u.first) << "\n";
+                        clique.push_back(u.first);
+                        work.removeNode(u.first);
+                        found = true;
+                        break;
+                    }
+                }
+                if (found)
+                    break;  // found a node to add to clique
+            }
+            if (!found)
+                break;      // no more nodes can be added, the clique is maximal
+        }
+
+        if (!clique.size())
+            break;          // did not find a clique
+
+        // add to collection of maximal cliques
+        vclique.push_back(clique);
+    }
+
+    // Display results
+    for (auto &c : vclique)
+    {
+        std::cout << "clique: ";
+        for (int n : c)
+            std::cout << myGraph.name(n) << " ";
+        std::cout << "\n";
+    }
 }

@@ -113,6 +113,13 @@ namespace graph
                 // just ignore requests to remove links that do not exist
             }
         }
+        void removeNode( int n )
+        {
+            auto it = myG.find( n );
+            if( it == myG.end() )
+                return;
+            myG.erase( it );
+        }
 
         std::string linksText()
         {

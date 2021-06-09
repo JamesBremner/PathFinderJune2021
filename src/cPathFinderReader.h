@@ -28,6 +28,7 @@ public:
         islands,
         flows,
         maze_ascii_art,
+        cliques,
     };
 
     /** Open file, determine format and read data into pathfinder
