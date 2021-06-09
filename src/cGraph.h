@@ -30,8 +30,15 @@ namespace graph
             : myName("???")
         {
         }
+        void removeLink(int n)
+        {
+            auto it = myLink.find(n);
+            if (it != myLink.end())
+                myLink.erase(it);
+        }
         std::string myName;
         std::string myColor;
+        std::map<int, cEdge> myLink;
     };
     class cGraph
     {
@@ -42,8 +49,6 @@ namespace graph
         void clear()
         {
             myG.clear();
-            myLink.clear();
-            //myAdj.clear();
             myfDirected = false;
         }
         void directed(bool f = true)
@@ -69,9 +74,9 @@ namespace graph
             if (0 > u || u > myG.size() || 0 > v || v >> myG.size())
                 throw std::runtime_error(
                     "addLink bad node index");
-            myLink.insert(std::make_pair(std::make_pair(u, v), cEdge(cost)));
+            myG.find(u)->second.myLink.insert(std::make_pair(v, cEdge(cost)));
             if (!myfDirected)
-                myLink.insert(std::make_pair(std::make_pair(v, u), cEdge(cost)));
+                myG.find(v)->second.myLink.insert(std::make_pair(u, cEdge(cost)));
         }
         int find(const std::string &name)
         {
@@ -97,33 +102,33 @@ namespace graph
 
         void removeLink(int u, int v)
         {
-            auto it = myLink.find(std::make_pair(u, v));
-            if (it == myLink.end())
-                return;
-            myLink.erase(it);
-            if (!myfDirected)
-                removeLink(v, u);
+            try
+            {
+                myG.at(u).removeLink(v);
+                if (!myfDirected)
+                    myG.at(v).removeLink(u);
+            }
+            catch (...)
+            {
+                // just ignore requests to remove links that do not exist
+            }
         }
 
         std::string linksText()
         {
             std::stringstream ss;
-            for (auto l : myLink)
+            for (auto &n : myG)
             {
-                ss << linkText(l);
+                for (auto &l : n.second.myLink)
+                {
+                    if( ! myfDirected )
+                        if( n.first > l.first )
+                            continue;
+                    ss << n.second.myName << " -> "
+                       << myG[l.first].myName << " cost "
+                       << l.second.myCost << "\n";
+                }
             }
-            return ss.str();
-        }
-        std::string linkText(const link_t &l)
-        {
-            if (!myfDirected)
-                if (l.first.first > l.first.second)
-                    return "";
-            std::stringstream ss;
-            ss << myG[l.first.first].myName << " -> "
-               << myG[l.first.second].myName
-               << " cost " << l.second.myCost
-               << "\n";
             return ss.str();
         }
 
@@ -131,15 +136,17 @@ namespace graph
         {
             return myG;
         }
-        linkmap_t links()
+        linkmap_t links() const
         {
-            if( myfDirected )
-                return myLink;
-
             linkmap_t ret;
-            for( auto& l : myLink )
-                if( l.first.first < l.first.second )
-                    ret.insert( l );
+            for (auto &n : myG)
+            {
+                for (auto &l : n.second.myLink)
+                {
+                    ret.insert(std::make_pair(std::make_pair(n.first, l.first), l.second));
+                }
+            }
+
             return ret;
         }
         cNode &node(int i)
@@ -148,7 +155,15 @@ namespace graph
         }
         cEdge &link(int u, int v)
         {
-            return myLink[std::make_pair(u, v)];
+            auto itu = myG.find(u);
+            if (itu == myG.end())
+                throw std::runtime_error(
+                    "link bad index");
+            auto itv = itu->second.myLink.find(v);
+            if (itv == itu->second.myLink.end())
+                throw std::runtime_error(
+                    "link bad index");
+            return itv->second;
         }
         bool includes_link(int u, int v)
         {
@@ -156,7 +171,13 @@ namespace graph
         }
         bool includes_link(const std::pair<int, int> &e)
         {
-            return (myLink.find(e) != myLink.end());
+            auto itu = myG.find(e.first);
+            if (itu == myG.end())
+                return false;
+            auto itv = itu->second.myLink.find(e.second);
+            if (itv == itu->second.myLink.end())
+                return false;
+            return true;
         }
         /** Adjacent nodes
          * @param[in] i index of node to find which nodes it connects to
@@ -164,11 +185,12 @@ namespace graph
          */
         std::vector<int> adjacent(int i)
         {
-            //return myAdj[i];
             std::vector<int> ret;
-            for (auto &l : myLink)
-                if (l.first.first == i)
-                    ret.push_back(l.first.second);
+            auto it = myG.find(i);
+            if (it == myG.end())
+                return ret;
+            for( auto& l : it->second.myLink )
+                ret.push_back( l.first );
             return ret;
         }
         int nodeCount() const
@@ -177,7 +199,7 @@ namespace graph
         }
         int linkCount() const
         {
-            return myLink.size();
+            return links().size();
         }
         std::string &name(int i)
         {
@@ -186,15 +208,19 @@ namespace graph
                     "cGraph::name bad index");
             return myG[i].myName;
         }
+        /// copy nodes, but not the links
         void copyNodes(const cGraph &other)
         {
-            myG = other.myG;
+            for( auto& n : other.myG )
+            {
+                myG.insert(std::make_pair(n.first,cNode( n.second.myName )));
+            }
         }
 
     private:
-        std::map<int, cNode> myG;                    // the nodes
-        std::map<std::pair<int, int>, cEdge> myLink; // the links
-        //std::vector<std::vector<int>> myAdj;         // the adjacency matrix
+        
+        std::map<int, cNode> myG; // the graph, keyed by internal node index
+
         bool myfDirected;
     };
 }

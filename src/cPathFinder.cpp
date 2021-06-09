@@ -311,8 +311,10 @@ void cPathFinder::span()
     int v = 0;
     int w = *myGraph.adjacent(0).begin();
     mySpanTree.addLink(v, w);
-    Q[0] = true;
+    Q[v] = true;
     Q[w] = true;
+    std::cout << "adding " << myGraph.name(v) <<" "<< myGraph.name(w) 
+        <<" " << linkCost( v, w ) << "\n";
 
     // while nodes remain outside of span
     while (1)
@@ -393,8 +395,7 @@ void cPathFinder::tsp()
 {
     // calculate spanning tree
     span();
-    //std::cout << "span " << spanText() << "\n";
-
+ 
     // construct pathFinder from spanning tree
     cPathFinder pf;
     pf.myGraph = mySpanTree;
@@ -415,6 +416,7 @@ void cPathFinder::tsp()
             continue;
         }
         myPathCost += myGraph.link( prev, n ).myCost;
+        prev = n;
     }
 
     std::cout << "route " << pathText() << "\n";
