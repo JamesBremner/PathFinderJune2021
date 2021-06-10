@@ -548,11 +548,14 @@ void cPathFinder::cliques()
     }
 
     // Display results
+    std::stringstream ss;
     for (auto &c : vclique)
     {
-        std::cout << "clique: ";
+        ss << "clique: ";
         for (int n : c)
-            std::cout << myGraph.name(n) << " ";
-        std::cout << "\n";
+            ss << myGraph.name(n) << " ";
+        ss << "\n";
     }
+    myResults = ss.str();
+    std::cout << myResults;
 }

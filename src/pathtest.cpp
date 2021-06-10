@@ -29,8 +29,8 @@ main()
     expected = "2 -> 1 cost 1\n"
                "2 -> 3 cost 1\n"
                "3 -> 4 cost 1\n";
-    if( expected != finder.spanText() )
-        throw std::runtime_error( "span.txt failed");
+    if (expected != finder.spanText())
+        throw std::runtime_error("span.txt failed");
 
     // Metric approx travelling salesman
     std::cout << "TEST sales.txt\n";
@@ -49,8 +49,15 @@ main()
 
     std::cout << "TEST cliques.txt\n";
     reader.open("../dat/cliques.txt");
+    finder.cliques();
+    expected = "clique: 5 1 3 7 \n"
+               "clique: 8 2 6 4 \n";
 
-    //std::cout << "t2\n|" << finder.pathText() << "|\n";
+    if (expected != finder.resultsText())
+        throw std::runtime_error("cliques.txt failed");
+
+    // std::cout << "e\n|" << expected << "|\n";
+    // std::cout << "t2\n|" << finder.resultsText() << "|\n";
 
     std::cout << "All tests passed\n";
 }

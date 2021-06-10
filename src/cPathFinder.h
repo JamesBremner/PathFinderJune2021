@@ -130,6 +130,11 @@ public:
     /// Human readable path list
     std::string pathText();
 
+    std::string resultsText()
+    {
+        return myResults;
+    }
+
     /// Human readable list of edges that connects all nodes together
     std::string spanText();
 
@@ -238,6 +243,7 @@ private:
     graph::cGraph    mySpanTree;          // minimum spanning tree
     double           myPathCost;          // total cost of links in path
     int              myMaxNegCost;
+    std::string      myResults;
 
     //cEdge& linkProps( int u, int v );
 

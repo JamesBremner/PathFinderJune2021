@@ -45,7 +45,6 @@ cPathFinderReader::open(
     else if (line.find("cliques") != -1)
     {
         costs(false);
-        myFinder.cliques();
         return eFormat::cliques;
     }
     return ret;

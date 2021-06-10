@@ -261,6 +261,10 @@ int main()
                          case cPathFinderReader::eFormat::cliques:
                             opt = eOption::costs;
                              break;
+                        case cPathFinderReader::eFormat::cliques:
+                            finder.cliques();
+                            opt = eOption::costs;
+                             break;
                          case cPathFinderReader::eFormat::sales:
                              opt = eOption::sales;
                              break;
