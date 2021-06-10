@@ -234,8 +234,8 @@ public:
 
 private:
 
-    graph::cGraph myGraph;
-
+    graph::cGraph   myGraph;
+ 
     int              myStart;             // starting node index
     int              myEnd;               // ending node index
     std::vector<int> myPath;              // vector of node indices visited
@@ -246,22 +246,9 @@ private:
     int              myMaxNegCost;
     std::string      myResults;
 
-    //cEdge& linkProps( int u, int v );
-
     void depthFirst( int v );
     void depthRecurse( int v );
 
     void copyNodes( const graph::cGraph& other );
 
-    // template <typename T>
-    // std::string linksTextT(T &g);
-
-    // template <typename T>
-    // void pathsT(int start, T &g);
-
-    // template <typename T>
-    // std::string pathVizT(
-    //     const std::vector<int> &vp,
-    //     bool all,
-    //     T &g);
 };

@@ -567,6 +567,12 @@ void cPathFinder::cliques()
 
 void cPathFinder::flows()
 {
+    /*
+    use link cost as maximum capacity
+    use link value as used capacity
+    use path cost as total flow
+    */
+
     int totalFlow = 0;
 
     graph::cGraph bkup = myGraph;
@@ -606,6 +612,8 @@ void cPathFinder::flows()
                 l.myCost -= maxflow;
                 if (l.myCost < 0.01)
                     myGraph.removeLink(u, v);
+                bkup.findLink(u,v).myValue += maxflow;
+                bkup.findLink(v,u).myValue += maxflow;
             }
             u = v;
         }
@@ -615,6 +623,22 @@ void cPathFinder::flows()
 
     myGraph = bkup;
 
+    myPathCost = totalFlow;
     myResults = "total flow " + std::to_string( totalFlow );
     std::cout << myResults << "\n";
+
+            std::stringstream ss;
+            for (auto &n : myGraph.nodes() )
+            {
+                for (auto &l : n.second.myLink)
+                {
+                        if( n.first > l.first )
+                            continue;
+                    ss << n.second.myName << " -- "
+                       << myGraph.name(l.first) << " capacity "
+                       << l.second.myCost << " used "
+                       << l.second.myValue << "\n";
+                }
+            }
+            std::cout << ss.str();
 }

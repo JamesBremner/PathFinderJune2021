@@ -16,6 +16,7 @@ namespace graph
         {
         }
         int myCost;
+        int myValue;
     };
 
     /// node properties
