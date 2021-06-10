@@ -37,3 +37,4 @@ Calculation Options are:
 ![cams](https://user-images.githubusercontent.com/2046227/120936885-4fdc3800-c6d8-11eb-966a-577e1c81b1dd.png)
 
  - __Cliques__ Find the set of maximal cliques in a graph. [Detailed Documentation](https://github.com/JamesBremner/PathFinder2/wiki/Cliques)
+ - __Flows__ Find maximum flow through a graph.
