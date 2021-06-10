@@ -1,0 +1,9 @@
+format flows
+l a b 300
+l a c 200
+l b d 500
+l c d 500
+s a
+e d
+
+

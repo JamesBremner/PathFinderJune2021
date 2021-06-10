@@ -52,9 +52,13 @@ main()
     finder.cliques();
     expected = "clique: 5 1 3 7 \n"
                "clique: 8 2 6 4 \n";
-
     if (expected != finder.resultsText())
         throw std::runtime_error("cliques.txt failed");
+
+    reader.open("../dat/flows2.txt");
+    expected = "total flow 500";
+    if (expected != finder.resultsText())
+        throw std::runtime_error("flows2.txt failed");
 
     // std::cout << "e\n|" << expected << "|\n";
     // std::cout << "t2\n|" << finder.resultsText() << "|\n";

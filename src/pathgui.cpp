@@ -258,7 +258,6 @@ int main()
                          case cPathFinderReader::eFormat::gsingh:
                          case cPathFinderReader::eFormat::shaun:
                          case cPathFinderReader::eFormat::flows:
-                         case cPathFinderReader::eFormat::cliques:
                             opt = eOption::costs;
                              break;
                         case cPathFinderReader::eFormat::cliques:

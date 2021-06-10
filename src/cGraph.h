@@ -22,19 +22,22 @@ namespace graph
     class cNode
     {
     public:
-        cNode(const std::string &name)
+        cNode(const std::string &name = "???")
             : myName(name)
         {
         }
-        cNode()
-            : myName("???")
+        void removeLink(int dst)
         {
-        }
-        void removeLink(int n)
-        {
-            auto it = myLink.find(n);
+            auto it = myLink.find(dst);
             if (it != myLink.end())
                 myLink.erase(it);
+        }
+        int linkCost( int dst )
+        {
+            auto it = myLink.find(dst);
+            if (it == myLink.end())
+                return INT_MAX;
+            return it->second.myCost;
         }
         std::string myName;
         std::string myColor;
@@ -98,6 +101,20 @@ namespace graph
                 myG.insert(std::make_pair(n, cNode(name)));
             }
             return n;
+        }
+
+        cNode& findNode( int n )
+        {
+            auto it = myG.find( n );
+            if( it == myG.end() )
+                throw std::runtime_error(
+                    "cGraph::findNode bad index");
+            return it->second;
+        }
+
+        cEdge& findLink( int u, int v )
+        {
+            return myG.at(u).myLink.at(v);
         }
 
         void removeLink(int u, int v)

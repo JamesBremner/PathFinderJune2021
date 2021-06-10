@@ -47,6 +47,12 @@ cPathFinderReader::open(
         costs(false);
         return eFormat::cliques;
     }
+    else if (line.find("flows") != -1)
+    {
+        costs();
+        myFinder.flows();
+        return eFormat::flows;
+    }
     return ret;
 }
 

@@ -140,7 +140,7 @@ void cPathFinder::path()
     myDist.clear();
     myDist.resize(V);
     myPred.clear();
-    myPred.resize(V);
+    myPred.resize(V, -1);
 
     bool sptSet[V]; // sptSet[i] will be true if vertex i is included in shortest
     // path tree or shortest distance from src to i is finalized
@@ -163,6 +163,11 @@ void cPathFinder::path()
         for (int v = 0; v < V; v++)
             if (sptSet[v] == false && myDist[v] <= min)
                 min = myDist[v], u = v;
+        if (min == INT_MAX)
+        {
+            // no more nodes connected to start
+            break;
+        }
 
         // Mark the picked vertex as processed
         sptSet[u] = true;
@@ -209,8 +214,8 @@ std::vector<int> cPathFinder::pathPick(int end)
 
     if (end < 0)
         throw std::runtime_error("cPathFinder::pathPick bad end node");
-    if (myPred[end] == end)
-        throw std::runtime_error("There is no path from " + std::to_string(myStart) + " to " + std::to_string(end));
+    if (myPred[end] == end || myPred[end] == -1)
+        return myPath; // there is no path
 
     // pick out path, starting at goal and finishing at start
     myPath.push_back(end);
@@ -534,14 +539,14 @@ void cPathFinder::cliques()
                     }
                 }
                 if (found)
-                    break;  // found a node to add to clique
+                    break; // found a node to add to clique
             }
             if (!found)
-                break;      // no more nodes can be added, the clique is maximal
+                break; // no more nodes can be added, the clique is maximal
         }
 
         if (!clique.size())
-            break;          // did not find a clique
+            break; // did not find a clique
 
         // add to collection of maximal cliques
         vclique.push_back(clique);
@@ -558,4 +563,58 @@ void cPathFinder::cliques()
     }
     myResults = ss.str();
     std::cout << myResults;
+}
+
+void cPathFinder::flows()
+{
+    int totalFlow = 0;
+
+    graph::cGraph bkup = myGraph;
+
+    while (1)
+    {
+        // find path
+        path();
+        if (!myPath.size())
+            break;
+
+        // maximum flow through path
+        int maxflow = INT_MAX;
+        int u = -1;
+        int v;
+        for (int v : myPath)
+        {
+            if (u >= 0)
+            {
+                double cap = myGraph.findLink(u, v).myCost;
+                if (cap < maxflow)
+                {
+                    maxflow = cap;
+                }
+            }
+
+            u = v;
+        }
+
+        // consume capacity
+        u = -1;
+        for (int v : myPath)
+        {
+            if (u >= 0)
+            {
+                auto &l = myGraph.findLink(u, v);
+                l.myCost -= maxflow;
+                if (l.myCost < 0.01)
+                    myGraph.removeLink(u, v);
+            }
+            u = v;
+        }
+
+        totalFlow += maxflow;
+    }
+
+    myGraph = bkup;
+
+    myResults = "total flow " + std::to_string( totalFlow );
+    std::cout << myResults << "\n";
 }
