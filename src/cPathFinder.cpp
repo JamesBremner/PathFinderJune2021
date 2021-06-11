@@ -507,7 +507,8 @@ void cPathFinder::flows()
 
     int totalFlow = 0;
 
-    auto bkup = myG;
+    // backup graph
+    cPathFinder bkup( *(graph::cGraph*)this );
 
     while (1)
     {
@@ -544,8 +545,10 @@ void cPathFinder::flows()
                 l.myCost -= maxflow;
                 if (l.myCost < 0.01)
                     removeLink(u, v);
-                // bkup.findLink(u,v).myValue += maxflow;
-                // bkup.findLink(v,u).myValue += maxflow;
+
+                 bkup.link(u,v).myValue += maxflow;
+                 if( !isDirected() )
+                    bkup.link(v,u).myValue += maxflow;
             }
             u = v;
         }
@@ -553,7 +556,8 @@ void cPathFinder::flows()
         totalFlow += maxflow;
     }
 
-    myG = bkup;
+    // restore backup graph
+    myG = bkup.graph();
 
     myPathCost = totalFlow;
     myResults = "total flow " + std::to_string( totalFlow );
@@ -564,6 +568,7 @@ void cPathFinder::flows()
             {
                 for (auto &l : n.second.myLink)
                 {
+                    if( ! isDirected() )
                         if( n.first > l.first )
                             continue;
                     ss << n.second.myName << " -- "

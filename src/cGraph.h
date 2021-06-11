@@ -287,7 +287,7 @@ int cost(int u, int v)
             }
         }
 
-        const std::map<int, cNode>& get() const
+        const std::map<int, cNode>& graph() const
         {
             return myG;
         }

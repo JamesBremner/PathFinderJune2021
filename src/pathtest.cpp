@@ -60,6 +60,12 @@ main()
     if (expected != finder.resultsText())
         throw std::runtime_error("flows2.txt failed");
 
+    // flow in directed graph
+    reader.open("../dat/flows3.txt");
+    expected = "total flow 500";
+    if (expected != finder.resultsText())
+        throw std::runtime_error("flows3.txt failed");
+
     // std::cout << "e\n|" << expected << "|\n";
     // std::cout << "t2\n|" << finder.resultsText() << "|\n";
 

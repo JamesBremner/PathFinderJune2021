@@ -51,7 +51,7 @@ public:
     }
     cPathFinder(const graph::cGraph &g)
     {
-        myG = g.get();
+        myG = g.graph();
         myfDirected = g.isDirected();
     }
 
