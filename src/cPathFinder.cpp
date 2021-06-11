@@ -2,11 +2,17 @@
 #include <algorithm>
 #include "cPathFinder.h"
 
+void cPathFinder::clear()
+{
+    myG.clear();
+    myPath.clear();
+}
+
 std::string cPathFinder::pathViz()
 {
     std::string graphvizgraph = "graph";
     std::string graphvizlink = "--";
-    if (myGraph.isDirected())
+    if (isDirected())
     {
         graphvizgraph = "digraph";
         graphvizlink = "->";
@@ -14,14 +20,14 @@ std::string cPathFinder::pathViz()
 
     std::stringstream f;
     f << graphvizgraph << " G {\n";
-    for (auto n : myGraph.nodes())
+    for (auto n : nodes())
     {
         f << n.second.myName
           << " [color=\"" << n.second.myColor << "\"  penwidth = 3.0 ];\n";
     }
 
     // loop over links
-    for (auto &e : myGraph.links())
+    for (auto &e : links())
     {
         // check if link between two nodes on path
         bool onpath = false;
@@ -31,8 +37,8 @@ std::string cPathFinder::pathViz()
             if (pathItsrc == pathItdst + 1 || pathItsrc == pathItdst - 1)
                 onpath = true;
 
-        f << myGraph.node(e.first.first).myName << graphvizlink
-          << myGraph.node(e.first.second).myName;
+        f << node(e.first.first).myName << graphvizlink
+          << node(e.first.second).myName;
         if (onpath)
             f << "[color=\"red\"] ";
         f << "\n";
@@ -46,7 +52,7 @@ std::string cPathFinder::camsViz()
 {
     std::string graphvizgraph = "graph";
     std::string graphvizlink = "--";
-    if (myGraph.isDirected())
+    if (isDirected())
     {
         graphvizgraph = "digraph";
         graphvizlink = "->";
@@ -54,17 +60,17 @@ std::string cPathFinder::camsViz()
 
     std::stringstream f;
     f << graphvizgraph << " G {\n";
-    for (auto &n : myGraph.nodes())
+    for (auto &n : nodes())
     {
         f << n.second.myName
           << " [color=\"" << n.second.myColor << "\"  penwidth = 3.0 ];\n";
     }
 
     // loop over links
-    for (auto &e : myGraph.links())
+    for (auto &e : links())
     {
-        f << myGraph.node(e.first.first).myName << graphvizlink
-          << myGraph.node(e.first.second).myName
+        f << name(e.first.first) << graphvizlink
+          << name(e.first.second)
           << "\n";
     }
 
@@ -76,7 +82,7 @@ std::string cPathFinder::spanViz(bool all)
 {
     std::string graphvizgraph = "graph";
     std::string graphvizlink = "--";
-    if (myGraph.isDirected())
+    if (isDirected())
     {
         graphvizgraph = "digraph";
         graphvizlink = "->";
@@ -84,17 +90,17 @@ std::string cPathFinder::spanViz(bool all)
 
     std::stringstream f;
     f << graphvizgraph << " G {\n";
-    for (auto &n : myGraph.nodes())
+    for (auto &n : nodes())
     {
         f << n.second.myName
           << " [color=\"" << n.second.myColor << "\"  penwidth = 3.0 ];\n";
     }
 
     // loop over links
-    for (auto &e : myGraph.links())
+    for (auto &e : links())
     {
-        f << myGraph.node(e.first.first).myName << graphvizlink
-          << myGraph.node(e.first.second).myName;
+        f << node(e.first.first).myName << graphvizlink
+          << node(e.first.second).myName;
         if (mySpanTree.includes_link(e.first))
             f << "[color=\"red\"] ";
         f << "\n";
@@ -115,23 +121,7 @@ void cPathFinder::start(const std::string &start)
 //     return myLink.at(std::make_pair(u, v));
 // }
 
-/** link cost
- * @param[in] u node index
- * @param[in] v node index
- * @return cost of link between u and v
- * If u and v are not adjacent, returns INT_MAX
- */
-int cPathFinder::linkCost(int u, int v)
-{
-    try
-    {
-        return myGraph.link(u, v).myCost;
-    }
-    catch (...)
-    {
-        return INT_MAX;
-    }
-}
+
 
 void cPathFinder::path()
 {
@@ -173,37 +163,22 @@ void cPathFinder::path()
         sptSet[u] = true;
 
         // Update dist value of the adjacent vertices of the picked vertex.
-        for (int v : myGraph.adjacent(u))
+        for (int v : adjacent(u))
         {
             if (sptSet[v])
                 continue; // already processed
 
             // Update dist[v] only if total weight of path from src to  v through u is
             // smaller than current value of dist[v]
-            int cost = linkCost(u, v);
-            if (myDist[u] + cost < myDist[v])
+            int linkcost = cost(u, v);
+            if (myDist[u] + linkcost < myDist[v])
             {
-                myDist[v] = myDist[u] + cost;
+                myDist[v] = myDist[u] + linkcost;
                 myPred[v] = u;
             }
         }
     }
     pathPick(myEnd);
-}
-
-void cPathFinder::clear()
-{
-    myGraph.clear();
-}
-
-int cPathFinder::find(const std::string &name)
-{
-    return myGraph.find(name);
-}
-
-int cPathFinder::findoradd(const std::string &name)
-{
-    return myGraph.findoradd(name);
 }
 
 std::vector<int> cPathFinder::pathPick(int end)
@@ -238,51 +213,13 @@ std::vector<int> cPathFinder::pathPick(int end)
     return myPath;
 }
 
-std::string cPathFinder::nodeName(int n)
-{
-    return myGraph.node(n).myName;
-}
-
-void cPathFinder::addLink(
-    int u,
-    int v,
-    double cost)
-{
-    myGraph.addLink(
-        std::to_string(u),
-        std::to_string(v),
-        cost);
-}
-
-void cPathFinder::addLink(
-    const std::string &su,
-    const std::string &sv,
-    double cost)
-{
-    myGraph.addLink(su, sv, cost);
-}
-
-int cPathFinder::linkCount()
-{
-    return myGraph.linkCount();
-}
-int cPathFinder::nodeCount()
-{
-    return myGraph.nodeCount();
-}
-
-std::string cPathFinder::linksText()
-{
-    return myGraph.linksText();
-}
-
 std::string cPathFinder::pathText()
 {
     std::stringstream ss;
     for (auto n : myPath)
     {
         std::string sn;
-        sn = myGraph.node(n).myName;
+        sn = name(n);
 
         if (sn == "???")
             sn = std::to_string(n);
@@ -299,27 +236,22 @@ std::string cPathFinder::pathText()
     return ss.str();
 }
 
-void cPathFinder::copyNodes(const graph::cGraph &other)
-{
-    myGraph.copyNodes(other);
-}
-
 void cPathFinder::span()
 {
     myPathCost = 0;
     int V = nodeCount();
     std::vector<bool> Q(V, false); // set true when node added to spanning tree
-    mySpanTree.clear();            // the spanning tree
-    mySpanTree.copyNodes(myGraph);
+    mySpanTree.clear();
+    mySpanTree.copyNodes(*this);
 
     // add initial arbitrary link
     int v = 0;
-    int w = *myGraph.adjacent(0).begin();
+    int w = *adjacent(0).begin();
     mySpanTree.addLink(v, w);
     Q[v] = true;
     Q[w] = true;
-    std::cout << "adding " << myGraph.name(v) << " " << myGraph.name(w)
-              << " " << linkCost(v, w) << "\n";
+    std::cout << "adding " << name(v) << " " << name(w)
+              << " " << cost(v, w) << "\n";
 
     // while nodes remain outside of span
     while (1)
@@ -340,14 +272,14 @@ void cPathFinder::span()
                 if (Q[kw])
                     continue;
 
-                if (!myGraph.includes_link(kv, kw))
+                if (!includes_link(kv, kw))
                     continue;
 
                 // find cheapest link that adds node to span
-                int cost = linkCost(kv, kw);
-                if (cost < min_cost)
+                int linkCost = cost(kv, kw);
+                if (linkCost < min_cost)
                 {
-                    min_cost = cost;
+                    min_cost = linkCost;
                     v = kv;
                     w = kw;
                 }
@@ -361,7 +293,7 @@ void cPathFinder::span()
         // add node to span
         Q[w] = true;
         mySpanTree.addLink(v, w);
-        myPathCost += linkCost(v, w);
+        myPathCost += cost(v, w);
     }
 }
 
@@ -388,7 +320,7 @@ void cPathFinder::depthRecurse(int v)
     myPath[v] = 1;
 
     // look for new adjacent nodes
-    for (int w : myGraph.adjacent(v))
+    for (int w : adjacent(v))
         if (!myPath[w])
         {
             // search from new node
@@ -402,8 +334,8 @@ void cPathFinder::tsp()
     span();
 
     // construct pathFinder from spanning tree
-    cPathFinder pf;
-    pf.myGraph = mySpanTree;
+    cPathFinder pf( mySpanTree );
+
 
     // depth first search of spanning tree
     pf.depthFirst(0);
@@ -422,7 +354,7 @@ void cPathFinder::tsp()
             prev = n;
             continue;
         }
-        myPathCost += myGraph.link(prev, n).myCost;
+        myPathCost += link(prev, n).myCost;
         prev = n;
     }
 
@@ -433,13 +365,13 @@ void cPathFinder::cams()
 {
     myPath.clear();
 
-    // working copy on input graph
-    auto work = myGraph;
+    // working copy of input graph
+    auto work = *this;
 
     // The nodes that connect leaf nodes to the rest of the graph must be in cover set
     for (int leaf = 0; leaf < nodeCount(); leaf++)
     {
-        auto ns = myGraph.adjacent(leaf);
+        auto ns = adjacent(leaf);
         if (ns.size() > 1)
             continue;
 
@@ -491,14 +423,14 @@ void cPathFinder::cams()
         }
     }
     for (int n : myPath)
-        myGraph.node(n).myColor = "red";
+        node(n).myColor = "red";
     myPathCost = -1;
 }
 
 void cPathFinder::cliques()
 {
     // working copy on input graph
-    auto work = myGraph;
+    auto work = *this;
 
     // store for maximal clique collection
     std::vector<std::vector<int>> vclique;
@@ -558,7 +490,7 @@ void cPathFinder::cliques()
     {
         ss << "clique: ";
         for (int n : c)
-            ss << myGraph.name(n) << " ";
+            ss << name(n) << " ";
         ss << "\n";
     }
     myResults = ss.str();
@@ -575,7 +507,7 @@ void cPathFinder::flows()
 
     int totalFlow = 0;
 
-    graph::cGraph bkup = myGraph;
+    auto bkup = myG;
 
     while (1)
     {
@@ -592,7 +524,7 @@ void cPathFinder::flows()
         {
             if (u >= 0)
             {
-                double cap = myGraph.findLink(u, v).myCost;
+                double cap = findLink(u, v).myCost;
                 if (cap < maxflow)
                 {
                     maxflow = cap;
@@ -608,12 +540,12 @@ void cPathFinder::flows()
         {
             if (u >= 0)
             {
-                auto &l = myGraph.findLink(u, v);
+                auto &l = findLink(u, v);
                 l.myCost -= maxflow;
                 if (l.myCost < 0.01)
-                    myGraph.removeLink(u, v);
-                bkup.findLink(u,v).myValue += maxflow;
-                bkup.findLink(v,u).myValue += maxflow;
+                    removeLink(u, v);
+                // bkup.findLink(u,v).myValue += maxflow;
+                // bkup.findLink(v,u).myValue += maxflow;
             }
             u = v;
         }
@@ -621,21 +553,21 @@ void cPathFinder::flows()
         totalFlow += maxflow;
     }
 
-    myGraph = bkup;
+    myG = bkup;
 
     myPathCost = totalFlow;
     myResults = "total flow " + std::to_string( totalFlow );
     std::cout << myResults << "\n";
 
             std::stringstream ss;
-            for (auto &n : myGraph.nodes() )
+            for (auto &n : nodes() )
             {
                 for (auto &l : n.second.myLink)
                 {
                         if( n.first > l.first )
                             continue;
                     ss << n.second.myName << " -- "
-                       << myGraph.name(l.first) << " capacity "
+                       << name(l.first) << " capacity "
                        << l.second.myCost << " used "
                        << l.second.myValue << "\n";
                 }

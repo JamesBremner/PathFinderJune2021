@@ -43,42 +43,19 @@
   </pre>
  * 
  */
-class cPathFinder
+class cPathFinder : public graph::cGraph
 {
 public:
+    cPathFinder()
+    {
+    }
+    cPathFinder(const graph::cGraph &g)
+    {
+        myG = g.get();
+        myfDirected = g.isDirected();
+    }
+
     void clear();
-
-    /** Add costed link between two nodes
- *
- * @param[in] u node index
- * @param[in] v node index
- * @param[in] cost link cost
- *
- * If the nodes do not exist, they will be added.
- *
- */
-    void addLink(
-        int u,
-        int v,
-        double cost = 1 );
-
-    void addLink(
-        const std::string &su,
-        const std::string &sv,
-        double cost = 1);
-
-    int addNode(const std::string &name);
-
-    /** Find or add node by name
- * 
- * @param[in] name
- * @return node index
- * 
- * If a node of specified name does not exist, it is added.
- */
-    int findoradd(const std::string &name);
-
-    void deleteNode(int n);
 
     /// set starting node
     void start(int start);
@@ -96,8 +73,6 @@ public:
     {
         myEnd = find(end);
     }
-
-    int linkCost( int u, int v );
 
     /** @brief Find optimum path from start to end node
  *
@@ -165,38 +140,13 @@ public:
 
     std::string camsViz();
 
-    /** @brief Find node by name
- * 
- * @param[in] name
- * @return node index, -1 if named node does not exist
- */
-    int find(const std::string &name);
-
     /// true if link between nodes
     bool IsAdjacent(int u, int v);
 
     /// true if all nodes are connected together
     bool IsConnected();
 
-    int nodeCount();
-    int linkCount();
     int islandCount();
-
-    std::string nodeColor(int n) const;
-    void nodeColor(int n, const std::string &color);
-    std::string nodeName(int n);
-
-    /** @brief set graph links type
-     * 
-     * @param[in] f true for directed, false for undirected, default directed
-     * 
-     * If not called, the graph will be undirected
-     * 
-     */
-    void directed(bool f = true)
-    {
-        myGraph.directed( f );
-    }
 
     /// add expensive ( INT_MAX ) links between unlinked nodes
     void makeComplete();
@@ -230,25 +180,19 @@ public:
 
     void cliques();
 
-
-
 private:
+    //graph::cGraph   myGraph;
 
-    graph::cGraph   myGraph;
- 
-    int              myStart;             // starting node index
-    int              myEnd;               // ending node index
-    std::vector<int> myPath;              // vector of node indices visited
-    std::vector<int> myDist;              // cost to reach each node from start
-    std::vector<int> myPred;              // previous node to each node from start
-    graph::cGraph    mySpanTree;          // minimum spanning tree
-    double           myPathCost;          // total cost of links in path
-    int              myMaxNegCost;
-    std::string      myResults;
+    int myStart;              // starting node index
+    int myEnd;                // ending node index
+    std::vector<int> myPath;  // vector of node indices visited
+    std::vector<int> myDist;  // cost to reach each node from start
+    std::vector<int> myPred;  // previous node to each node from start
+    graph::cGraph mySpanTree; // minimum spanning tree
+    double myPathCost;        // total cost of links in path
+    int myMaxNegCost;
+    std::string myResults;
 
-    void depthFirst( int v );
-    void depthRecurse( int v );
-
-    void copyNodes( const graph::cGraph& other );
-
+    void depthFirst(int v);
+    void depthRecurse(int v);
 };

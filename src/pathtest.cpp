@@ -63,5 +63,5 @@ main()
     // std::cout << "e\n|" << expected << "|\n";
     // std::cout << "t2\n|" << finder.resultsText() << "|\n";
 
-    std::cout << "All tests passed\n";
+    std::cout << "\nAll tests passed\n";
 }

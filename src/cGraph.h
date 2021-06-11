@@ -33,7 +33,7 @@ namespace graph
             if (it != myLink.end())
                 myLink.erase(it);
         }
-        int linkCost( int dst )
+        int linkCost(int dst)
         {
             auto it = myLink.find(dst);
             if (it == myLink.end())
@@ -55,6 +55,13 @@ namespace graph
             myG.clear();
             myfDirected = false;
         }
+    /** set graph links type
+     * 
+     * @param[in] f true for directed, false for undirected, default directed
+     * 
+     * If not called, the graph will be undirected
+     * 
+     */
         void directed(bool f = true)
         {
             myfDirected = f;
@@ -63,6 +70,15 @@ namespace graph
         {
             return myfDirected;
         }
+/** Add costed link between two nodes
+ *
+ * @param[in] u node index
+ * @param[in] v node index
+ * @param[in] cost link cost
+ *
+ * If the nodes do not exist, they will be added.
+ *
+ */
         void addLink(
             const std::string &srcname,
             const std::string &dstname,
@@ -82,6 +98,11 @@ namespace graph
             if (!myfDirected)
                 myG.find(v)->second.myLink.insert(std::make_pair(u, cEdge(cost)));
         }
+/** Find node by name
+ * 
+ * @param[in] name
+ * @return node index, -1 if named node does not exist
+ */
         int find(const std::string &name)
         {
             for (auto n : myG)
@@ -93,6 +114,13 @@ namespace graph
             }
             return -1;
         }
+/** Find or add node by name
+ * 
+ * @param[in] name
+ * @return node index
+ * 
+ * If a node of specified name does not exist, it is added.
+ */
         int findoradd(const std::string &name)
         {
             int n = find(name);
@@ -104,16 +132,16 @@ namespace graph
             return n;
         }
 
-        cNode& findNode( int n )
+        cNode &findNode(int n)
         {
-            auto it = myG.find( n );
-            if( it == myG.end() )
+            auto it = myG.find(n);
+            if (it == myG.end())
                 throw std::runtime_error(
                     "cGraph::findNode bad index");
             return it->second;
         }
 
-        cEdge& findLink( int u, int v )
+        cEdge &findLink(int u, int v)
         {
             return myG.at(u).myLink.at(v);
         }
@@ -131,12 +159,12 @@ namespace graph
                 // just ignore requests to remove links that do not exist
             }
         }
-        void removeNode( int n )
+        void removeNode(int n)
         {
-            auto it = myG.find( n );
-            if( it == myG.end() )
+            auto it = myG.find(n);
+            if (it == myG.end())
                 return;
-            myG.erase( it );
+            myG.erase(it);
         }
 
         std::string linksText()
@@ -146,8 +174,8 @@ namespace graph
             {
                 for (auto &l : n.second.myLink)
                 {
-                    if( ! myfDirected )
-                        if( n.first > l.first )
+                    if (!myfDirected)
+                        if (n.first > l.first)
                             continue;
                     ss << n.second.myName << " -> "
                        << myG[l.first].myName << " cost "
@@ -204,6 +232,23 @@ namespace graph
                 return false;
             return true;
         }
+        /** link cost
+ * @param[in] u node index
+ * @param[in] v node index
+ * @return cost of link between u and v
+ * If u and v are not adjacent, returns INT_MAX
+ */
+int cost(int u, int v)
+{
+    try
+    {
+        return link(u, v).myCost;
+    }
+    catch (...)
+    {
+        return INT_MAX;
+    }
+}
         /** Adjacent nodes
          * @param[in] i index of node to find which nodes it connects to
          * @return vector of connected node indices
@@ -214,8 +259,8 @@ namespace graph
             auto it = myG.find(i);
             if (it == myG.end())
                 return ret;
-            for( auto& l : it->second.myLink )
-                ret.push_back( l.first );
+            for (auto &l : it->second.myLink)
+                ret.push_back(l.first);
             return ret;
         }
         int nodeCount() const
@@ -236,16 +281,22 @@ namespace graph
         /// copy nodes, but not the links
         void copyNodes(const cGraph &other)
         {
-            for( auto& n : other.myG )
+            for (auto &n : other.myG)
             {
-                myG.insert(std::make_pair(n.first,cNode( n.second.myName )));
+                myG.insert(std::make_pair(n.first, cNode(n.second.myName)));
             }
         }
 
-    private:
-        
+        const std::map<int, cNode>& get() const
+        {
+            return myG;
+        }
+
+    protected:
         std::map<int, cNode> myG; // the graph, keyed by internal node index
 
         bool myfDirected;
+
+
     };
 }
