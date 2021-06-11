@@ -46,6 +46,9 @@
 class cPathFinder : public graph::cGraph
 {
 public:
+
+/////////////////  Class constructors ///////////////////
+
     cPathFinder()
     {
     }
@@ -55,24 +58,26 @@ public:
         myfDirected = g.isDirected();
     }
 
+/////////////////////////////////// setters //////////////////////////
+
     void clear();
 
-    /// set starting node
+    /// starting node
     void start(int start);
     void start(const std::string &start);
     int start() const;
 
-    /// set ending node, index
+    /// ending node
     void end(int end)
     {
         myEnd = end;
     }
-
-    /// set ending node, name
     void end(const std::string &end)
     {
         myEnd = find(end);
     }
+
+///////////////////////// methods applying algorithms //////////////////////
 
     /** @brief Find optimum path from start to end node
  *
@@ -96,52 +101,6 @@ public:
      * If no path exists, an exception is thrown.
  */
     std::vector<int> pathPick(int end);
-
-    int distance(int end);
-
-    /// Human readable list of links
-    std::string linksText();
-
-    /// Human readable path list
-    std::string pathText();
-
-    std::string resultsText()
-    {
-        return myResults;
-    }
-
-    /// Human readable list of edges that connects all nodes together
-    std::string spanText();
-
-    /** @brief graphical display of graph with path in red.
-     * 
-     * @return display in graphviz dot format
-     * 
-     * render at https://dreampuf.github.io/GraphvizOnline
-     * 
-     * or install graphviz and use command
-     * 
-     * dot -Kfdp -n -Tpng -o sample.png sample.dot
-     * 
-     */
-    std::string pathViz();
-
-    std::string pathViz(
-        const std::vector<int> &vp,
-        bool all = true);
-
-    /** graphical display of graph with spanning tree
-     * 
-     * @param[in] all true to see all links, spanning tree in red
-     * @param[in] all false to see spanning tree
-     * @return display in graphviz dot format
-     */
-    std::string spanViz(bool all = true);
-
-    std::string camsViz();
-
-    /// true if link between nodes
-    bool IsAdjacent(int u, int v);
 
     /// true if all nodes are connected together
     bool IsConnected();
@@ -179,6 +138,52 @@ public:
     void flows();
 
     void cliques();
+
+/////////////////////// get text output ///////////////////////////////////////////
+
+    /// Human readable list of links
+    std::string linksText();
+
+    /// Human readable path list
+    std::string pathText();
+
+    std::string resultsText()
+    {
+        return myResults;
+    }
+
+    /// Human readable list of edges that connects all nodes together
+    std::string spanText();
+
+////////////////// get graphViz output ////////////////////////////////////////////
+
+    /** @brief graphical display of graph with path in red.
+     * 
+     * @return display in graphviz dot format
+     * 
+     * render at https://dreampuf.github.io/GraphvizOnline
+     * 
+     * or install graphviz and use command
+     * 
+     * dot -Kfdp -n -Tpng -o sample.png sample.dot
+     * 
+     */
+    std::string pathViz();
+
+    std::string pathViz(
+        const std::vector<int> &vp,
+        bool all = true);
+
+    /** graphical display of graph with spanning tree
+     * 
+     * @param[in] all true to see all links, spanning tree in red
+     * @param[in] all false to see spanning tree
+     * @return display in graphviz dot format
+     */
+    std::string spanViz(bool all = true);
+
+    std::string camsViz();
+
 
 private:
     //graph::cGraph   myGraph;
