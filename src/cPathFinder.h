@@ -65,7 +65,8 @@ public:
     /// starting node
     void start(int start);
     void start(const std::string &start);
-    int start() const;
+    int  start() const;
+    void addSource( const std::string &source );
 
     /// ending node
     void end(int end)
@@ -135,8 +136,11 @@ public:
 
     void shaun();
 
+    /// Find maximum flow through graph
     void flows();
+    void multiflows();
 
+    /// Finf maximal cliques in graph
     void cliques();
 
 /////////////////////// get text output ///////////////////////////////////////////
@@ -186,10 +190,10 @@ public:
 
 
 private:
-    //graph::cGraph   myGraph;
 
-    int myStart;              // starting node index
-    int myEnd;                // ending node index
+    int              myStart; // starting node index
+    std::vector<int> mySource;
+    int              myEnd;   // ending node index
     std::vector<int> myPath;  // vector of node indices visited
     std::vector<int> myDist;  // cost to reach each node from start
     std::vector<int> myPred;  // previous node to each node from start

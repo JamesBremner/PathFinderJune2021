@@ -6,6 +6,7 @@ void cPathFinder::clear()
 {
     myG.clear();
     myPath.clear();
+    mySource.clear();
 }
 
 std::string cPathFinder::pathViz()
@@ -116,10 +117,14 @@ void cPathFinder::start(const std::string &start)
         throw std::runtime_error("cPathFinder::bad start node");
 }
 
-// cPathFinder::cEdge &cPathFinder::linkProps(int u, int v)
-// {
-//     return myLink.at(std::make_pair(u, v));
-// }
+    void cPathFinder::addSource( const std::string &source )
+    {
+        int s = find( source );
+        if( s < 0 )
+        throw std::runtime_error(
+            "cPathFinder::bad source node");
+        mySource.push_back( s );
+    }
 
 
 
@@ -385,17 +390,20 @@ void cPathFinder::cams()
         for (int t : work.adjacent(leafcover))
         {
             work.removeLink(leafcover, t);
-            work.removeLink(t, leafcover);
         }
     }
 
     // loop until all links are covered
     while (work.linkCount())
     {
-        //std::cout << "work.linkCount() " << work.linkCount() << "\n";
-        auto l = work.links().begin();
+        auto ml = work.links();
+        auto l = ml.begin();
         int u = l->first.first;
         int v = l->first.second;
+
+        if( u < 0 || v < 0 )
+            throw std::runtime_error(
+                "cPathFinder::cams bad index");
 
         auto sun = work.adjacent(u);
         auto svn = work.adjacent(v);
@@ -578,4 +586,19 @@ void cPathFinder::flows()
                 }
             }
             std::cout << ss.str();
+}
+
+void cPathFinder::multiflows()
+{
+    double totalmultiflow = 0;
+    for( int s : mySource )
+    {
+        std::cout << "multisource " << name(s) << "\n";
+        myStart = s;
+        flows();
+        totalmultiflow += myPathCost;
+    }
+    myPathCost = totalmultiflow;
+    myResults = "total flow " + std::to_string( totalmultiflow );
+    std::cout << myResults << "\n";
 }

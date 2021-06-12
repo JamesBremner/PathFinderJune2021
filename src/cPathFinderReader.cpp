@@ -7,7 +7,7 @@ cPathFinderReader::eFormat
 cPathFinderReader::open(
     const std::string &fname)
 {
-    eFormat ret = eFormat::none;
+    myFormat = eFormat::none;
     myFile.close();
     myFile.open(fname);
     if (!myFile.is_open())
@@ -47,13 +47,19 @@ cPathFinderReader::open(
         costs(false);
         return eFormat::cliques;
     }
+    else if (line.find("multiflows") != -1) {
+        myFormat = eFormat::multiflows;
+        costs();
+        myFinder.multiflows();
+    }
     else if (line.find("flows") != -1)
     {
         costs();
         myFinder.flows();
         return eFormat::flows;
     }
-    return ret;
+
+    return myFormat;
 }
 
 std::vector<std::string> cPathFinderReader::ParseSpaceDelimited(
@@ -122,7 +128,10 @@ void cPathFinderReader::costs(
         case 's':
             if (token.size() != 2)
                 throw std::runtime_error("cPathFinder::read bad start line");
-            myFinder.start(token[1]);
+            if( myFormat == eFormat::multiflows )
+                myFinder.addSource(token[1]);
+            else
+                myFinder.start(token[1]);
             break;
 
         case 'e':

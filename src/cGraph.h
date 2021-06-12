@@ -199,7 +199,6 @@ namespace graph
                     ret.insert(std::make_pair(std::make_pair(n.first, l.first), l.second));
                 }
             }
-
             return ret;
         }
         cNode &node(int i)
@@ -271,12 +270,13 @@ int cost(int u, int v)
         {
             return links().size();
         }
-        std::string &name(int i)
+        const std::string &name(int i) const
         {
-            if (0 > i || i >= myG.size())
+            auto it = myG.find(i);
+            if( it == myG.end() )
                 throw std::runtime_error(
                     "cGraph::name bad index");
-            return myG[i].myName;
+            return myG.find(i)->second.myName;
         }
         /// copy nodes, but not the links
         void copyNodes(const cGraph &other)

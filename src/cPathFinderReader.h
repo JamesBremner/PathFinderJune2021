@@ -27,6 +27,7 @@ public:
         shaun,
         islands,
         flows,
+        multiflows,
         maze_ascii_art,
         cliques,
     };
@@ -75,6 +76,7 @@ private:
     cPathFinder &myFinder;
     std::string myfname;
     std::ifstream myFile;
+    eFormat myFormat;
 
     /** Parse Space Delimited line
  * @param[in] l line from a space delimited text file

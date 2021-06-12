@@ -67,6 +67,7 @@ main()
         throw std::runtime_error("flows3.txt failed");
 
     reader.open("../dat/flows4.txt");
+    reader.open("../dat/flows5.txt");
 
     // std::cout << "e\n|" << expected << "|\n";
     // std::cout << "t2\n|" << finder.resultsText() << "|\n";
