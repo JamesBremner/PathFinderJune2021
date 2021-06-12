@@ -2,6 +2,8 @@
 #include <algorithm>
 #include "cPathFinder.h"
 
+namespace raven { namespace graph {
+
 void cPathFinder::clear()
 {
     myG.clear();
@@ -601,4 +603,6 @@ void cPathFinder::multiflows()
     myPathCost = totalmultiflow;
     myResults = "total flow " + std::to_string( totalmultiflow );
     std::cout << myResults << "\n";
+}
+}
 }

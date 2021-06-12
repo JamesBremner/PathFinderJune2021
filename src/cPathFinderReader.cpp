@@ -3,6 +3,8 @@
 #include <algorithm>
 #include "cPathFinderReader.h"
 
+namespace raven { namespace graph {
+
 cPathFinderReader::eFormat
 cPathFinderReader::open(
     const std::string &fname)
@@ -239,4 +241,6 @@ std::vector<std::string> cPathFinderReader::singleParentTree()
 {
     std::vector<std::string> ret;
     return ret;
+}
+}
 }

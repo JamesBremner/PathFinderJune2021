@@ -5,6 +5,8 @@
 #include <map>
 #include "cGraph.h"
 
+namespace raven { namespace graph {
+
 /** @brief general purpose path finder
  * 
  **** Usage: Node indices
@@ -43,7 +45,7 @@
   </pre>
  * 
  */
-class cPathFinder : public graph::cGraph
+class cPathFinder : public cGraph
 {
 public:
 
@@ -205,3 +207,5 @@ private:
     void depthFirst(int v);
     void depthRecurse(int v);
 };
+}
+}

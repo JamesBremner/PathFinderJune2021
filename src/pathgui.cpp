@@ -33,7 +33,7 @@ void replaceAll(std::string &str, const std::string &from, const std::string &to
     }
 }
 
-void RunDOT(cPathFinder &finder)
+void RunDOT(raven::graph::cPathFinder &finder)
 {
     auto path = std::filesystem::temp_directory_path();
     //std::cout << path;
@@ -131,8 +131,8 @@ void RunDOT(cPathFinder &finder)
 }
 
 void doPreReqs(
-    cPathFinder &finder,
-    cPathFinderReader &reader)
+    raven::graph::cPathFinder &finder,
+    raven::graph::cPathFinderReader &reader)
 {
     std::set<int> setSkillsNeeded;
 
@@ -181,7 +181,7 @@ void doPreReqs(
 
 int main()
 {
-    cPathFinder finder;
+    raven::graph::cPathFinder finder;
 
     // construct top level application window
     wex::gui &form = wex::maker::make();
@@ -235,6 +235,7 @@ int main()
                  });
     mfile.append("Calculate", [&](const std::string &title)
                  {
+                     using raven::graph::cPathFinderReader;
                      finder.clear();
                      wex::filebox fb(form);
                      auto fname = fb.open();
@@ -258,6 +259,7 @@ int main()
                          case cPathFinderReader::eFormat::gsingh:
                          case cPathFinderReader::eFormat::shaun:
                          case cPathFinderReader::eFormat::flows:
+                         case cPathFinderReader::eFormat::multiflows:
                             opt = eOption::costs;
                              break;
                         case cPathFinderReader::eFormat::cliques:

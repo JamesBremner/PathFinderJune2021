@@ -6,8 +6,8 @@
 #include "cGraph.h"
 #include "cPathFinder.h"
 
-cPathFinder finder;
-cPathFinderReader reader(finder);
+raven::graph::cPathFinder finder;
+raven::graph::cPathFinderReader reader(finder);
 
 main()
 {

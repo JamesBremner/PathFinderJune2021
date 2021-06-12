@@ -1,6 +1,8 @@
 #include <string>
 #include "cPathFinder.h"
 
+namespace raven { namespace graph {
+    
 /// Read input files into pathfinder
 class cPathFinderReader
 {
@@ -93,3 +95,5 @@ private:
     std::string orthogonalGridNodeName(
         int row, int col);
 };
+}
+}

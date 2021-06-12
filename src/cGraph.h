@@ -5,18 +5,19 @@
 #include <vector>
 #include <map>
 
+namespace raven {
 namespace graph
 {
-    /// edge properties
-    class cEdge
+    /// link properties
+    class cLink
     {
     public:
-        cEdge(int c = 1)
+        cLink(int c = 1)
             : myCost(c)
         {
         }
-        int myCost;
-        int myValue;
+        int myCost;         // a constraint e.g. distance of a road, max xapacity of a pipe
+        int myValue;        // a calculated value, e.g. actual flow through a pipe
     };
 
     /// node properties
@@ -42,13 +43,13 @@ namespace graph
         }
         std::string myName;
         std::string myColor;
-        std::map<int, cEdge> myLink;
+        std::map<int, cLink> myLink;
     };
     class cGraph
     {
     public:
-        typedef std::pair<std::pair<int, int>, cEdge> link_t;
-        typedef std::map<std::pair<int, int>, cEdge> linkmap_t;
+        typedef std::pair<std::pair<int, int>, cLink> link_t;
+        typedef std::map<std::pair<int, int>, cLink> linkmap_t;
 
         void clear()
         {
@@ -94,9 +95,9 @@ namespace graph
             if (0 > u || u > myG.size() || 0 > v || v >> myG.size())
                 throw std::runtime_error(
                     "addLink bad node index");
-            myG.find(u)->second.myLink.insert(std::make_pair(v, cEdge(cost)));
+            myG.find(u)->second.myLink.insert(std::make_pair(v, cLink(cost)));
             if (!myfDirected)
-                myG.find(v)->second.myLink.insert(std::make_pair(u, cEdge(cost)));
+                myG.find(v)->second.myLink.insert(std::make_pair(u, cLink(cost)));
         }
 /** Find node by name
  * 
@@ -123,9 +124,12 @@ namespace graph
  */
         int findoradd(const std::string &name)
         {
+            // search among the existing nodes
             int n = find(name);
             if (n < 0)
             {
+                // node does not exist, create a new one
+                // with a new index and add it to the graph
                 n = myG.size();
                 myG.insert(std::make_pair(n, cNode(name)));
             }
@@ -141,7 +145,7 @@ namespace graph
             return it->second;
         }
 
-        cEdge &findLink(int u, int v)
+        cLink &findLink(int u, int v)
         {
             return myG.at(u).myLink.at(v);
         }
@@ -205,7 +209,7 @@ namespace graph
         {
             return myG[i];
         }
-        cEdge &link(int u, int v)
+        cLink &link(int u, int v)
         {
             auto itu = myG.find(u);
             if (itu == myG.end())
@@ -299,4 +303,5 @@ int cost(int u, int v)
 
 
     };
+}
 }

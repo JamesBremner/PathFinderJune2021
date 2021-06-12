@@ -1,0 +1,11 @@
+format multiflows
+g
+l a1 b 105
+l a2 c 105
+l b d 500
+l c d 500
+s a1
+s a2
+e d
+
+
