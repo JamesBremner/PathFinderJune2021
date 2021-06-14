@@ -648,35 +648,53 @@ namespace raven
                 {
                     static int totalFlow = INT_MAX;
 
-                    if( v == myEnd ) {
+                    if (v == myEnd)
+                    {
                         // destination reached, report maximum flow
                         myPathCost = totalFlow;
-                        myResults = "total flow " + std::to_string(totalFlow);
-                        std::cout << "maximum flow is " << totalFlow << "\n";
                         return;
                     }
-                    
+
                     // sum the inputs
                     int sumInput = 0;
-                    for (auto &inlink : inlinks(v)) {
+                    for (auto &inlink : inlinks(v))
+                    {
                         sumInput += inlink.second.myValue;
                     }
 
                     // node outflows
                     int outValue = sumInput / node(v).outdegree();
-                    for (auto &outlink : node(v).myLink) {
+                    for (auto &outlink : node(v).myLink)
+                    {
                         outlink.second.myValue = outValue;
 
                         // check if this outflow reduces maximum flow through network
                         int x = outlink.second.myCost * 100 / outValue;
-                        if( x < totalFlow )
+                        if (x < totalFlow)
                             totalFlow = x;
                     }
-
                 });
 
             // do a breadth first search, updating flows as we go along
             breadth();
+
+            std::stringstream ss;
+            ss << "total flow " << std::to_string(myPathCost) << "\n";
+            for (auto &n : nodes())
+            {
+                for (auto &l : n.second.myLink)
+                {
+                    if (!isDirected())
+                        if (n.first > l.first)
+                            continue;
+                    ss << n.second.myName << " -> "
+                       << name(l.first) << " capacity "
+                       << l.second.myCost << " used "
+                       << myPathCost * l.second.myValue / 100 << "\n";
+                }
+            }
+            std::cout << ss.str();
+            myResults = ss.str();
         }
     }
 }

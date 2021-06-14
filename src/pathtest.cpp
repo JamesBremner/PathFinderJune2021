@@ -68,15 +68,15 @@ main()
 
     reader.open("../dat/flows7.txt");
     expected = "total flow 9";
-    if( finder.resultsText().find( expected) == -1 )
-        throw std::runtime_error("flows7.txt failed");  
+    if (finder.resultsText().find(expected) == -1)
+        throw std::runtime_error("flows7.txt failed");
 
     // equal flows https://stackoverflow.com/questions/67908818
     reader.open("../dat/flows8.txt");
     expected = "total flow 8";
-        if (expected != finder.resultsText())
+    if (finder.resultsText().find(expected) == -1)
         throw std::runtime_error("flows8.txt failed");
-    
+
     //reader.open("../dat/flows4.txt");
     //reader.open("../dat/flows5.txt");
 
