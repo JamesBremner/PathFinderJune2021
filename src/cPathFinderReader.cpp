@@ -54,6 +54,11 @@ cPathFinderReader::open(
         costs();
         myFinder.multiflows();
     }
+    else if (line.find("equiflows") != -1) {
+        myFormat = eFormat::flows;
+        costs();
+        myFinder.equiflows();
+    }
     else if (line.find("flows") != -1)
     {
         costs();

@@ -26,9 +26,9 @@ main()
     // Spanning tree
     std::cout << "TEST span.txt\n";
     reader.open("../dat/span.txt");
-    expected = "2 -> 1 cost 1\n"
-               "2 -> 3 cost 1\n"
-               "3 -> 4 cost 1\n";
+    expected = "2 -> 1 cost 1 value 0\n"
+               "2 -> 3 cost 1 value 0\n"
+               "3 -> 4 cost 1 value 0\n";
     if (expected != finder.spanText())
         throw std::runtime_error("span.txt failed");
 
@@ -66,8 +66,19 @@ main()
     if (expected != finder.resultsText())
         throw std::runtime_error("flows3.txt failed");
 
-    reader.open("../dat/flows4.txt");
-    reader.open("../dat/flows5.txt");
+    reader.open("../dat/flows7.txt");
+    expected = "total flow 9";
+    if( finder.resultsText().find( expected) == -1 )
+        throw std::runtime_error("flows7.txt failed");  
+
+    // equal flows https://stackoverflow.com/questions/67908818
+    reader.open("../dat/flows8.txt");
+    expected = "total flow 8";
+        if (expected != finder.resultsText())
+        throw std::runtime_error("flows8.txt failed");
+    
+    //reader.open("../dat/flows4.txt");
+    //reader.open("../dat/flows5.txt");
 
     // std::cout << "e\n|" << expected << "|\n";
     // std::cout << "t2\n|" << finder.resultsText() << "|\n";

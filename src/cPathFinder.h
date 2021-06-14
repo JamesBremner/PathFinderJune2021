@@ -3,9 +3,28 @@
 #include <fstream>
 #include <vector>
 #include <map>
+#include <functional> 
 #include "cGraph.h"
 
 namespace raven { namespace graph {
+
+class cVisitor
+{
+    public:
+    cVisitor()
+    {
+        set( [](int v) {} );
+    }
+    void set( std::function<void( int v )> f )
+    {
+        myf = f;
+    }
+    void operator()(int v)  { myf( v ); }
+
+    private:
+    std::function<void( int v )> myf;
+
+};
 
 /** @brief general purpose path finder
  * 
@@ -141,14 +160,12 @@ public:
     /// Find maximum flow through graph
     void flows();
     void multiflows();
+    void equiflows();
 
     /// Finf maximal cliques in graph
     void cliques();
 
 /////////////////////// get text output ///////////////////////////////////////////
-
-    /// Human readable list of links
-    std::string linksText();
 
     /// Human readable path list
     std::string pathText();
@@ -202,10 +219,13 @@ private:
     graph::cGraph mySpanTree; // minimum spanning tree
     double myPathCost;        // total cost of links in path
     int myMaxNegCost;
-    std::string myResults;
+    std::string     myResults;
+    cVisitor        myVisitor;
 
     void depthFirst(int v);
     void depthRecurse(int v);
+    void breadth();
+
 };
 }
 }

@@ -41,6 +41,10 @@ namespace graph
                 return INT_MAX;
             return it->second.myCost;
         }
+        int outdegree()
+        {
+            return myLink.size();
+        }
         std::string myName;
         std::string myColor;
         std::map<int, cLink> myLink;
@@ -152,6 +156,7 @@ namespace graph
 
         void removeLink(int u, int v)
         {
+            //std::cout << "remove link " << name(u) <<" "<< name(v)  << "\n";
             try
             {
                 myG.at(u).removeLink(v);
@@ -171,6 +176,7 @@ namespace graph
             myG.erase(it);
         }
 
+        /// Human readable list of links
         std::string linksText()
         {
             std::stringstream ss;
@@ -182,8 +188,8 @@ namespace graph
                         if (n.first > l.first)
                             continue;
                     ss << n.second.myName << " -> "
-                       << myG[l.first].myName << " cost "
-                       << l.second.myCost << "\n";
+                       << myG[l.first].myName << " cost " << l.second.myCost 
+                       << " value " << l.second.myValue << "\n";
                 }
             }
             return ss.str();
@@ -201,6 +207,16 @@ namespace graph
                 for (auto &l : n.second.myLink)
                 {
                     ret.insert(std::make_pair(std::make_pair(n.first, l.first), l.second));
+                }
+            }
+            return ret;
+        }
+        linkmap_t inlinks( int n )
+        {
+            linkmap_t ret;
+            for( auto& l : links() ) {
+                if( l.first.second == n ) {
+                    ret.insert( l );
                 }
             }
             return ret;
@@ -274,6 +290,7 @@ int cost(int u, int v)
         {
             return links().size();
         }
+
         const std::string &name(int i) const
         {
             auto it = myG.find(i);
