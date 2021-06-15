@@ -8,24 +8,6 @@
 
 namespace raven { namespace graph {
 
-class cVisitor
-{
-    public:
-    cVisitor()
-    {
-        set( [](int v) {} );
-    }
-    void set( std::function<void( int v )> f )
-    {
-        myf = f;
-    }
-    void operator()(int v)  { myf( v ); }
-
-    private:
-    std::function<void( int v )> myf;
-
-};
-
 /** @brief general purpose path finder
  * 
  **** Usage: Node indices
@@ -207,6 +189,11 @@ public:
 
     std::string camsViz();
 
+    /** Depth First search
+     * @param[in] v index of starting node
+     * @param[in] visitor function to call on each new node visited
+     */
+    void depthFirst(int v, std::function<void( int v )> visitor);
 
 private:
 
@@ -220,11 +207,14 @@ private:
     double myPathCost;        // total cost of links in path
     int myMaxNegCost;
     std::string     myResults;
-    cVisitor        myVisitor;
 
-    void depthFirst(int v);
-    void depthRecurse(int v);
-    void breadth();
+
+    void depthRecurse(int v, std::function<void( int v )> visitor);
+
+    /** Breadth First Search
+     * @param[in] visitor function to call on each new node visited
+     */
+    void breadth( std::function<void( int v )> visitor );
 
 };
 }

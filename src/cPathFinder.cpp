@@ -311,21 +311,22 @@ namespace raven
             return mySpanTree.linksText();
         }
 
-        void cPathFinder::depthFirst(int v)
+        void cPathFinder::depthFirst(
+            int v,
+            std::function<void(int v)> visitor )
         {
             myPath.clear();
             myPath.resize(nodeCount(), 0);
             myPred.clear();
 
-            depthRecurse(v);
+            depthRecurse(v, visitor );
         }
 
-        void cPathFinder::depthRecurse(int v)
+        void cPathFinder::depthRecurse(
+            int v,
+            std::function<void(int v)> visitor )
         {
-            myVisitor(v);
-
-            // record new node on the search
-            myPred.push_back(v);
+            visitor( v );
 
             // remember this node has been visted
             myPath[v] = 1;
@@ -335,11 +336,12 @@ namespace raven
                 if (!myPath[w])
                 {
                     // search from new node
-                    depthRecurse(w);
+                    depthRecurse( w, visitor );
                 }
         }
 
-        void cPathFinder::breadth()
+        void cPathFinder::breadth(
+            std::function<void(int v)> visitor)
         {
             std::vector<bool> visited(nodeCount(), false);
             std::queue<int> Q;
@@ -355,7 +357,8 @@ namespace raven
                 {
                     if (!visited[w])
                     {
-                        myVisitor(w);
+                        // reached a new node
+                        visitor(w);
                         visited[w] = true;
                         Q.push(w);
                     }
@@ -371,9 +374,12 @@ namespace raven
             // construct pathFinder from spanning tree
             cPathFinder pf(mySpanTree);
 
-            // depth first search of spanning tree
-            pf.depthFirst(0);
-            myPath = pf.myPred;
+            // // depth first search of spanning tree
+            pf.depthFirst(0, [this](int v) 
+            {
+                // record new node on the search
+                myPath.push_back(v);
+            } );
 
             //return to starting point
             myPath.push_back(myPath[0]);
@@ -642,8 +648,8 @@ namespace raven
             for (auto &outlink : node(myStart).myLink)
                 outlink.second.myValue = outlinkpercent;
 
-            // function to call each time a node is visited in BFS
-            myVisitor.set(
+            // do a breadth first search, updating flows as we go along
+            breadth(
                 [this](int v)
                 {
                     static int totalFlow = INT_MAX;
@@ -674,9 +680,6 @@ namespace raven
                             totalFlow = x;
                     }
                 });
-
-            // do a breadth first search, updating flows as we go along
-            breadth();
 
             std::stringstream ss;
             ss << "total flow " << std::to_string(myPathCost) << "\n";
