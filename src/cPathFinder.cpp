@@ -438,39 +438,37 @@ namespace raven
             // loop until all links are covered
             while (work.linkCount())
             {
-                auto ml = work.links();
-                auto l = ml.begin();
-                int u = l->first.first;
-                int v = l->first.second;
+                // select first remaining uncovered link
+                auto l = *(work.links().begin());
+                int u = source( l );
+                int v = target( l );
 
                 if (u < 0 || v < 0)
                     throw std::runtime_error(
                         "cPathFinder::cams bad index");
 
+                // add node with greatest degree to cover set
                 auto sun = work.adjacent(u);
                 auto svn = work.adjacent(v);
-
-                // add non leaf nodes on selected link to cover
-                if (sun.size() > 1)
-                {
-                    myPath.push_back(u);
-                }
-                if (svn.size() > 1)
+                if (svn.size() > sun.size())
                 {
                     myPath.push_back(v);
+                    for (int t : svn)
+                    {
+                        work.removeLink(v, t);
+                        work.removeLink(t, v);
+                    }
+                }
+                else
+                {
+                    myPath.push_back(u);
+                    for (int t : sun)
+                    {
+                        work.removeLink(u, t);
+                        work.removeLink(t, u);
+                    }
                 }
 
-                // remove all links that can be seen from new cover nodes
-                for (int t : sun)
-                {
-                    work.removeLink(u, t);
-                    work.removeLink(t, u);
-                }
-                for (int t : svn)
-                {
-                    work.removeLink(v, t);
-                    work.removeLink(t, v);
-                }
             }
             for (int n : myPath)
                 node(n).myColor = "red";
@@ -707,7 +705,7 @@ namespace raven
             myResults = ss.str();
         }
         void cPathFinder::hills(
-            const std::vector<std::vector<float>> &gheight )
+            const std::vector<std::vector<float>> &gheight)
         {
 
             // cost links according to change in height they incur
@@ -717,7 +715,7 @@ namespace raven
                     "cPathFinder::hills bad grid");
             int colCount = gheight[0].size();
 
-            for( auto& l : links() )
+            for (auto &l : links())
             {
                 int source = l.first.first;
                 int target = l.first.second;
@@ -735,7 +733,6 @@ namespace raven
 
             myResults = pathText();
             std::cout << pathText();
-
         }
     }
 }

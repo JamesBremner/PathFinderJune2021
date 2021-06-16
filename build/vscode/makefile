@@ -17,10 +17,10 @@ WEXLIBS = \
 ODIR=./obj
 
 # sources
-_GUI = pathgui.o cPathFinder.o cPathFinderReader.o
+_GUI = pathgui.o cPathFinder.o cPathFinderReader.o cGraph.o
 GUI = $(patsubst %,$(ODIR)/%,$(_GUI))
 
-_TST = pathtest.o cPathFinder.o cPathFinderReader.o
+_TST = pathtest.o cPathFinder.o cPathFinderReader.o cGraph.o
 TST = $(patsubst %,$(ODIR)/%,$(_TST))
 
 $(ODIR)/%.o: %.cpp $(DEPS)

@@ -11,9 +11,18 @@ raven::graph::cPathFinderReader reader(finder);
 
 main()
 {
+    std::string expected;
+
+    // link cover
+    std::cout << "TEST cover3.txt\n";
+    reader.open("../dat/cover3.txt");
+    expected = "3 -> 1 -> 2 -> ";
+    if (expected != finder.pathText())
+        throw std::runtime_error("cover3.txt failed");
+
     // Dijsktra - long path to avoid high cost link
     reader.open("../dat/costs.txt");
-    std::string expected("1 -> 2 -> 3 -> 4 ->  Cost is 3\n");
+    expected = "1 -> 2 -> 3 -> 4 ->  Cost is 3\n";
     if (expected != finder.pathText())
         throw std::runtime_error("costs.txt failed");
 
@@ -40,12 +49,7 @@ main()
     if (expected != finder.pathText())
         throw std::runtime_error("sales.txt failed");
 
-    // link cover
-    std::cout << "TEST cover3.txt\n";
-    reader.open("../dat/cover3.txt");
-    expected = "3 -> 1 -> 0 -> ";
-    if (expected != finder.pathText())
-        throw std::runtime_error("cover3.txt failed");
+
 
     std::cout << "TEST cliques.txt\n";
     reader.open("../dat/cliques.txt");

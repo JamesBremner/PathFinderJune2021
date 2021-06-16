@@ -49,10 +49,13 @@ namespace graph
         std::string myColor;
         std::map<int, cLink> myLink;
     };
+
+    typedef std::pair<std::pair<int, int>, cLink> link_t;
+
     class cGraph
     {
     public:
-        typedef std::pair<std::pair<int, int>, cLink> link_t;
+
         typedef std::map<std::pair<int, int>, cLink> linkmap_t;
 
         void clear()
@@ -320,5 +323,10 @@ int cost(int u, int v)
 
 
     };
+
+int source( const link_t& link );
+
+int target( const link_t& link );
+
 }
 }
