@@ -38,3 +38,4 @@ Calculation Options are:
 
  - __Cliques__ Find the set of maximal cliques in a graph. [Detailed Documentation](https://github.com/JamesBremner/PathFinder2/wiki/Cliques)
  - __Flows__ Find maximum flow through a graph.  [Detailed Documentation](https://github.com/JamesBremner/PathFinder2/wiki/Flows)
+ - __Hills__ Find easiest path through hilly terrain. [Detailed Documentation](https://github.com/JamesBremner/PathFinder2/wiki/Hills)
