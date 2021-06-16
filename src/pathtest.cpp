@@ -77,6 +77,11 @@ main()
     if (finder.resultsText().find(expected) == -1)
         throw std::runtime_error("flows8.txt failed");
 
+    reader.open("../dat/hill.txt");
+    expected = "c1r1 -> c1r2 -> c1r3 -> c2r3 -> c3r3 ->  Cost is 4\n";
+    if (finder.resultsText().find(expected) == -1)
+        throw std::runtime_error("hill.txt failed");
+
     //reader.open("../dat/flows4.txt");
     //reader.open("../dat/flows5.txt");
 

@@ -116,6 +116,13 @@ namespace raven
             f << "}\n";
             return f.str();
         }
+        void cPathFinder::start(int n)
+        {
+            if (0 > n || n >= myG.size())
+                throw std::runtime_error(
+                    "cPathFinder::bad start node");
+            myStart = n;
+        }
         void cPathFinder::start(const std::string &start)
         {
             myStart = find(start);
@@ -313,20 +320,20 @@ namespace raven
 
         void cPathFinder::depthFirst(
             int v,
-            std::function<void(int v)> visitor )
+            std::function<void(int v)> visitor)
         {
             myPath.clear();
             myPath.resize(nodeCount(), 0);
             myPred.clear();
 
-            depthRecurse(v, visitor );
+            depthRecurse(v, visitor);
         }
 
         void cPathFinder::depthRecurse(
             int v,
-            std::function<void(int v)> visitor )
+            std::function<void(int v)> visitor)
         {
-            visitor( v );
+            visitor(v);
 
             // remember this node has been visted
             myPath[v] = 1;
@@ -336,7 +343,7 @@ namespace raven
                 if (!myPath[w])
                 {
                     // search from new node
-                    depthRecurse( w, visitor );
+                    depthRecurse(w, visitor);
                 }
         }
 
@@ -375,11 +382,11 @@ namespace raven
             cPathFinder pf(mySpanTree);
 
             // // depth first search of spanning tree
-            pf.depthFirst(0, [this](int v) 
-            {
-                // record new node on the search
-                myPath.push_back(v);
-            } );
+            pf.depthFirst(0, [this](int v)
+                          {
+                              // record new node on the search
+                              myPath.push_back(v);
+                          });
 
             //return to starting point
             myPath.push_back(myPath[0]);
@@ -698,6 +705,37 @@ namespace raven
             }
             std::cout << ss.str();
             myResults = ss.str();
+        }
+        void cPathFinder::hills(
+            const std::vector<std::vector<float>> &gheight )
+        {
+
+            // cost links according to change in height they incur
+            int rowCount = gheight.size();
+            if (!rowCount)
+                throw std::runtime_error(
+                    "cPathFinder::hills bad grid");
+            int colCount = gheight[0].size();
+
+            for( auto& l : links() )
+            {
+                int source = l.first.first;
+                int target = l.first.second;
+                int srow = source / colCount;
+                int scol = source - srow * colCount;
+                int trow = target / colCount;
+                int tcol = target - trow * colCount;
+                float sh = gheight[srow][scol];
+                float th = gheight[trow][tcol];
+                float delta = th - sh;
+                l.second.myCost = 1 + delta * delta;
+            }
+
+            path();
+
+            myResults = pathText();
+            std::cout << pathText();
+
         }
     }
 }

@@ -65,6 +65,10 @@ cPathFinderReader::open(
         myFinder.flows();
         return eFormat::flows;
     }
+    else if (line.find("hills") != -1) {
+        myFinder.hills(orthogonalGrid());
+        return eFormat::hills;
+    }
 
     return myFormat;
 }
@@ -241,11 +245,121 @@ void cPathFinderReader::sales()
        // myFinder.makeComplete();
     }
 }
+std::vector<std::vector<float>> cPathFinderReader::orthogonalGrid()
+{
+    if (!myFile.is_open())
+        throw std::runtime_error(
+            "cPathFinderReader::orthogonalGrid file not open");
 
+    const bool fDirected = true;
+
+    myFinder.clear();
+    myFinder.directed(fDirected);
+
+    std::vector<std::vector<float>> grid;
+    int RowCount = 0;
+    int ColCount = -1;
+    int start = -1;
+    int end = -1;
+    std::string line;
+    while (std::getline(myFile, line))
+    {
+        std::cout << line << "\n";
+        auto token = ParseSpaceDelimited(line);
+        if (!token.size())
+            continue;
+        switch (token[0][0])
+        {
+        case 'o':
+        {
+            if (ColCount == -1)
+                ColCount = token.size() - 1;
+            else if (token.size() - 1 != ColCount)
+                throw std::runtime_error("Bad column count");
+            std::vector<float> row;
+            for (int k = 1; k < token.size(); k++)
+                row.push_back(atof(token[k].c_str()));
+            grid.push_back(row);
+        }
+        break;
+        case 's':
+            if (token.size() != 3)
+                throw std::runtime_error("Bad start");
+            if (ColCount == -1)
+                throw std::runtime_error("Start node must be at end");
+            start =
+                (atoi(token[2].c_str()) - 1) * ColCount + atoi(token[1].c_str()) - 1;
+            break;
+        case 'e':
+            if (token.size() != 3)
+                throw std::runtime_error("Bad end");
+            if (ColCount == -1)
+                throw std::runtime_error("End node must be at end");
+            end =
+                (atoi(token[2].c_str()) - 1) * ColCount + atoi(token[1].c_str()) - 1;
+            break;
+        }
+    }
+    RowCount = grid.size();
+    // std::cout << "<-cHillPathFinder::read " << myRowCount << "\n";
+
+    // add nodes at each grid cell
+    for (int row = 0; row < RowCount; row++)
+    {
+        for (int col = 0; col < ColCount; col++)
+        {
+            int n = myFinder.findoradd(
+                orthogonalGridNodeName(row,col));
+        }
+    }
+    myFinder.start( start );
+    myFinder.end( end );
+
+    // link cells orthogonally
+    for (int row = 0; row < RowCount; row++)
+        for (int col = 0; col < ColCount; col++)
+        {
+            int n = row * ColCount + col;
+
+            if (fDirected)
+            {
+                if (col > 0)
+                {
+                    int left = row * ColCount + col - 1;
+                    myFinder.addLink(n, left, 1);
+                }
+            }
+            if (col < ColCount - 1)
+            {
+                int right = row * ColCount + col + 1;
+                myFinder.addLink(n, right, 1);
+            }
+            if (fDirected)
+            {
+                if (row > 0)
+                {
+                    int up = (row - 1) * ColCount + col;
+                    myFinder.addLink(n, up, 1);
+                }
+            }
+            if (row < RowCount - 1)
+            {
+                int down = (row + 1) * ColCount + col;
+                myFinder.addLink(n, down, 1);
+            }
+        }
+    return grid;
+}
+std::string cPathFinderReader::orthogonalGridNodeName(
+    int row, int col)
+{
+    return "c" + std::to_string(col + 1) + "r" + std::to_string(row + 1);
+}
 std::vector<std::string> cPathFinderReader::singleParentTree()
 {
     std::vector<std::string> ret;
     return ret;
 }
+
 }
 }
