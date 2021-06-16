@@ -5,57 +5,57 @@
 
 namespace raven { namespace graph {
 
-cPathFinderReader::eFormat
+eCalculation
 cPathFinderReader::open(
     const std::string &fname)
 {
-    myFormat = eFormat::none;
+    myFormat = eCalculation::none;
     myFile.close();
     myFile.open(fname);
     if (!myFile.is_open())
-        return eFormat::not_open;
+        return eCalculation::not_open;
     std::string line;
     getline(myFile, line);
     if (line.find("format") != 0)
-        return eFormat::none;
+        return eCalculation::none;
     if (line.find("costs") != -1)
     {
         costs();
         myFinder.path();
         std::cout << myFinder.pathText() << "\n";
-        return eFormat::costs;
+        return eCalculation::costs;
     }
     else if (line.find("spans") != -1)
     {
         costs();
         myFinder.span();
         std::cout << myFinder.spanText() << "\n";
-        return eFormat::spans;
+        return eCalculation::spans;
     }
     else if (line.find("sales") != -1)
     {
         sales();
         myFinder.tsp();
-        return eFormat::sales;
+        return eCalculation::sales;
     }
     else if (line.find("cams") != -1)
     {
         costs(false);
         myFinder.cams();
-        return eFormat::cams;
+        return eCalculation::cams;
     }
     else if (line.find("cliques") != -1)
     {
         costs(false);
-        return eFormat::cliques;
+        return eCalculation::cliques;
     }
     else if (line.find("multiflows") != -1) {
-        myFormat = eFormat::multiflows;
+        myFormat = eCalculation::multiflows;
         costs();
         myFinder.multiflows();
     }
     else if (line.find("equiflows") != -1) {
-        myFormat = eFormat::flows;
+        myFormat = eCalculation::flows;
         costs();
         myFinder.equiflows();
     }
@@ -63,11 +63,11 @@ cPathFinderReader::open(
     {
         costs();
         myFinder.flows();
-        return eFormat::flows;
+        return eCalculation::flows;
     }
     else if (line.find("hills") != -1) {
         myFinder.hills(orthogonalGrid());
-        return eFormat::hills;
+        return eCalculation::hills;
     }
 
     return myFormat;
@@ -139,7 +139,7 @@ void cPathFinderReader::costs(
         case 's':
             if (token.size() != 2)
                 throw std::runtime_error("cPathFinder::read bad start line");
-            if( myFormat == eFormat::multiflows )
+            if( myFormat == eCalculation::multiflows )
                 myFinder.addSource(token[1]);
             else
                 myFinder.start(token[1]);

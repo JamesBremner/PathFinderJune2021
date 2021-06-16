@@ -7,19 +7,19 @@
 #include "cPathFinder.h"
 #include "cPathFinderReader.h"
 
-enum class eOption
-{
-    none,
-    costs,
-    req,
-    sales,
-    span,
-    cams,
-    ortho,
-    islands,
-};
+// enum class eOption
+// {
+//     none,
+//     costs,
+//     req,
+//     sales,
+//     span,
+//     cams,
+//     ortho,
+//     islands,
+// };
 
-eOption opt = eOption::none;
+raven::graph::eCalculation opt = raven::graph::eCalculation::none;
 
 void replaceAll(std::string &str, const std::string &from, const std::string &to)
 {
@@ -42,16 +42,17 @@ void RunDOT(raven::graph::cPathFinder &finder)
     if (!f.is_open())
         throw std::runtime_error("Cannot open " + gdot.string());
 
+using raven::graph::eCalculation;
     switch (opt)
     {
-    case eOption::costs:
-    case eOption::sales:
+    case eCalculation::costs:
+    case eCalculation::sales:
         f << finder.pathViz() << "\n";
         break;
-    case eOption::span:
+    case eCalculation::spans:
         f << finder.spanViz() << "\n";
         break;
-    case eOption::cams:
+    case eCalculation::cams:
         f << finder.camsViz() << "\n";
         break;
     default:
@@ -245,40 +246,41 @@ int main()
 
                      try
                      {
+                         using raven::graph::eCalculation;
                          switch (reader.open(fname))
                          {
-                         case cPathFinderReader::eFormat::none:
+                         case eCalculation::none:
                              throw std::runtime_error(
                                  "File format not specified");
-                         case cPathFinderReader::eFormat::not_open:
+                         case eCalculation::not_open:
                              throw std::runtime_error(
                                  "Cannot open " + fname);
 
-                         case cPathFinderReader::eFormat::costs:
-                         case cPathFinderReader::eFormat::hills:
-                         case cPathFinderReader::eFormat::gsingh:
-                         case cPathFinderReader::eFormat::shaun:
-                         case cPathFinderReader::eFormat::flows:
-                         case cPathFinderReader::eFormat::multiflows:
-                            opt = eOption::costs;
+                         case eCalculation::costs:
+                         case eCalculation::hills:
+                         case eCalculation::gsingh:
+                         case eCalculation::shaun:
+                         case eCalculation::flows:
+                         case eCalculation::multiflows:
+                            opt = eCalculation::costs;
                              break;
-                        case cPathFinderReader::eFormat::cliques:
+                        case eCalculation::cliques:
                             finder.cliques();
-                            opt = eOption::costs;
+                            opt = eCalculation::costs;
                              break;
-                         case cPathFinderReader::eFormat::sales:
-                             opt = eOption::sales;
+                         case eCalculation::sales:
+                             opt = eCalculation::sales;
                              break;
-                         case cPathFinderReader::eFormat::spans:
-                             opt = eOption::span;
+                         case eCalculation::spans:
+                             opt = eCalculation::spans;
                              break;
-                         case cPathFinderReader::eFormat::cams:
-                             opt = eOption::cams;
+                         case eCalculation::cams:
+                             opt = eCalculation::cams;
                              break;
-                         case cPathFinderReader::eFormat::islands:
-                             opt = eOption::islands;
+                         case eCalculation::islands:
+                             opt = eCalculation::islands;
                              break;
-                         case cPathFinderReader::eFormat::maze_ascii_art:
+                         case eCalculation::maze_ascii_art:
                              break;
 
                          default:
@@ -304,21 +306,22 @@ int main()
         [&](PAINTSTRUCT &ps)
         {
             wex::shapes s(ps);
+            using raven::graph::eCalculation;
             switch (opt)
             {
-            case eOption::costs:
-            case eOption::sales:
-            case eOption::cams:
+            case eCalculation::costs:
+            case eCalculation::sales:
+            case eCalculation::cams:
                 s.text(
                     finder.pathText(),
                     {5, 5});
                 break;
-            case eOption::span:
+            case eCalculation::spans:
                 s.text(
                     finder.spanText(),
                     {5, 5});
                 break;
-            case eOption::islands:
+            case eCalculation::islands:
                 // s.text(
                 //     "There are " + std::to_string( finder.islandCount() ) + " islands",
                 //     {5, 5});

@@ -16,29 +16,12 @@ public:
         myfname = fname;
     }
 
-    enum class eFormat
-    {
-        none,
-        not_open,
-        costs,
-        spans,
-        sales,
-        hills,
-        cams,
-        gsingh,
-        shaun,
-        islands,
-        flows,
-        multiflows,
-        maze_ascii_art,
-        cliques,
-    };
 
     /** Open file, determine format and read data into pathfinder
      * @param[in] fname to open
      * @return format
      */
-    eFormat open(
+    eCalculation open(
         const std::string &fname);
 
     /** Read input file with costed links 
@@ -78,7 +61,7 @@ private:
     cPathFinder &myFinder;
     std::string myfname;
     std::ifstream myFile;
-    eFormat myFormat;
+    eCalculation myFormat;
 
     /** Parse Space Delimited line
  * @param[in] l line from a space delimited text file

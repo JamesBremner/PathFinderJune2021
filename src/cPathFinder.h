@@ -10,6 +10,23 @@ namespace raven
 {
     namespace graph
     {
+        enum class eCalculation
+        {
+            none,
+            not_open,
+            costs,
+            spans,
+            sales,
+            hills,
+            cams,
+            gsingh,
+            shaun,
+            islands,
+            flows,
+            multiflows,
+            maze_ascii_art,
+            cliques,
+        };
 
         /** @brief general purpose path finder
  * 
@@ -135,7 +152,7 @@ namespace raven
 
             /// Find path in grid that minimizes changes in height
             void hills(
-                const std::vector<std::vector<float>> &gheight );
+                const std::vector<std::vector<float>> &gheight);
 
             void gsingh();
 
