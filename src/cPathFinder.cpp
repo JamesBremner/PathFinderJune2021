@@ -1,6 +1,7 @@
 #include <sstream>
 #include <algorithm>
 #include <queue>
+#include <set>
 #include "cPathFinder.h"
 
 namespace raven
@@ -141,6 +142,11 @@ namespace raven
 
         void cPathFinder::path()
         {
+            paths( myStart );
+            pathPick(myEnd);
+        }
+        void cPathFinder::paths( int start )
+        {
             int V = nodeCount();
 
             myDist.clear();
@@ -156,8 +162,8 @@ namespace raven
                 myDist[i] = INT_MAX, sptSet[i] = false;
 
             // Distance of source vertex from itself is always 0
-            myDist[myStart] = 0;
-            myPred[myStart] = 0;
+            myDist[start] = 0;
+            myPred[start] = 0;
 
             // Find shortest path for all vertices
             for (int count = 0; count < V - 1; count++)
@@ -194,7 +200,6 @@ namespace raven
                     }
                 }
             }
-            pathPick(myEnd);
         }
 
         std::vector<int> cPathFinder::pathPick(int end)
@@ -440,8 +445,8 @@ namespace raven
             {
                 // select first remaining uncovered link
                 auto l = *(work.links().begin());
-                int u = source( l );
-                int v = target( l );
+                int u = source(l);
+                int v = target(l);
 
                 if (u < 0 || v < 0)
                     throw std::runtime_error(
@@ -468,7 +473,6 @@ namespace raven
                         work.removeLink(t, u);
                     }
                 }
-
             }
             for (int n : myPath)
                 node(n).myColor = "red";
@@ -733,6 +737,49 @@ namespace raven
 
             myResults = pathText();
             std::cout << pathText();
+        }
+
+        void cPathFinder::PreReqs(
+            const std::vector<std::string> &va)
+        {
+            std::set<int> setSkillsNeeded;
+
+            // starting node
+            start("0");
+
+            // paths to all end nodes
+            end(-1);
+
+            // run Dijsktra
+            paths(myStart);
+
+            // loop over required skills
+            for (auto &a : va)
+            {
+                //skills needed to get required skill
+                auto path = pathPick(find(a));
+
+                std::cout << "skill " << a << " needs ";
+                for (int s : path)
+                    std::cout << name(s) << " ";
+                std::cout << "\n";
+
+                //loop over prerequsites
+                for (auto s : path)
+                {
+                    //record skill if not already learned
+                    setSkillsNeeded.insert(s);
+                }
+            }
+
+            std::stringstream ss;
+            ss << "Total skills needed "
+                      << setSkillsNeeded.size() << " ( ";
+            for (int s : setSkillsNeeded)
+                ss << name(s) << " ";
+            ss << " )";
+            myResults = ss.str();
+            std::cout << myResults << "\n";
         }
     }
 }

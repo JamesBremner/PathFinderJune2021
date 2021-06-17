@@ -13,6 +13,13 @@ main()
 {
     std::string expected;
 
+    // prerequisites
+    std::cout << "TEST t2.txt\n";
+    reader.open("../dat/t2.txt");
+    expected = "Total skills needed 5 ( 0 2 3 5 6  )";
+    if (expected != finder.resultsText())
+        throw std::runtime_error("t2.txt failed");
+
     // link cover
     std::cout << "TEST cover3.txt\n";
     reader.open("../dat/cover3.txt");

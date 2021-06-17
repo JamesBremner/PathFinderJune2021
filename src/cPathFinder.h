@@ -26,6 +26,7 @@ namespace raven
             multiflows,
             maze_ascii_art,
             cliques,
+            reqs,
         };
 
         /** @brief general purpose path finder
@@ -165,6 +166,10 @@ namespace raven
 
             /// Find maximal cliques in graph
             void cliques();
+
+            /// Find prerequisites
+            void PreReqs(
+                const std::vector<std::string> &va);
 
             /////////////////////// get text output ///////////////////////////////////////////
 
