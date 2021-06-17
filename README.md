@@ -21,17 +21,8 @@ If the calculation is succesful, a graphical display of the graph with the path 
 Calculation Options are:
 
  - __Costs.__ Input specifies undirected links, link costs, starting and ending nodes, then uses the Dijsktra algorithm to find optimal path. [Detailed Documentation](https://github.com/JamesBremner/PathFinder2/wiki/Costs)
-
-![image](https://user-images.githubusercontent.com/2046227/120937017-05a78680-c6d9-11eb-9571-57d70303c1c1.png)
-
  - __Spans__ Input specifies undirected links, with costs then uses Pim's algorithm to find minimum cost links that connect all nodes together. [Detailed Documentation](https://github.com/JamesBremner/PathFinder2/wiki/Spans)
-
-![image](https://user-images.githubusercontent.com/2046227/120936975-d6911500-c6d8-11eb-9bc2-c67df948fbde.png)
-
  - __Sales__  Input specifies undirected links, with costs then finds a route that will visit every node once. [Detailed Documentation](https://github.com/JamesBremner/PathFinder2/wiki/Sales)
- 
- ![image](https://user-images.githubusercontent.com/2046227/120936942-a77aa380-c6d8-11eb-9f4d-6b2c59e4edc3.png)
-
  - __Cams__ Find a set of nodes that cover every link.  Input specifies undirected links.  [Detailed Documentation](https://github.com/JamesBremner/PathFinder2/wiki/Cams)
  - __Cliques__ Find the set of maximal cliques in a graph. [Detailed Documentation](https://github.com/JamesBremner/PathFinder2/wiki/Cliques)
  - __Flows__ Find maximum flow through a graph.  [Detailed Documentation](https://github.com/JamesBremner/PathFinder2/wiki/Flows)
