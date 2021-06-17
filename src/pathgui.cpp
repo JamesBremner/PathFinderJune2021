@@ -53,6 +53,7 @@ using raven::graph::eCalculation;
         f << finder.spanViz() << "\n";
         break;
     case eCalculation::cams:
+    case eCalculation::reqs:
         f << finder.camsViz() << "\n";
         break;
     default:
@@ -264,6 +265,9 @@ int main()
                          case eCalculation::multiflows:
                             opt = eCalculation::costs;
                              break;
+                        case eCalculation::reqs:
+                            opt = eCalculation::reqs;
+                            break;
                         case eCalculation::cliques:
                             finder.cliques();
                             opt = eCalculation::costs;
@@ -326,6 +330,11 @@ int main()
                 //     "There are " + std::to_string( finder.islandCount() ) + " islands",
                 //     {5, 5});
                 break;
+            case eCalculation::reqs:
+                   s.text(
+                    finder.resultsText(),
+                    {5, 5});
+                break;         
             }
         });
 

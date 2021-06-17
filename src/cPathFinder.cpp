@@ -772,6 +772,9 @@ namespace raven
                 }
             }
 
+            for (int s : setSkillsNeeded)
+                node( s ).myColor = "red";
+
             std::stringstream ss;
             ss << "Total skills needed "
                       << setSkillsNeeded.size() << " ( ";
