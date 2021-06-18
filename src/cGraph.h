@@ -46,6 +46,7 @@ namespace graph
             return myLink.size();
         }
         std::string myName;
+        int myCost;
         std::string myColor;
         std::map<int, cLink> myLink;
     };
@@ -62,6 +63,12 @@ namespace graph
         {
             myG.clear();
             myfDirected = false;
+        }
+        void makeNodes( int count )
+        {
+            myG.clear();
+            for( int k = 0; k < count; k++ )
+                myG.insert( std::make_pair( k, cNode(std::to_string(k))));
         }
     /** set graph links type
      * 
@@ -99,12 +106,16 @@ namespace graph
         }
         void addLink(int u, int v, double cost = 1)
         {
-            if (0 > u || u > myG.size() || 0 > v || v >> myG.size())
+            if (0 > u || u > myG.size() || 0 > v || v > myG.size())
                 throw std::runtime_error(
                     "addLink bad node index");
             myG.find(u)->second.myLink.insert(std::make_pair(v, cLink(cost)));
             if (!myfDirected)
                 myG.find(v)->second.myLink.insert(std::make_pair(u, cLink(cost)));
+        }
+        void addLinkFast( int u, int v )
+        {
+            myG.find(u)->second.myLink.insert(std::make_pair(v, cLink()));
         }
 /** Find node by name
  * 

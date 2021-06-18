@@ -13,6 +13,14 @@ main()
 {
     std::string expected;
 
+    std::cout << "TEST Amazon0601.txt\n";
+    reader.open("../dat/Amazon0601.txt");
+    //reader.open("../dat/karup.txt");
+
+    int i;
+    std::cin >> i;
+
+    exit(0);
     // prerequisites
     std::cout << "TEST t2.txt\n";
     reader.open("../dat/t2.txt");
@@ -55,8 +63,6 @@ main()
     std::cout << finder.pathText() << "\n";
     if (expected != finder.pathText())
         throw std::runtime_error("sales.txt failed");
-
-
 
     std::cout << "TEST cliques.txt\n";
     reader.open("../dat/cliques.txt");

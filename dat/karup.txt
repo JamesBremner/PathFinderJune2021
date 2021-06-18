@@ -1,0 +1,17 @@
+format karup
+n a1 4
+n a2 4
+n a3 6
+n a4 1
+n bx 2
+n by 5
+n bz 3
+l a1 bx
+l a1 bz
+l a2 bx
+l a2 by
+l a2 bz
+l a3 by
+l a4 bx
+l a4 bz
+

@@ -2,6 +2,7 @@
 #include <sstream>
 #include <algorithm>
 #include "cPathFinderReader.h"
+#include "cRunWatch.h"
 
 namespace raven
 {
@@ -79,6 +80,24 @@ namespace raven
             {
                 myFormat = eCalculation::reqs;
                 myFinder.PreReqs(singleParentTree());
+            }
+            else if (line.find("karup") != -1)
+            {
+                nodeCosts();
+                myFinder.karup();
+            }
+            else if (line.find("amazon") != -1)
+            {
+                std::cout << "->amazon\n";
+                links();
+                std::cout << "<-amazon\n";
+                raven::set::cRunWatch::Start();
+                {
+                    raven::set::cRunWatch aWatcher("DFS");
+                    myFinder.depthFirst(0, [](int v) {});
+                }
+                raven::set::cRunWatch::Report();
+                std::cout << "<-DFS";
             }
             return myFormat;
         }
@@ -170,6 +189,54 @@ namespace raven
             }
 
             //std::cout << "<-costs\n" <<myFinder.linksText() << "\n";
+        }
+
+        void cPathFinderReader::links()
+        {
+            myFinder.clear();
+            myFinder.directed();
+            myFinder.makeNodes(403394);
+            std::string line;
+            while (std::getline(myFile, line))
+            {
+                //std::cout << line << " | ";
+                auto token = ParseSpaceDelimited(line);
+                myFinder.addLinkFast(
+                    atoi(token[0].c_str()),
+                    atoi(token[1].c_str()));
+            }
+            //std::cout << "<-costs\n" <<myFinder.linksText() << "\n";
+        }
+        void cPathFinderReader::nodeCosts()
+        {
+            myFinder.clear();
+            int cost;
+            std::string line;
+            while (std::getline(myFile, line))
+            {
+                std::cout << line << "\n";
+                auto token = ParseSpaceDelimited(line);
+                if (!token.size())
+                    continue;
+                switch (token[0][0])
+                {
+                case 'n':
+                    if (token.size() != 3)
+                        throw std::runtime_error(
+                            "bad node line");
+                    myFinder.node(myFinder.findoradd(token[1])).myCost = atoi(token[2].c_str());
+                    break;
+                case 'l':
+                    if (token.size() != 3)
+                        throw std::runtime_error(
+                            "bad link line");
+                    myFinder.addLink(
+                        token[1],
+                        token[2],
+                        1);
+                    break;
+                }
+            }
         }
 
         void cPathFinderReader::sales()

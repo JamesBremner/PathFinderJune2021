@@ -38,6 +38,16 @@ public:
         bool weights = true,
         bool directed = false );
 
+    /** read input file with uncosted links
+     * 
+     * This expects nothing but links in src dst format
+     * 
+     * It assumes that the graph nodes have already been created
+     * 
+     * There is no error checking - intended for fast reading very large graphs
+     */
+    void links();
+
     /// read tree
     std::vector<std::string> singleParentTree();
 
@@ -56,6 +66,8 @@ public:
     void shaun();
 
     void islands();
+
+    void nodeCosts();
 
 private:
     cPathFinder &myFinder;

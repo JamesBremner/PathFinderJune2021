@@ -142,10 +142,10 @@ namespace raven
 
         void cPathFinder::path()
         {
-            paths( myStart );
+            paths(myStart);
             pathPick(myEnd);
         }
-        void cPathFinder::paths( int start )
+        void cPathFinder::paths(int start)
         {
             int V = nodeCount();
 
@@ -773,16 +773,112 @@ namespace raven
             }
 
             for (int s : setSkillsNeeded)
-                node( s ).myColor = "red";
+                node(s).myColor = "red";
 
             std::stringstream ss;
             ss << "Total skills needed "
-                      << setSkillsNeeded.size() << " ( ";
+               << setSkillsNeeded.size() << " ( ";
             for (int s : setSkillsNeeded)
                 ss << name(s) << " ";
             ss << " )";
             myResults = ss.str();
             std::cout << myResults << "\n";
         }
+        void cPathFinder::karup()
+        {
+            std::vector<int> output;
+            auto bkup = myG;
+
+            std::map<int, int> mapValueNode;
+            for (auto &b : nodes())
+            {
+                if (b.second.myName[0] != 'b')
+                    continue;
+                int value = 0;
+                for (auto a : b.second.myLink)
+                {
+                    value += node(a.first).myCost;
+                }
+                value *= node(b.first).myCost;
+                mapValueNode.insert(std::make_pair(value, b.first));
+            }
+
+            while (mapValueNode.size())
+            {
+                std::cout << "B node\tValue\n";
+                for (auto &nv : mapValueNode)
+                    std::cout << name(nv.second) << "\t" << nv.first << "\n";
+
+                // select node with highest value
+                auto remove_it = --mapValueNode.end();
+                int remove = remove_it->second;
+
+                // check that no nodes providing value have been removed
+                std::cout << "checking neighbors of " << name( remove ) << "\n";
+                bool OK = true;
+                for (auto &l : node(remove).myLink)
+                {
+                    //if (!myG.count(l.first))
+                    if( name(l.first) == "???" )
+                    {
+                        OK = false;
+                        break;
+                    }
+                    std::cout << name( l.first ) << " OK\n";
+                }
+                if (OK)
+                {
+                    // we have a node whose values is highest and valid
+                    std::cout << "remove " << name(remove) << "\n";
+                    for (auto &l : node(remove).myLink)
+                    {
+                        std::cout << "removing " << name( l.first ) << "\n";
+                        myG.erase(l.first);
+                    }
+                    myG.erase(remove);
+                    mapValueNode.erase(remove_it);
+                    output.push_back(remove);
+                }
+                else
+                {
+                    // node value must be recalculated
+                    std::cout << "recalc " << name(remove) << " ";
+                    int value = 0;
+                    auto N = node(remove);
+                    for (auto a : N.myLink)
+                    {
+                        if (myG.count(a.first))
+                            value += node(a.first).myCost;
+                        else
+                            node(a.first).myCost = -1;
+                    }
+                    value *= N.myCost;
+                    std::cout << "( " << value << " )\n";
+
+                    for (auto iter = N.myLink.begin(); iter != N.myLink.end();)
+                    {
+                        if (node(iter->first).myCost == -1)
+                        {
+                            iter = N.myLink.erase(iter);
+                        }
+                        else
+                        {
+                            ++iter;
+                        }
+                    }
+
+                    // replace old value with new
+                    mapValueNode.erase(remove_it);
+                    mapValueNode.insert(std::make_pair(value, remove));
+                }
+            }
+            myG = bkup;
+            std::cout << "karup output: ";
+            for (int n : output)
+                std::cout << name(n) << " ";
+            std::cout << "\n";
+        }
+
     }
+
 }
