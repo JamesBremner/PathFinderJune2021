@@ -13,12 +13,13 @@ main()
 {
     std::string expected;
 
-    std::cout << "TEST Amazon0601.txt\n";
-    reader.open("../dat/Amazon0601.txt");
-    //reader.open("../dat/karup.txt");
+    // std::cout << "TEST Amazon0601.txt\n";
+    // reader.open("../dat/Amazon0601.txt");
 
-    int i;
-    std::cin >> i;
+    reader.open("../dat/karup.txt");
+
+    // int i;
+    // std::cin >> i;
 
     exit(0);
     // prerequisites

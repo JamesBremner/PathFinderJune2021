@@ -84,7 +84,12 @@ namespace raven
             else if (line.find("karup") != -1)
             {
                 nodeCosts();
-                myFinder.karup();
+                raven::set::cRunWatch::Start();
+                {
+                    raven::set::cRunWatch aWatcher("karup");
+                    myFinder.karup();
+                }
+                raven::set::cRunWatch::Report();
             }
             else if (line.find("amazon") != -1)
             {
@@ -97,7 +102,6 @@ namespace raven
                     myFinder.depthFirst(0, [](int v) {});
                 }
                 raven::set::cRunWatch::Report();
-                std::cout << "<-DFS";
             }
             return myFormat;
         }

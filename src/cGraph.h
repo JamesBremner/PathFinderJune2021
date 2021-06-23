@@ -27,6 +27,8 @@ namespace graph
         cNode(const std::string &name = "???")
             : myName(name)
         {
+            if( myName == "???" )
+                std::cout << "construct ???\n";
         }
         void removeLink(int dst)
         {
@@ -170,7 +172,7 @@ namespace graph
 
         void removeLink(int u, int v)
         {
-            //std::cout << "remove link " << name(u) <<" "<< name(v)  << "\n";
+            std::cout << "remove link " << name(u) <<" "<< name(v)  << "\n";
             try
             {
                 myG.at(u).removeLink(v);
@@ -209,6 +211,15 @@ namespace graph
             return ss.str();
         }
 
+        std::string nodesText() const
+        {
+            std::stringstream ss;
+            for (auto &n : myG)
+                 ss << n.second.myName 
+                    << "(" << n.first << ") ";
+            return ss.str();
+        }
+
         std::map<int, cNode> &nodes()
         {
             return myG;
@@ -235,9 +246,14 @@ namespace graph
             }
             return ret;
         }
+        /** Reference to node from internal index
+         * @param[in] i internal index
+         * 
+         * If node does not exist, exception thrown
+         */
         cNode &node(int i)
         {
-            return myG[i];
+            return myG.at(i);
         }
         cLink &link(int u, int v)
         {
@@ -307,11 +323,20 @@ int cost(int u, int v)
 
         const std::string &name(int i) const
         {
-            auto it = myG.find(i);
+            //auto it = myG.find(i);
+
+            // std::cout << "cGraph::name " << nodesText() << "\n";
+            // std::cout << "looking for " << i << "\n";
+            auto it = myG.begin();
+            for( ; it != myG.end(); it++ )
+                if( it->first == i )
+                    break;
+
             if( it == myG.end() )
                 throw std::runtime_error(
                     "cGraph::name bad index");
-            return myG.find(i)->second.myName;
+
+            return it->second.myName;
         }
         /// copy nodes, but not the links
         void copyNodes(const cGraph &other)
@@ -330,6 +355,12 @@ int cost(int u, int v)
     protected:
         std::map<int, cNode> myG; // the graph, keyed by internal node index
 
+        /** myfDirected is true if the graph links are directed
+         * 
+         * Internally all links are always directed.  
+         * When myfDirected is false, whenever a link is added
+         * two directed links in opposite direction are added between the end nodes
+         */
         bool myfDirected;
 
 

@@ -784,11 +784,29 @@ namespace raven
             myResults = ss.str();
             std::cout << myResults << "\n";
         }
+
+        void cPathFinder::karupRemoveLinksToDeleted( cNode &N )
+        {
+            // loop over links with N as source
+            for (auto iter = N.myLink.begin(); iter != N.myLink.end(); )
+            {
+                if (!myG.count(iter->first))
+                {
+                    // the destination node has been deleted
+                    iter = N.myLink.erase(iter);
+                }
+                else
+                {
+                    ++iter;
+                }
+            }
+        }
         void cPathFinder::karup()
         {
             std::vector<int> output;
             auto bkup = myG;
 
+            // calculate initial values of B nodes
             std::map<int, int> mapValueNode;
             for (auto &b : nodes())
             {
@@ -803,6 +821,7 @@ namespace raven
                 mapValueNode.insert(std::make_pair(value, b.first));
             }
 
+            // while not all B nodes output
             while (mapValueNode.size())
             {
                 std::cout << "B node\tValue\n";
@@ -814,58 +833,46 @@ namespace raven
                 int remove = remove_it->second;
 
                 // check that no nodes providing value have been removed
-                std::cout << "checking neighbors of " << name( remove ) << "\n";
+                std::cout << "checking neighbors of " << name(remove) << "\n";
                 bool OK = true;
                 for (auto &l : node(remove).myLink)
                 {
-                    //if (!myG.count(l.first))
-                    if( name(l.first) == "???" )
+                    if ( ! myG.count(l.first) )
                     {
                         OK = false;
                         break;
                     }
-                    std::cout << name( l.first ) << " OK\n";
                 }
                 if (OK)
                 {
                     // we have a node whose values is highest and valid
-                    std::cout << "remove " << name(remove) << "\n";
+
+                    // remove links to neighbour A nodes
                     for (auto &l : node(remove).myLink)
                     {
-                        std::cout << "removing " << name( l.first ) << "\n";
                         myG.erase(l.first);
                     }
+                    // remove the B node
+                    std::cout << "remove " << name( remove ) << "\n";
                     myG.erase(remove);
                     mapValueNode.erase(remove_it);
+
+                    // store result
                     output.push_back(remove);
                 }
                 else
                 {
                     // node value must be recalculated
-                    std::cout << "recalc " << name(remove) << " ";
+                    std::cout << "recalc " << name(remove) << "\n";
+
+                    auto& N = node(remove);
+                    karupRemoveLinksToDeleted( N );
                     int value = 0;
-                    auto N = node(remove);
                     for (auto a : N.myLink)
                     {
-                        if (myG.count(a.first))
-                            value += node(a.first).myCost;
-                        else
-                            node(a.first).myCost = -1;
+                        value += node(a.first).myCost;
                     }
                     value *= N.myCost;
-                    std::cout << "( " << value << " )\n";
-
-                    for (auto iter = N.myLink.begin(); iter != N.myLink.end();)
-                    {
-                        if (node(iter->first).myCost == -1)
-                        {
-                            iter = N.myLink.erase(iter);
-                        }
-                        else
-                        {
-                            ++iter;
-                        }
-                    }
 
                     // replace old value with new
                     mapValueNode.erase(remove_it);
