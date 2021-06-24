@@ -172,7 +172,7 @@ namespace raven
                 const std::vector<std::string> &va);
 
             void karup();
-            void karupRemoveLinksToDeleted( cNode &N );
+            bool karupRemoveLinksToDeleted( cNode &N );
 
             /////////////////////// get text output ///////////////////////////////////////////
 

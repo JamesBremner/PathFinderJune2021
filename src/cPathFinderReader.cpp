@@ -83,12 +83,12 @@ namespace raven
             }
             else if (line.find("karup") != -1)
             {
-                nodeCosts();
+                //nodeCosts();
+                KarupRandom();
                 raven::set::cRunWatch::Start();
-                {
-                    raven::set::cRunWatch aWatcher("karup");
+
                     myFinder.karup();
-                }
+
                 raven::set::cRunWatch::Report();
             }
             else if (line.find("amazon") != -1)
@@ -241,6 +241,31 @@ namespace raven
                     break;
                 }
             }
+        }
+
+        void cPathFinderReader::KarupRandom()
+        {
+            const int nodeCount = 5e5;
+
+            myFinder.makeNodes( 2 * nodeCount );
+
+            // generate a and b nodes
+            for (int x = 0; x < nodeCount; x++)
+            {
+                myFinder.node(x).myName = "a" + std::to_string(x);
+                myFinder.node(nodeCount + x).myName = "b" + std::to_string(x);
+
+            }
+            // link each b node to two random a nodes
+            for (int x = 0; x < nodeCount; x++)
+            {
+                int a = rand() % (int)nodeCount;
+                myFinder.addLink(nodeCount + x, a );
+                a = rand() % (int)nodeCount;
+                myFinder.addLink(nodeCount + x, a );
+            }
+
+            //std::cout << myFinder.linksText();
         }
 
         void cPathFinderReader::sales()

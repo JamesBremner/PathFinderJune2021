@@ -69,6 +69,8 @@ public:
 
     void nodeCosts();
 
+    void KarupRandom();
+
 private:
     cPathFinder &myFinder;
     std::string myfname;

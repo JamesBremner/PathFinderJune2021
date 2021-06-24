@@ -3,6 +3,7 @@
 #include <queue>
 #include <set>
 #include "cPathFinder.h"
+#include "cRunWatch.h"
 
 namespace raven
 {
@@ -785,29 +786,14 @@ namespace raven
             std::cout << myResults << "\n";
         }
 
-        void cPathFinder::karupRemoveLinksToDeleted( cNode &N )
-        {
-            // loop over links with N as source
-            for (auto iter = N.myLink.begin(); iter != N.myLink.end(); )
-            {
-                if (!myG.count(iter->first))
-                {
-                    // the destination node has been deleted
-                    iter = N.myLink.erase(iter);
-                }
-                else
-                {
-                    ++iter;
-                }
-            }
-        }
         void cPathFinder::karup()
         {
+            raven::set::cRunWatch aWatcher("karup");
+            std::cout << "karup on " << nodeCount() << " node graph\n";
             std::vector<int> output;
-            auto bkup = myG;
 
             // calculate initial values of B nodes
-            std::map<int, int> mapValueNode;
+            std::multimap<int, int> mapValueNode;
             for (auto &b : nodes())
             {
                 if (b.second.myName[0] != 'b')
@@ -817,75 +803,91 @@ namespace raven
                 {
                     value += node(a.first).myCost;
                 }
-                value *= node(b.first).myCost;
+                value *= b.second.myCost;
                 mapValueNode.insert(std::make_pair(value, b.first));
             }
 
             // while not all B nodes output
             while (mapValueNode.size())
             {
-                std::cout << "B node\tValue\n";
-                for (auto &nv : mapValueNode)
-                    std::cout << name(nv.second) << "\t" << nv.first << "\n";
+                raven::set::cRunWatch aWatcher("select");
+                // std::cout << "B node\tValue\n";
+                // for (auto &nv : mapValueNode)
+                //     std::cout << name(nv.second) << "\t" << nv.first << "\n";
 
                 // select node with highest value
                 auto remove_it = --mapValueNode.end();
                 int remove = remove_it->second;
 
-                // check that no nodes providing value have been removed
-                std::cout << "checking neighbors of " << name(remove) << "\n";
-                bool OK = true;
-                for (auto &l : node(remove).myLink)
+                if (!remove_it->first)
                 {
-                    if ( ! myG.count(l.first) )
+                    // all remaining nodes have zero value
+                    for (auto &nv : mapValueNode)
                     {
-                        OK = false;
-                        break;
+                        output.push_back(nv.second);
+                    }
+                    break;
+                }
+
+                bool OK = true;
+                int value = 0;
+                {
+                    raven::set::cRunWatch aWatcher("check");
+
+                    // check that no nodes providing value have been removed
+
+                    // std::cout << "checking neighbors of " << name(remove) << "\n";
+
+                    auto &vl = node(remove).myLink;
+                    for (auto it = vl.begin(); it != vl.end();)
+                    {
+                        if (!myG.count(it->first))
+                        {
+                            // A neighbour has been removed
+                            OK = false;
+                            it = vl.erase(it);
+                        }
+                        else
+                        {
+                            // A neighbour remains
+                            value += node(it->first).myCost;
+                            it++;
+                        }
                     }
                 }
+
                 if (OK)
                 {
+                    raven::set::cRunWatch aWatcher("store");
                     // we have a node whose values is highest and valid
 
-                    // remove links to neighbour A nodes
-                    for (auto &l : node(remove).myLink)
+                    // store result
+                    output.push_back(remove);
+
+                    // remove neighbour A nodes
+                    auto &ls = node(remove).myLink;
+                    for (auto &l : ls)
                     {
                         myG.erase(l.first);
                     }
                     // remove the B node
-                    std::cout << "remove " << name( remove ) << "\n";
-                    myG.erase(remove);
+                    // std::cout << "remove " << name( remove ) << "\n";
                     mapValueNode.erase(remove_it);
-
-                    // store result
-                    output.push_back(remove);
                 }
                 else
                 {
-                    // node value must be recalculated
-                    std::cout << "recalc " << name(remove) << "\n";
-
-                    auto& N = node(remove);
-                    karupRemoveLinksToDeleted( N );
-                    int value = 0;
-                    for (auto a : N.myLink)
-                    {
-                        value += node(a.first).myCost;
-                    }
-                    value *= N.myCost;
-
                     // replace old value with new
+                    raven::set::cRunWatch aWatcher("replace");
+                    value *= node(remove).myCost;
                     mapValueNode.erase(remove_it);
                     mapValueNode.insert(std::make_pair(value, remove));
                 }
             }
-            myG = bkup;
-            std::cout << "karup output: ";
-            for (int n : output)
-                std::cout << name(n) << " ";
-            std::cout << "\n";
+            // std::cout << "karup output: ";
+            // for (int n : output)
+            //     std::cout << name(n) << " ";
+            // std::cout << "\n";
         }
 
     }
-
 }
