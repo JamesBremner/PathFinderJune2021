@@ -53,10 +53,6 @@ namespace graph
         {
             return myLink.size();
         }
-        bool operator<(const cNode &other) const
-        {
-            return ( myValue < other.myValue );
-        }
         std::string myName;
         int myIndex;
         int myCost;
