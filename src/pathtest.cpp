@@ -17,9 +17,9 @@ main()
     // reader.open("../dat/Amazon0601.txt");
 
     reader.open("../dat/karup.txt");
+    std::cout << "t2\n|" << finder.pathText() << "|\n";
 
-    // int i;
-    // std::cin >> i;
+    reader.open("../dat/karupTimer.txt");
 
     exit(0);
     // prerequisites

@@ -81,15 +81,17 @@ namespace raven
                 myFormat = eCalculation::reqs;
                 myFinder.PreReqs(singleParentTree());
             }
-            else if (line.find("karup") != -1)
+            else if (line.find("karupTimer") != -1)
             {
-                //nodeCosts();
                 KarupRandom();
                 raven::set::cRunWatch::Start();
-
-                    myFinder.karup();
-
+                myFinder.karup();
                 raven::set::cRunWatch::Report();
+            }
+            else if (line.find("karup") != -1)
+            {
+                nodeCosts();
+                myFinder.karup();
             }
             else if (line.find("amazon") != -1)
             {
@@ -247,22 +249,21 @@ namespace raven
         {
             const int nodeCount = 5e5;
 
-            myFinder.makeNodes( 2 * nodeCount );
+            myFinder.makeNodes(2 * nodeCount);
 
             // generate a and b nodes
             for (int x = 0; x < nodeCount; x++)
             {
                 myFinder.node(x).myName = "a" + std::to_string(x);
                 myFinder.node(nodeCount + x).myName = "b" + std::to_string(x);
-
             }
             // link each b node to two random a nodes
             for (int x = 0; x < nodeCount; x++)
             {
                 int a = rand() % (int)nodeCount;
-                myFinder.addLink(nodeCount + x, a );
+                myFinder.addLink(nodeCount + x, a);
                 a = rand() % (int)nodeCount;
-                myFinder.addLink(nodeCount + x, a );
+                myFinder.addLink(nodeCount + x, a);
             }
 
             //std::cout << myFinder.linksText();

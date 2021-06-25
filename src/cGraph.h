@@ -24,8 +24,14 @@ namespace graph
     class cNode
     {
     public:
-        cNode(const std::string &name = "???")
+        cNode()
+        :cNode(-1)
+        {}
+        cNode(
+            int index,
+            const std::string &name = "???")
             : myName(name)
+            , myIndex( index )
         {
             if( myName == "???" )
                 std::cout << "construct ???\n";
@@ -47,8 +53,14 @@ namespace graph
         {
             return myLink.size();
         }
+        bool operator<(const cNode &other) const
+        {
+            return ( myValue < other.myValue );
+        }
         std::string myName;
+        int myIndex;
         int myCost;
+        int myValue;
         std::string myColor;
         std::map<int, cLink> myLink;
     };
@@ -70,7 +82,7 @@ namespace graph
         {
             myG.clear();
             for( int k = 0; k < count; k++ )
-                myG.insert( std::make_pair( k, cNode(std::to_string(k))));
+                myG.insert( std::make_pair( k, cNode(k,std::to_string(k))));
         }
     /** set graph links type
      * 
@@ -151,7 +163,7 @@ namespace graph
                 // node does not exist, create a new one
                 // with a new index and add it to the graph
                 n = myG.size();
-                myG.insert(std::make_pair(n, cNode(name)));
+                myG.insert(std::make_pair(n, cNode(n,name)));
             }
             return n;
         }
@@ -343,7 +355,7 @@ int cost(int u, int v)
         {
             for (auto &n : other.myG)
             {
-                myG.insert(std::make_pair(n.first, cNode(n.second.myName)));
+                myG.insert(std::make_pair(n.first, cNode(n.first,n.second.myName)));
             }
         }
 

@@ -793,7 +793,9 @@ namespace raven
             myPath.clear();
 
             // calculate initial values of B nodes
-            std::multimap<int, int> mapValueNode;
+            std::priority_queue<cNode> Q;
+            {
+                raven::set::cRunWatch aWatcher("initV");
             for (auto &b : nodes())
             {
                 if (b.second.myName[0] != 'b')
@@ -804,11 +806,20 @@ namespace raven
                     value += node(a.first).myCost;
                 }
                 value *= b.second.myCost;
-                mapValueNode.insert(std::make_pair(value, b.first));
+                b.second.myValue = value;
+                //mapValueNode.insert(std::make_pair(value, b.first));
+                Q.push( b.second );
+            }
+            // while (Q.size()) {
+            //     std::cout << Q.top().myName <<" " << Q.top().myValue << "\n";
+            //     Q.pop();
+            // }
+            // return;
+
             }
 
             // while not all B nodes output
-            while (mapValueNode.size())
+            while (Q.size())
             {
                 raven::set::cRunWatch aWatcher("select");
                 // std::cout << "B node\tValue\n";
@@ -816,30 +827,29 @@ namespace raven
                 //     std::cout << name(nv.second) << "\t" << nv.first << "\n";
 
                 // select node with highest value
-                auto remove_it = --mapValueNode.end();
-                int remove = remove_it->second;
+                 int remove = Q.top().myIndex;
 
-                if (!remove_it->first)
-                {
+                // if (!remove_it->first)
+                // {
                     /** all remaining nodes have zero value
                      * all the links from B nodes to A nodes have been removed
                      * output remaining nodes in order of decreasing node weight
                      */
-                    raven::set::cRunWatch aWatcher("Bunlinked");
-                    std::multimap<int, int> mapNodeValueNode;
-                    for (auto &nv : mapValueNode)
-                    {
-                       mapNodeValueNode.insert( 
-                           std::make_pair( 
-                               node(nv.second).myCost,
-                               nv.second ));
-                    }
-                    for( auto& nv : mapNodeValueNode )
-                    {
-                        myPath.push_back( nv.second );
-                    }
-                    break;
-                }
+                    // raven::set::cRunWatch aWatcher("Bunlinked");
+                    // std::multimap<int, int> mapNodeValueNode;
+                    // for (auto &nv : mapValueNode)
+                    // {
+                    //    mapNodeValueNode.insert( 
+                    //        std::make_pair( 
+                    //            node(nv.second).myCost,
+                    //            nv.second ));
+                    // }
+                    // for( auto& nv : mapNodeValueNode )
+                    // {
+                    //     myPath.push_back( nv.second );
+                    // }
+                //     break;
+                // }
 
                 bool OK = true;
                 int value = 0;
@@ -883,18 +893,24 @@ namespace raven
                         myG.erase(l.first);
                     }
                     // remove the B node
-                    // std::cout << "remove " << name( remove ) << "\n";
-                    mapValueNode.erase(remove_it);
+                    //std::cout << "remove " << name( remove ) << "\n";
+                    Q.pop();
                 }
                 else
                 {
                     // replace old value with new
                     raven::set::cRunWatch aWatcher("replace");
-                    value *= node(remove).myCost;
-                    mapValueNode.erase(remove_it);
-                    mapValueNode.insert(std::make_pair(value, remove));
+                    auto& N = node(remove);
+                    N.myValue = N.myCost * value;
+                    Q.pop();
+                    Q.emplace( N );
                 }
             }
+            // for( int n : myPath )
+            // {
+            //     std::cout << name(n) << " ";
+            // }
+            // std::cout << "\n";
         }
 
     }
