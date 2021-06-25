@@ -171,8 +171,18 @@ namespace raven
             void PreReqs(
                 const std::vector<std::string> &va);
 
+            /** Given a bi-partite graph with node weights for both type A and type B nodes
+1 For each node of type B we sum over node weights of type A that this node has an edge with and multiply the sum with its own node weight to get the node value.
+2 Select the node from type B which has the highest value and append it to the output set S.
+3 Delete the selected node from type B and all the nodes it had an edge to from type A.
+4 Go back to step 1 until any node in type B is left with an edge to a node in type A.
+5 Append any remaining node of type B to the output set in order of its node weight.
+
+https://stackoverflow.com/q/62338424/16582
+
+The output, an ordered vector of node indices, is stored in myPath attribute
+*/
             void karup();
-            bool karupRemoveLinksToDeleted( cNode &N );
 
             /////////////////////// get text output ///////////////////////////////////////////
 

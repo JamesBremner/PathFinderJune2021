@@ -790,7 +790,7 @@ namespace raven
         {
             raven::set::cRunWatch aWatcher("karup");
             std::cout << "karup on " << nodeCount() << " node graph\n";
-            std::vector<int> output;
+            myPath.clear();
 
             // calculate initial values of B nodes
             std::multimap<int, int> mapValueNode;
@@ -821,10 +821,22 @@ namespace raven
 
                 if (!remove_it->first)
                 {
-                    // all remaining nodes have zero value
+                    /** all remaining nodes have zero value
+                     * all the links from B nodes to A nodes have been removed
+                     * output remaining nodes in order of decreasing node weight
+                     */
+                    raven::set::cRunWatch aWatcher("Bunlinked");
+                    std::multimap<int, int> mapNodeValueNode;
                     for (auto &nv : mapValueNode)
                     {
-                        output.push_back(nv.second);
+                       mapNodeValueNode.insert( 
+                           std::make_pair( 
+                               node(nv.second).myCost,
+                               nv.second ));
+                    }
+                    for( auto& nv : mapNodeValueNode )
+                    {
+                        myPath.push_back( nv.second );
                     }
                     break;
                 }
@@ -862,7 +874,7 @@ namespace raven
                     // we have a node whose values is highest and valid
 
                     // store result
-                    output.push_back(remove);
+                    myPath.push_back(remove);
 
                     // remove neighbour A nodes
                     auto &ls = node(remove).myLink;
@@ -883,10 +895,6 @@ namespace raven
                     mapValueNode.insert(std::make_pair(value, remove));
                 }
             }
-            // std::cout << "karup output: ";
-            // for (int n : output)
-            //     std::cout << name(n) << " ";
-            // std::cout << "\n";
         }
 
     }
