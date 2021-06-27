@@ -19,9 +19,8 @@ main()
     reader.open("../dat/karup.txt");
     std::cout << "t2\n|" << finder.pathText() << "|\n";
 
-    reader.open("../dat/karupTimer.txt");
+    //reader.open("../dat/karupTimer.txt");
 
-    exit(0);
     // prerequisites
     std::cout << "TEST t2.txt\n";
     reader.open("../dat/t2.txt");

@@ -12,7 +12,7 @@ namespace raven
 
         void cPathFinder::clear()
         {
-            myG.clear();
+            cGraph::clear();
             myPath.clear();
             mySource.clear();
         }
@@ -206,11 +206,14 @@ namespace raven
         std::vector<int> cPathFinder::pathPick(int end)
         {
             myPath.clear();
+
             // std::cout << "->cPathFinder::pathPick "
             //     << myStart <<" " << end << "\n";
 
             if (end < 0)
                 throw std::runtime_error("cPathFinder::pathPick bad end node");
+            if( myStart == end )
+                return myPath;
             if (myPred[end] == end || myPred[end] == -1)
                 return myPath; // there is no path
 

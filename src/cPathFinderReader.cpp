@@ -1,5 +1,6 @@
 #include <math.h>
 #include <sstream>
+#include <iostream>
 #include <algorithm>
 #include "cPathFinderReader.h"
 #include "cRunWatch.h"
@@ -464,9 +465,10 @@ namespace raven
         }
         std::vector<std::string> cPathFinderReader::singleParentTree()
         {
+            myFinder.clear();
             if (!myFile.is_open())
                 throw std::runtime_error(
-                    "cPathFinderReader::orthogonalGrid file not open");
+                    "cPathFinderReader::singleParentTree file not open");
             std::string line;
             while (std::getline(myFile, line))
             {
