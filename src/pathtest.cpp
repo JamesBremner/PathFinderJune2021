@@ -21,7 +21,7 @@ main()
     // int i;
     // std::cin >> i;
 
-    exit(0);
+
     // prerequisites
     std::cout << "TEST t2.txt\n";
     reader.open("../dat/t2.txt");

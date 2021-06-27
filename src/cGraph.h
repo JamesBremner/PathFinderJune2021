@@ -64,6 +64,7 @@ namespace graph
         void clear()
         {
             myG.clear();
+            myMapNameToIndex.clear();
             myfDirected = false;
         }
         void makeNodes( int count )
@@ -124,14 +125,13 @@ namespace graph
  * @param[in] name
  * @return node index, -1 if named node does not exist
  */
-        int find(const std::string &name)
+      int find(const std::string &name)
         {
-            for (auto n : myG)
-            {
-                if (n.second.myName == name)
-                {
-                    return n.first;
-                }
+            try {
+                return myMapNameToIndex.at( name );
+            }
+            catch(...)
+            {  
             }
             return -1;
         }
@@ -152,6 +152,7 @@ namespace graph
                 // with a new index and add it to the graph
                 n = myG.size();
                 myG.insert(std::make_pair(n, cNode(name)));
+                myMapNameToIndex[name] = n;
             }
             return n;
         }
@@ -353,7 +354,12 @@ int cost(int u, int v)
         }
 
     protected:
-        std::map<int, cNode> myG; // the graph, keyed by internal node index
+
+        // the graph nodes, keyed by internal node index
+        std::map<int, cNode> myG; 
+
+        // the node indices, keyed by node name
+        std::map<std::string, int > myMapNameToIndex;
 
         /** myfDirected is true if the graph links are directed
          * 

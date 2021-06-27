@@ -12,7 +12,7 @@ namespace raven
 
         void cPathFinder::clear()
         {
-            myG.clear();
+            cGraph::clear();
             myPath.clear();
             mySource.clear();
         }

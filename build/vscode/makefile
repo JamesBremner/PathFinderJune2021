@@ -25,14 +25,14 @@ _TST = pathtest.o cPathFinder.o cPathFinderReader.o cGraph.o cRunWatch.o
 TST = $(patsubst %,$(ODIR)/%,$(_TST))
 
 $(ODIR)/%.o: %.cpp $(DEPS)
-	g++   -std=c++17 -O3 -m64 -c -o $@ $< $(INCS) $(WEXINC)
+	g++   -std=c++17 -g -m64 -c -o $@ $< $(INCS) $(WEXINC)
 
 gui: $(GUI)
 	g++ -o ../../bin/gui.exe $^ $(WEXLIBS)
 
 test: $(TST)
 	g++ -Wl,--stack,33554432 \
-	-static-libstdc++ -static-libgcc -static -m64 -O3 \
+	-static-libstdc++ -static-libgcc -static -m64 -g \
 	-o ../../bin/pathtest.exe $^
 
 .PHONY: clean

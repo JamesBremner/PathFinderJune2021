@@ -81,15 +81,17 @@ namespace raven
                 myFormat = eCalculation::reqs;
                 myFinder.PreReqs(singleParentTree());
             }
-            else if (line.find("karup") != -1)
+            else if (line.find("karupTimer") != -1)
             {
-                //nodeCosts();
                 KarupRandom();
                 raven::set::cRunWatch::Start();
-
-                    myFinder.karup();
-
+                myFinder.karup();
                 raven::set::cRunWatch::Report();
+            }
+            else if (line.find("karup") != -1)
+            {
+                nodeCosts();
+                myFinder.karup();
             }
             else if (line.find("amazon") != -1)
             {
@@ -463,9 +465,10 @@ namespace raven
         }
         std::vector<std::string> cPathFinderReader::singleParentTree()
         {
+            myFinder.clear();
             if (!myFile.is_open())
                 throw std::runtime_error(
-                    "cPathFinderReader::orthogonalGrid file not open");
+                    "cPathFinderReader::singleParentTree file not open");
             std::string line;
             while (std::getline(myFile, line))
             {
