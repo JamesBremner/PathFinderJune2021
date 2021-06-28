@@ -16,8 +16,14 @@ main()
     // std::cout << "TEST Amazon0601.txt\n";
     // reader.open("../dat/Amazon0601.txt");
 
+    std::cout << "TEST karup.txt\n";
     reader.open("../dat/karup.txt");
+    expected = "by -> bz -> bx -> ";
+    if (expected != finder.pathText())
+        throw std::runtime_error("karup.txt failed");
 
+    // std::cout << "karup timing test\n";
+    //  reader.open("../dat/karupTimer.txt");
     // int i;
     // std::cin >> i;
 
