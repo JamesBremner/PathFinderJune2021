@@ -1,6 +1,8 @@
 # PathFinder
 
-An application to discover optimum path through graphs of costed links. 
+An Windows desktop GUI application to discover optimum path through graphs of costed links. 
+
+![image](https://user-images.githubusercontent.com/2046227/122287129-9abb3400-cebe-11eb-9095-530755d9447d.png)
 
 ## Edit
 
