@@ -18,7 +18,7 @@ WEXLIBS = \
 ODIR=./obj
 
 # sources
-_GUI = pathgui.o cPathFinder.o cPathFinderReader.o cGraph.o
+_GUI = pathgui.o cPathFinder.o cPathFinderReader.o cGraph.o cRunWatch.o
 GUI = $(patsubst %,$(ODIR)/%,$(_GUI))
 
 _TST = pathtest.o cPathFinder.o cPathFinderReader.o cGraph.o cRunWatch.o
@@ -28,7 +28,7 @@ $(ODIR)/%.o: %.cpp $(DEPS)
 	g++   -std=c++17 -g -m64 -c -o $@ $< $(INCS) $(WEXINC)
 
 gui: $(GUI)
-	g++ -o ../../bin/gui.exe $^ $(WEXLIBS)
+	g++ -o ../../bin/pathfinder.exe $^ $(WEXLIBS)
 
 test: $(TST)
 	g++ -Wl,--stack,33554432 \
