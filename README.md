@@ -1,4 +1,4 @@
-# PathFinder2
+# PathFinder
 
 An application to discover optimum path through graphs of costed links. 
 
