@@ -30,3 +30,9 @@ Calculation Options are:
  - __Flows__ Find maximum flow through a graph.  [Detailed Documentation](https://github.com/JamesBremner/PathFinder2/wiki/Flows)
  - __Hills__ Find easiest path through hilly terrain. [Detailed Documentation](https://github.com/JamesBremner/PathFinder2/wiki/Hills)
  - __Prerequistes__ This option finds paths through ordered requirements. "Before you can do B, you must have done A" [Detailed Documentation](https://github.com/JamesBremner/PathFinder2/wiki/Prerequisites)
+
+## Installation
+
+ - Download load most recent release from https://github.com/JamesBremner/PathFinder/releases
+ - Unzip
+ - Double click file `PathFinder.exe`.
