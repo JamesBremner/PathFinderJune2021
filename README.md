@@ -4,6 +4,8 @@ An Windows desktop GUI application to discover optimum path through graphs of co
 
 ![image](https://user-images.githubusercontent.com/2046227/122287129-9abb3400-cebe-11eb-9095-530755d9447d.png)
 
+To display the graphical representation of the path, graphViz must be installed. https://graphviz.org/download/
+
 ## Edit
 
 Menu item `File | Edit` reads a space delimited text file, displays it and allows user to edit it.  Note that the editor is extremely simple, intended only for quick fixes or adjustments.  For more comples tasks, use a fully featured text editor
