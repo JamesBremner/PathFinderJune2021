@@ -98,9 +98,10 @@ using raven::graph::eCalculation;
         int syserrno = GetLastError();
         if (syserrno == 2)
         {
-            wex::msgbox mb("Cannot find executable file");
-            // NotifyUserOfError(wxString::Format("Cannot find executable file %S in working directory\n",
-            //                                    exec_filename));
+            wex::msgbox mb(
+                "Cannot find executable file\n"
+                "Is graphViz installed?");
+
             return;
         }
         wex::msgbox mb("system error");
