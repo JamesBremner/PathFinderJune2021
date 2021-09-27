@@ -28,7 +28,7 @@ $(ODIR)/%.o: %.cpp $(DEPS)
 	g++   -std=c++17 -g -m64 -c -o $@ $< $(INCS) $(WEXINC)
 
 gui: $(GUI)
-	g++ -o ../../bin/pathfinder.exe $^ $(WEXLIBS)
+	g++ -o ../../bin/pathfinder.exe -g $^ $(WEXLIBS)
 
 test: $(TST)
 	g++ -Wl,--stack,33554432 \
