@@ -219,7 +219,7 @@ namespace raven
             int prev = end;
             while (1)
             {
-                //std::cout << prev << " " << myPred[prev] << ", ";
+                // std::cout << prev << " " << myPred[prev] << ", ";
                 int next = myPred[prev];
                 myPath.push_back(next);
                 if (next == myStart)
@@ -230,7 +230,11 @@ namespace raven
             // reverse so path goes from start to goal
             std::reverse(myPath.begin(), myPath.end());
 
+            // std::cout << "\n dbg " << myPath.size() << " " << myDist.size() << " " << myPath.back() << "\n";
+            //if (myDist.size() < myPath.back() + 1)
             myPathCost = myDist[myPath.back()] + myMaxNegCost * (myPath.size() - 1);
+            // else
+            //     myPathCost = -1;
 
             return myPath;
         }
@@ -354,8 +358,11 @@ namespace raven
         }
 
         void cPathFinder::breadth(
-            std::function<void(int v)> visitor)
+            std::function<void(int v, int p)> visitor)
         {
+            if (!nodeCount())
+                throw std::runtime_error("breadth called on empty graph");
+
             std::vector<bool> visited(nodeCount(), false);
             std::queue<int> Q;
 
@@ -371,7 +378,7 @@ namespace raven
                     if (!visited[w])
                     {
                         // reached a new node
-                        visitor(w);
+                        visitor(w, v);
                         visited[w] = true;
                         Q.push(w);
                     }
@@ -651,6 +658,105 @@ namespace raven
             std::cout << myResults << "\n";
         }
 
+        void cPathFinder::waterValves(
+            const std::vector<int> &valveTimes,
+            bool pulse)
+        {
+            // time that water reaches each node
+            std::vector<int> timeReached(nodeCount(), -1);
+
+            std::vector<int> wait(nodeCount(), 0);
+
+            myDist.resize(nodeCount(), -1);
+
+            myPred.resize(nodeCount());
+
+            // queue of nodes waiting to be searched from
+            std::queue<int> Q;
+
+            // start at the start
+            timeReached[myStart] = 0;
+            Q.push(myStart);
+
+            // loop until all nodes searched from
+            while (Q.size())
+            {
+                // next node to continue search from
+                int v = Q.front();
+                Q.pop();
+                int Pt = timeReached[v];
+
+                // std::cout << "search from " << node(v).myName << "\n";
+
+                // loop over nodes that can be reached from v
+                for (int w : adjacent(v))
+                {
+                    // wait for valve to open
+                    int Wt = 0;
+
+                    if (!pulse)
+                    {
+                        /**    assumes that valve opens at time specified
+                         *     and remains open threafter
+                         */
+                        Wt = valveTimes[v] - Pt;
+                        if (Wt < 0)
+                            Wt = 0;
+                    }
+                    else
+                    {
+                        /** assumes that valves open instantaneously
+                         * every t seconds
+                         */
+                        int t = valveTimes[v];
+                        int k = 1;
+                        while (k * t < Pt)
+                            k++;
+                        Wt = k * t - Pt;
+                    }
+
+                    // time to flow through pipe
+                    int Lt = link(v, w).myCost;
+
+                    // time to arrive at adjacent node
+                    int Vt = Pt + Wt + Lt;
+
+                    // std::cout << "visited " << node(w).myName
+                    //           << " from " << node(v).myName
+                    //           << " " << Pt << " " << Wt << " " << Lt << " " << Vt
+                    //           << " " << timeReached[w] << "\n";
+
+                    // if this is later than a previous visit, stop searching
+                    if (timeReached[w] > -1)
+                        if (Vt >= timeReached[w])
+                            continue;
+
+                    // std::cout << "reached " << node(w).myName << "\n";
+
+                    // node w reached before any other route
+                    timeReached[w] = Vt;
+                    myPred[w] = v;
+                    myDist[w] = Vt;
+                    wait[v] = Wt;
+
+                    // continue search from here
+                    Q.push(w);
+                }
+            }
+            std::cout
+                << "Water reached " << node(myEnd).myName
+                << " at time " << timeReached[myEnd] << "\n";
+
+            pathPick(myEnd);
+
+            std::cout << "node reached at, then waited\n";
+            for (int n : myPath)
+            {
+                std::cout << name( n ) << "\t" 
+                    << myDist[n] << "\t"
+                    << wait[n] << "\n";
+            }
+        }
         void cPathFinder::equiflows()
         {
             // source outflows
@@ -660,7 +766,7 @@ namespace raven
 
             // do a breadth first search, updating flows as we go along
             breadth(
-                [this](int v)
+                [this](int v, int prev)
                 {
                     static int totalFlow = INT_MAX;
 
@@ -829,14 +935,14 @@ namespace raven
                     std::multimap<int, int> mapNodeValueNode;
                     for (auto &nv : mapValueNode)
                     {
-                       mapNodeValueNode.insert( 
-                           std::make_pair( 
-                               node(nv.second).myCost,
-                               nv.second ));
+                        mapNodeValueNode.insert(
+                            std::make_pair(
+                                node(nv.second).myCost,
+                                nv.second));
                     }
-                    for( auto& nv : mapNodeValueNode )
+                    for (auto &nv : mapNodeValueNode)
                     {
-                        myPath.push_back( nv.second );
+                        myPath.push_back(nv.second);
                     }
                     break;
                 }

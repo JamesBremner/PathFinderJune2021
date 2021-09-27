@@ -29,6 +29,14 @@ namespace raven
                 std::cout << myFinder.pathText() << "\n";
                 return eCalculation::costs;
             }
+            else if (line.find("water") != -1)
+            {
+                bool pulse;
+                auto t = valves( pulse );
+                myFinder.waterValves(t,pulse);
+                std::cout << myFinder.pathText() << "\n";
+                return eCalculation::costs;
+            }
             else if (line.find("spans") != -1)
             {
                 costs();
@@ -197,6 +205,94 @@ namespace raven
             //std::cout << "<-costs\n" <<myFinder.linksText() << "\n";
         }
 
+        std::vector<int> cPathFinderReader::valves(
+            bool& pulse)
+        {
+            std::vector<int> valveTimes;
+            myFinder.clear();
+
+            int cost;
+            int maxNegCost = 0;
+            std::string line;
+            while (std::getline(myFile, line))
+            {
+                std::cout << line << "\n";
+                auto token = ParseSpaceDelimited(line);
+                if (!token.size())
+                    continue;
+                switch (token[0][0])
+                {
+                case 'g':
+                    if (myFinder.linkCount())
+                        throw std::runtime_error("cPathFinderReader:: g ( directed ) must occurr before any links");
+                    myFinder.directed();
+                    break;
+
+                case 'l':
+                    // link
+                    if( valveTimes.size() )
+                        throw std::runtime_error("cPathFinder::read valve times must be after pipe specs");
+                    if (token.size() != 4)
+                        throw std::runtime_error("cPathFinder::read bad link line");
+
+                    
+                    cost = atof(token[3].c_str());
+                   
+                    if (cost < maxNegCost)
+                        maxNegCost = cost;
+                    myFinder.addLink(
+                        token[1],
+                        token[2],
+                        cost);
+                    break;
+
+                case 's':
+                    if (token.size() != 2)
+                        throw std::runtime_error("cPathFinder::read bad start line");
+                    if (myFormat == eCalculation::multiflows)
+                        myFinder.addSource(token[1]);
+                    else
+                        myFinder.start(token[1]);
+                    break;
+
+                case 'e':
+                    if (token.size() != 2)
+                        throw std::runtime_error("cPathFinder::read bad end line");
+                    myFinder.end(token[1]);
+                    break;
+
+                case 't':
+                    // valve timings
+                    if (token.size() < 2)
+                        throw std::runtime_error("cPathFinder::read bad time line");
+                    token.erase(token.begin());
+                    if( token[0][0] == 'p' )
+                        pulse = true;
+                    else if( token[0][0] == 'a' )
+                        pulse = false;
+                    else
+                       throw std::runtime_error("cPathFinder::read valve times must specify 'pulse' or 'always'"); 
+                    token.erase(token.begin());   
+                    valveTimes.resize( myFinder.nodeCount() );
+                    int nodeIndex = 1;
+                    for (auto &s : token)
+                        valveTimes[myFinder.find( std::to_string(nodeIndex++))] 
+                            = atoi(s.c_str());
+                    break;
+                }
+            }
+            if (maxNegCost < 0)
+            {
+                std::cout << "Negative link costs present\n"
+                          << "Adding positive offset to all link costs\n";
+                //        myFinder.makeCostsPositive(maxNegCost);
+            }
+
+            //std::cout << "<-costs\n" <<myFinder.linksText() << "\n";
+
+            return valveTimes;
+        }
+
         void cPathFinderReader::links()
         {
             myFinder.clear();
@@ -249,22 +345,21 @@ namespace raven
         {
             const int nodeCount = 5e5;
 
-            myFinder.makeNodes( 2 * nodeCount );
+            myFinder.makeNodes(2 * nodeCount);
 
             // generate a and b nodes
             for (int x = 0; x < nodeCount; x++)
             {
                 myFinder.node(x).myName = "a" + std::to_string(x);
                 myFinder.node(nodeCount + x).myName = "b" + std::to_string(x);
-
             }
             // link each b node to two random a nodes
             for (int x = 0; x < nodeCount; x++)
             {
                 int a = rand() % (int)nodeCount;
-                myFinder.addLink(nodeCount + x, a );
+                myFinder.addLink(nodeCount + x, a);
                 a = rand() % (int)nodeCount;
-                myFinder.addLink(nodeCount + x, a );
+                myFinder.addLink(nodeCount + x, a);
             }
 
             //std::cout << myFinder.linksText();

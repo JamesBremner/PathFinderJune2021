@@ -164,6 +164,10 @@ namespace raven
             void multiflows();
             void equiflows();
 
+            void waterValves(
+                const std::vector<int>& valveTimes,
+                bool pulse );
+
             /// Find maximal cliques in graph
             void cliques();
 
@@ -249,7 +253,7 @@ The output, an ordered vector of node indices, is stored in myPath attribute
             /** Breadth First Search
      * @param[in] visitor function to call on each new node visited
      */
-            void breadth(std::function<void(int v)> visitor);
+            void breadth(std::function<void(int v, int p)> visitor);
         };
     }
 }
