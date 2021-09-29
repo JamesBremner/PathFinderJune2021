@@ -386,8 +386,17 @@ namespace raven
             }
         }
 
+        void cPathFinder::tsp( const std::vector<int>& v )
+        {
+            if( ! v.size() ) {
+                tsp();
+                return;
+            }
+        }
         void cPathFinder::tsp()
         {
+            raven::set::cRunWatch aWatcher( "TravellingSalesManCalculation");
+            
             // calculate spanning tree
             span();
 

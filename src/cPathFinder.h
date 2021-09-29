@@ -145,6 +145,13 @@ namespace raven
             /// Find minimum edge set that connects all nodes together
             void span();
 
+            /** Find path that visits every requested node
+             * @parasm[in] v vector of node indices to be visited
+             * 
+             * If v is empty, all nodes must be visited
+             */
+            void tsp(const std::vector<int>& v);
+
             /// Find path that visits every node
             void tsp();
 
@@ -165,8 +172,8 @@ namespace raven
             void equiflows();
 
             void waterValves(
-                const std::vector<int>& valveTimes,
-                bool pulse );
+                const std::vector<int> &valveTimes,
+                bool pulse);
 
             /// Find maximal cliques in graph
             void cliques();

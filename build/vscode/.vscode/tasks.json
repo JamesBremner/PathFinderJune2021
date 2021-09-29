@@ -9,7 +9,7 @@
             "args": [
                 "-f",
                 "makefile",
-                "gui"
+                "test"
             ],
             "options": {
                 "cwd": "C:/Users/James/code/PathFinder/build/vscode"

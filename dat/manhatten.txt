@@ -1,0 +1,8 @@
+format sales
+manhatten 0 0 0
+c 0.0 0.0 rest
+c 2.5 2.5 topright
+c -2.5 2.5 topleft
+c 2.5 -2.5 bottomright
+c 2 2 neartopright
+

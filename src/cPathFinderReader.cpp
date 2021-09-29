@@ -32,8 +32,8 @@ namespace raven
             else if (line.find("water") != -1)
             {
                 bool pulse;
-                auto t = valves( pulse );
-                myFinder.waterValves(t,pulse);
+                auto t = valves(pulse);
+                myFinder.waterValves(t, pulse);
                 std::cout << myFinder.pathText() << "\n";
                 return eCalculation::costs;
             }
@@ -46,8 +46,9 @@ namespace raven
             }
             else if (line.find("sales") != -1)
             {
-                sales();
-                myFinder.tsp();
+                raven::set::cRunWatch::Start();
+                myFinder.tsp(sales());
+                raven::set::cRunWatch::Report();
                 return eCalculation::sales;
             }
             else if (line.find("cams") != -1)
@@ -206,7 +207,7 @@ namespace raven
         }
 
         std::vector<int> cPathFinderReader::valves(
-            bool& pulse)
+            bool &pulse)
         {
             std::vector<int> valveTimes;
             myFinder.clear();
@@ -230,14 +231,13 @@ namespace raven
 
                 case 'l':
                     // link
-                    if( valveTimes.size() )
+                    if (valveTimes.size())
                         throw std::runtime_error("cPathFinder::read valve times must be after pipe specs");
                     if (token.size() != 4)
                         throw std::runtime_error("cPathFinder::read bad link line");
 
-                    
                     cost = atof(token[3].c_str());
-                   
+
                     if (cost < maxNegCost)
                         maxNegCost = cost;
                     myFinder.addLink(
@@ -266,18 +266,17 @@ namespace raven
                     if (token.size() < 2)
                         throw std::runtime_error("cPathFinder::read bad time line");
                     token.erase(token.begin());
-                    if( token[0][0] == 'p' )
+                    if (token[0][0] == 'p')
                         pulse = true;
-                    else if( token[0][0] == 'a' )
+                    else if (token[0][0] == 'a')
                         pulse = false;
                     else
-                       throw std::runtime_error("cPathFinder::read valve times must specify 'pulse' or 'always'"); 
-                    token.erase(token.begin());   
-                    valveTimes.resize( myFinder.nodeCount() );
+                        throw std::runtime_error("cPathFinder::read valve times must specify 'pulse' or 'always'");
+                    token.erase(token.begin());
+                    valveTimes.resize(myFinder.nodeCount());
                     int nodeIndex = 1;
                     for (auto &s : token)
-                        valveTimes[myFinder.find( std::to_string(nodeIndex++))] 
-                            = atoi(s.c_str());
+                        valveTimes[myFinder.find(std::to_string(nodeIndex++))] = atoi(s.c_str());
                     break;
                 }
             }
@@ -365,7 +364,7 @@ namespace raven
             //std::cout << myFinder.linksText();
         }
 
-        void cPathFinderReader::sales()
+        std::vector<int> cPathFinderReader::sales()
         {
             struct sCity
             {
@@ -376,11 +375,14 @@ namespace raven
             std::vector<sCity> vCity;
             sCity city;
 
+            std::vector<int> visit;
+
             enum class eInput
             {
                 unknown,
                 city,
                 link,
+                manhatten,
             } input = eInput::unknown;
 
             myFinder.clear();
@@ -397,10 +399,13 @@ namespace raven
 
                 switch (token[0][0])
                 {
+                case 'm':
+                    input = eInput::manhatten;
+                    break;
                 case 'c':
                     if (input == eInput::unknown)
                         input = eInput::city;
-                    else if (input != eInput::city)
+                    else if (input != eInput::city && input != eInput::manhatten)
                         throw std::runtime_error("Mixed input formats");
                     city.x = atoi(token[1].c_str());
                     city.y = atoi(token[2].c_str());
@@ -410,12 +415,24 @@ namespace raven
                 case 'l':
                     if (input == eInput::unknown)
                         input = eInput::link;
-                    else if (input != eInput::link)
+                    else if (input == eInput::city)
                         throw std::runtime_error("Mixed input formats");
                     myFinder.addLink(
                         myFinder.findoradd(token[1]),
                         myFinder.findoradd(token[2]),
                         atoi(token[3].c_str()));
+                    break;
+                case 'v':
+                    token.erase(token.begin());
+                    if (token.size() > myFinder.nodeCount())
+                        throw std::runtime_error("More visit requests than nodes");
+                    for (auto &v : token)
+                    {
+                        int iv = myFinder.find(v);
+                        if (iv < 0)
+                            throw std::runtime_error("Visit request to non existent node");
+                        v.push_back(iv);
+                    }
                     break;
                 default:
                     std::cout << "ignored\n";
@@ -423,7 +440,9 @@ namespace raven
                 }
             }
 
-            if (input == eInput::city)
+            switch (input)
+            {
+            case eInput::city:
             {
                 // link all the cities by the pythagorian distance between them
                 for (int c1 = 0; c1 < vCity.size(); c1++)
@@ -442,11 +461,38 @@ namespace raven
                     }
                 }
             }
-            else
+            break;
+
+            case eInput::manhatten:
+            {
+                raven::set::cRunWatch aWatcher( "CalculateManhattenDistances" );
+                for (int c1 = 0; c1 < vCity.size(); c1++)
+                {
+                    for (int c2 = 0; c2 < vCity.size(); c2++)
+                    {
+                        if (vCity[c1].name == vCity[c2].name)
+                            continue;
+                        // manhatten distance
+                        float d =
+                            fabs(vCity[c1].x - vCity[c2].x) + fabs(vCity[c1].y - vCity[c2].y);
+                        myFinder.addLink(
+                            vCity[c2].name,
+                            vCity[c1].name,
+                            d);
+                    }
+                }
+            }
+            break;
+
+            default:
             {
                 // add links with infinite cost between unlinked cities
                 // myFinder.makeComplete();
             }
+            break;
+            }
+
+            return visit;
         }
         std::vector<std::vector<float>> cPathFinderReader::orthogonalGrid()
         {

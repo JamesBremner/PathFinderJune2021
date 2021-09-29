@@ -27,6 +27,10 @@ main()
     // int i;
     // std::cin >> i;
 
+    std::cout << "pickup timer test\n";
+    reader.open("../dat/manhatten.txt");
+    int i;
+    std::cin >> i;
 
     // prerequisites
     std::cout << "TEST t2.txt\n";

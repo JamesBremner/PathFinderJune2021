@@ -40,10 +40,10 @@ namespace raven
                 bool weights = true,
                 bool directed = false);
 
-        /** Read input file specifying pipes and valves
+            /** Read input file specifying pipes and valves
          */
             std::vector<int> valves(
-                bool& pulse );
+                bool &pulse);
 
             /** read input file with uncosted links
      * 
@@ -58,8 +58,12 @@ namespace raven
             /// read tree
             std::vector<std::string> singleParentTree();
 
-            /// read cities with locations or links
-            void sales();
+            /** read cities with locations or links
+             * @return vector of node indices to be visited
+             * 
+             * If return vector is empty, all cities must be visted
+             */
+            std::vector<int> sales();
 
             /** read orthogonal grid of cell values
      * @return grid of cell values
