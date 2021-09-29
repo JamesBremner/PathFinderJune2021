@@ -38,6 +38,15 @@ namespace raven
             // loop over links
             for (auto &e : links())
             {
+                if ( ! isDirected() )
+
+                    /* an undirected graph has a pair of directed links
+                    beteen every pair of linked nodes. Suppress the display
+                    of the second link of the pair
+                    */
+                    if( e.first.first > e.first.second )
+                        continue;
+
                 // check if link between two nodes on path
                 bool onpath = false;
                 auto pathItsrc = std::find(myPath.begin(), myPath.end(), e.first.first);
@@ -396,7 +405,7 @@ namespace raven
         void cPathFinder::tsp()
         {
             raven::set::cRunWatch aWatcher( "TravellingSalesManCalculation");
-            
+
             // calculate spanning tree
             span();
 
