@@ -285,8 +285,8 @@ namespace raven
             mySpanTree.addLink(v, w);
             Q[v] = true;
             Q[w] = true;
-            std::cout << "adding " << name(v) << " " << name(w)
-                      << " " << cost(v, w) << "\n";
+            // std::cout << "adding " << name(v) << " " << name(w)
+            //           << " " << cost(v, w) << "\n";
 
             // while nodes remain outside of span
             while (1)
@@ -402,9 +402,8 @@ namespace raven
                 return;
             }
         }
-        void cPathFinder::tsp()
+        std::vector<int> cPathFinder::tsp()
         {
-            raven::set::cRunWatch aWatcher( "TravellingSalesManCalculation");
 
             // calculate spanning tree
             span();
@@ -436,7 +435,7 @@ namespace raven
                 prev = n;
             }
 
-            std::cout << "route " << pathText() << "\n";
+            return myPath;
         }
 
         void cPathFinder::cams()

@@ -153,7 +153,7 @@ namespace raven
             void tsp(const std::vector<int>& v);
 
             /// Find path that visits every node
-            void tsp();
+            std::vector<int> tsp();
 
             /// Find nodes that cover all links
             void cams();
