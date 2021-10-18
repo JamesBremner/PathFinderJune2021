@@ -1,6 +1,8 @@
 #include <math.h>
 #include <sstream>
 #include <algorithm>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 #include "cPathFinderReader.h"
 #include "cRunWatch.h"
 
@@ -113,6 +115,11 @@ namespace raven
                     myFinder.depthFirst(0, [](int v) {});
                 }
                 raven::set::cRunWatch::Report();
+            }
+            else if (line.find("bonesi") != -1)
+            {
+                myFormat = eCalculation::bonesi;
+                bonesi();
             }
             return myFormat;
         }
@@ -308,6 +315,27 @@ namespace raven
             }
             //std::cout << "<-costs\n" <<myFinder.linksText() << "\n";
         }
+        void cPathFinderReader::bonesi()
+        {
+            myFinder.clear();
+            myFinder.directed();
+
+            // read  JSON into property tree
+            boost::property_tree::ptree tree;
+            read_json(myFile, tree);
+
+            // loop over source nodes
+            for (auto &src : tree)
+            {
+                // loop over destination nodes
+                for (auto &dst : tree.get_child(src.first).get_child("next"))
+                {
+                    // add link between source and destination
+                    myFinder.addLink(src.first, dst.second.data());
+                }
+            }
+
+        }
         void cPathFinderReader::nodeCosts()
         {
             myFinder.clear();
@@ -465,7 +493,7 @@ namespace raven
 
             case eInput::manhatten:
             {
-                raven::set::cRunWatch aWatcher( "CalculateManhattenDistances" );
+                raven::set::cRunWatch aWatcher("CalculateManhattenDistances");
                 for (int c1 = 0; c1 < vCity.size(); c1++)
                 {
                     for (int c2 = 0; c2 < vCity.size(); c2++)

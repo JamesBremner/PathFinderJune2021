@@ -55,6 +55,8 @@ namespace raven
      */
             void links();
 
+            void bonesi();
+
             /// read tree
             std::vector<std::string> singleParentTree();
 

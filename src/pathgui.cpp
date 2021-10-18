@@ -35,6 +35,9 @@ void replaceAll(std::string &str, const std::string &from, const std::string &to
 
 void RunDOT(raven::graph::cPathFinder &finder)
 {
+    // temp firectory is usually
+    // C:\Users\<userName>\AppData\Local\Temp
+
     auto path = std::filesystem::temp_directory_path();
     //std::cout << path;
     auto gdot = path / "g.dot";
@@ -47,6 +50,7 @@ using raven::graph::eCalculation;
     {
     case eCalculation::costs:
     case eCalculation::sales:
+    case eCalculation::bonesi:
         f << finder.pathViz() << "\n";
         break;
     case eCalculation::spans:
@@ -264,6 +268,7 @@ int main()
                          case eCalculation::shaun:
                          case eCalculation::flows:
                          case eCalculation::multiflows:
+                         case eCalculation::bonesi:
                             opt = eCalculation::costs;
                              break;
                         case eCalculation::reqs:

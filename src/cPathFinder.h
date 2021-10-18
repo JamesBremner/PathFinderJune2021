@@ -27,6 +27,7 @@ namespace raven
             maze_ascii_art,
             cliques,
             reqs,
+            bonesi,
         };
 
         /** @brief general purpose path finder

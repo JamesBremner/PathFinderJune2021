@@ -1,0 +1,29 @@
+format bonesi
+{
+    "A": {
+            "field1": "X",
+            "field2": "Y",
+            "next": ["B"]
+    },
+    "B": {
+            "field1": "X",
+            "field2": "Y",
+            "next": ["C", "D"]
+    },
+    "C": {
+            "field1": "X",
+            "field2": "Y",
+            "next": ["A"]
+    },
+    "D": {
+            "field1": "X",
+            "field2": "Y",
+            "next": ["C", "E"]
+    },
+    "E": {
+            "field1": "X",
+            "field2": "Y",
+            "next": ["C", "D"]
+    }
+
+}
