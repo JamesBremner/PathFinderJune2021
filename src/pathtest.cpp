@@ -5,6 +5,7 @@
 #include "cPathFinderReader.h"
 #include "cGraph.h"
 #include "cPathFinder.h"
+#include "cRunWatch.h"
 
 raven::graph::cPathFinder finder;
 raven::graph::cPathFinderReader reader(finder);
@@ -13,8 +14,20 @@ main()
 {
     std::string expected;
 
-    // std::cout << "TEST Amazon0601.txt\n";
-    // reader.open("../dat/Amazon0601.txt");
+    std::cout << "TEST Amazon0601.txt\n";
+    reader.open("../dat/Amazon0601.txt");
+                    raven::set::cRunWatch::Start();
+                    raven::set::cRunWatch::Clear();
+
+    int a, b;
+    for (int k = 0; k < 100; k++)
+    {
+        a = rand() % finder.nodeCount() + 1;
+        b = rand() % finder.nodeCount() + 1;
+        finder.isConnected(a, b);
+    }
+    raven::set::cRunWatch::Report();
+    exit(0);
 
     std::cout << "TEST karup.txt\n";
     reader.open("../dat/karup.txt");

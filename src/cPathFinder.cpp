@@ -38,13 +38,13 @@ namespace raven
             // loop over links
             for (auto &e : links())
             {
-                if ( ! isDirected() )
+                if (!isDirected())
 
                     /* an undirected graph has a pair of directed links
                     beteen every pair of linked nodes. Suppress the display
                     of the second link of the pair
                     */
-                    if( e.first.first > e.first.second )
+                    if (e.first.first > e.first.second)
                         continue;
 
                 // check if link between two nodes on path
@@ -395,9 +395,10 @@ namespace raven
             }
         }
 
-        void cPathFinder::tsp( const std::vector<int>& v )
+        void cPathFinder::tsp(const std::vector<int> &v)
         {
-            if( ! v.size() ) {
+            if (!v.size())
+            {
                 tsp();
                 return;
             }
@@ -769,9 +770,9 @@ namespace raven
             std::cout << "node reached at, then waited\n";
             for (int n : myPath)
             {
-                std::cout << name( n ) << "\t" 
-                    << myDist[n] << "\t"
-                    << wait[n] << "\n";
+                std::cout << name(n) << "\t"
+                          << myDist[n] << "\t"
+                          << wait[n] << "\n";
             }
         }
         void cPathFinder::equiflows()
@@ -907,6 +908,31 @@ namespace raven
             ss << " )";
             myResults = ss.str();
             std::cout << myResults << "\n";
+        }
+
+        bool cPathFinder::isConnected(
+            int node1,
+            int node2)
+        {
+            raven::set::cRunWatch aWatcher("isConnected");
+            try
+            {
+                depthFirst(
+                    node1,
+                    [&](int v)
+                    {
+                        if (v == node2)
+                            throw std::runtime_error("done");
+                    });
+                return false;
+            }
+            catch (std::runtime_error &e)
+            {
+                // std::cout << "catch " << e.what() << "\n";
+                //if (e.what() == "done")
+                    return true;
+                //throw e;
+            }
         }
 
         void cPathFinder::karup()

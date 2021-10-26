@@ -9,7 +9,7 @@
             "args": [
                 "-f",
                 "makefile",
-                "gui"
+                "test"
             ],
             "options": {
                 "cwd": "C:/Users/James/code/PathFinder/build/vscode"
@@ -20,6 +20,24 @@
             "group": {
                 "kind": "build",
                 "isDefault": true
+            }
+        },
+        {
+            "label": "clean",
+            "command": "mingw32-make.exe",
+            "args": [
+                "-f",
+                "makefile",
+                "clean"
+            ],
+            "options": {
+                "cwd": "C:/Users/James/code/PathFinder/build/vscode"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build"
             }
         }
     ]

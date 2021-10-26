@@ -128,7 +128,12 @@ namespace raven
             std::vector<int> pathPick(int end);
 
             /// true if all nodes are connected together
-            bool IsConnected();
+            bool isConnected();
+
+            /// true if two nodes are connected
+            bool isConnected(
+                int node1,
+                int node2 );
 
             int islandCount();
 
@@ -151,7 +156,7 @@ namespace raven
              * 
              * If v is empty, all nodes must be visited
              */
-            void tsp(const std::vector<int>& v);
+            void tsp(const std::vector<int> &v);
 
             /// Find path that visits every node
             std::vector<int> tsp();
@@ -239,9 +244,9 @@ The output, an ordered vector of node indices, is stored in myPath attribute
             std::string camsViz();
 
             /** Depth First search
-     * @param[in] v index of starting node
-     * @param[in] visitor function to call on each new node visited
-     */
+            * @param[in] v index of starting node
+            * @param[in] visitor function to call on each new node visited
+            */
             void depthFirst(int v, std::function<void(int v)> visitor);
 
         private:
