@@ -4,12 +4,31 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build",
+            "label": "test",
             "command": "mingw32-make.exe",
             "args": [
                 "-f",
                 "makefile",
                 "test"
+            ],
+            "options": {
+                "cwd": "C:/Users/James/code/PathFinder/build/vscode"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "gui",
+            "command": "mingw32-make.exe",
+            "args": [
+                "-f",
+                "makefile",
+                "gui"
             ],
             "options": {
                 "cwd": "C:/Users/James/code/PathFinder/build/vscode"

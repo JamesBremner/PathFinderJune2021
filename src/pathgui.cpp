@@ -39,7 +39,7 @@ void RunDOT(raven::graph::cPathFinder &finder)
     // C:\Users\<userName>\AppData\Local\Temp
 
     auto path = std::filesystem::temp_directory_path();
-    //std::cout << path;
+    std::cout << "RunDOT " << path <<"\n";
     auto gdot = path / "g.dot";
     std::ofstream f(gdot);
     if (!f.is_open())

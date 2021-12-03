@@ -121,6 +121,12 @@ namespace raven
                 myFormat = eCalculation::bonesi;
                 bonesi();
             }
+            else if (line.find("collision") != -1)
+            {
+                CollisionRandom();
+                myFinder.collision();
+                myFormat = eCalculation::collision;
+            }
             return myFormat;
         }
 
@@ -334,7 +340,6 @@ namespace raven
                     myFinder.addLink(src.first, dst.second.data());
                 }
             }
-
         }
         void cPathFinderReader::nodeCosts()
         {
@@ -390,6 +395,17 @@ namespace raven
             }
 
             //std::cout << myFinder.linksText();
+        }
+
+        void cPathFinderReader::CollisionRandom()
+        {
+            const int nodeCount = 10e3;
+            myFinder.directed();
+            myFinder.makeNodes(nodeCount);
+
+            // link each node to one other chosen at random
+            for (int x = 0; x < nodeCount; x++)
+                 myFinder.addLink( x, rand() % (int)nodeCount );
         }
 
         std::vector<int> cPathFinderReader::sales()

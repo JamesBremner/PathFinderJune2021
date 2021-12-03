@@ -930,7 +930,7 @@ namespace raven
             {
                 // std::cout << "catch " << e.what() << "\n";
                 //if (e.what() == "done")
-                    return true;
+                return true;
                 //throw e;
             }
         }
@@ -1046,5 +1046,134 @@ namespace raven
             }
         }
 
+        typedef std::pair<int, int> tribnode_t;              // tributary node ( node index, distance from crash site )
+        typedef std::vector<tribnode_t> trib_t;              // tributary to crash node ( vector of tributary nodes)
+        typedef std::pair<int, std::vector<trib_t>> crash_t; // crash node ( index, vector of tributaries )
+        void cPathFinder::buildtributary(trib_t &trib)
+        {
+            linkmap_t lm = inlinks(trib.back().first);
+            if (!lm.size())
+                return;
+            if (lm.size() > 1)
+            {
+                return;
+            }
+            trib.push_back(std::make_pair(
+                lm.begin()->first.first,
+                trib.back().second + 1));
+            buildtributary(trib);
+        }
+
+        void cPathFinder::collision()
+        {
+            raven::set::cRunWatch::Start();
+
+            std::vector<crash_t> vCrash; // identified crash sites
+            {
+                                raven::set::cRunWatch watcher("find crach sites");
+            for (auto &n : nodes())
+            {
+                linkmap_t lm = inlinks(n.first);
+                if (lm.size() > 1)
+                {
+                    // node with more than obe incident edge
+                    // is a ppotential crash site
+                    crash_t crash;
+                    crash.first = n.first;
+
+                    for (auto t : lm)
+                    {
+                        // find the nodes on this tributary
+                        trib_t trib;
+                        trib.push_back(std::make_pair(
+                            t.first.first,
+                            1));
+                        buildtributary(trib);
+                        crash.second.push_back(trib);
+                    }
+                    vCrash.push_back(crash);
+                }
+            }
+            }
+
+            // display crash site nodes and their tributaries
+            for (auto &crash : vCrash)
+            {
+                std::cout << crash.first << ": ";
+                for (auto &trib : crash.second)
+                {
+                    std::cout << "{ ";
+                    for (auto &n : trib)
+                    {
+                        // print tributary node and distance from crash
+                        std::cout << "( " << n.first << " " << n.second << " ) ";
+                    }
+                    std::cout << " }, ";
+                }
+                std::cout << "\n";
+            }
+
+            // search for colliding nodes
+
+            for (int a = 0; a < nodeCount(); a++)
+            {
+                for (int b = a + 1; b < nodeCount(); b++)
+                {
+                    raven::set::cRunWatch watcher{"collision search"};
+
+                    // loop over crash sites
+                    for (auto &crash : vCrash)
+                    {
+                        bool afound, bfound;
+                        afound = bfound = false;
+                        int adist, bdist;
+
+                        // loop over tributaries
+                        for (auto &trib : crash.second)
+                        {
+                            // loop over trib nodes
+                            for (auto &n : trib)
+                            {
+                                if (!afound)
+                                {
+                                    if (a == n.first)
+                                    {
+                                        afound = true;
+                                        adist = n.second;
+                                    }
+                                }
+                                if (!bfound)
+                                {
+                                    if (b == n.first)
+                                    {
+                                        bfound = true;
+                                        bdist = n.second;
+                                    }
+                                }
+                            }
+                            if (afound && bfound)
+                                break;
+                        }
+                        if (!(afound && bfound))
+                        {
+                            // they cannot collide at this crash site
+                            // continue to next crash site
+                            continue;
+                        }
+                        if (adist != bdist)
+                        {
+                            // they arrive at different times
+                            // continue to next crash site
+                            continue;
+                        }
+                        // success!
+                        std::cout << a << " and " << b
+                                  << " collide at " << crash.first << "\n";
+                        break;
+                    }
+                }
+            }
+            raven::set::cRunWatch::Report();
+        }
     }
 }

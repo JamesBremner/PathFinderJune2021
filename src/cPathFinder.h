@@ -28,6 +28,7 @@ namespace raven
             cliques,
             reqs,
             bonesi,
+            collision,
         };
 
         /** @brief general purpose path finder
@@ -133,7 +134,7 @@ namespace raven
             /// true if two nodes are connected
             bool isConnected(
                 int node1,
-                int node2 );
+                int node2);
 
             int islandCount();
 
@@ -200,6 +201,23 @@ https://stackoverflow.com/q/62338424/16582
 The output, an ordered vector of node indices, is stored in myPath attribute
 */
             void karup();
+
+            /**
+We are given a graph of N nodes where each node has exactly 1 directed edge to some node 
+(this node can be the same node).
+
+We need to answer the queries of type : A, B, which asks time required when 2 objects collide
+ if one start at A and other start at B.
+  Both moves 1 hop in 1 sec. 
+  If it's not possible for them to collide time would be -1.
+
+  https://stackoverflow.com/q/70200925/16582
+*/
+            typedef std::pair<int, int> tribnode_t;              // tributary node ( node index, distance from crash site )
+            typedef std::vector<tribnode_t> trib_t;              // tributary to crash node ( vector of tributary nodes)
+            typedef std::pair<int, std::vector<trib_t>> crash_t; // crash node ( index, vector of tributaries )
+            void buildtributary(trib_t &trib);
+            void collision();
 
             /////////////////////// get text output ///////////////////////////////////////////
 

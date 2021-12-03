@@ -84,6 +84,8 @@ namespace raven
 
             void KarupRandom();
 
+            void CollisionRandom();
+
         private:
             cPathFinder &myFinder;
             std::string myfname;

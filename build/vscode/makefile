@@ -33,7 +33,7 @@ gui: $(GUI)
 	g++ -o ../../bin/pathfinder.exe -O2 $^ $(WEXLIBS)
 
 test: $(TST)
-	g++ -Wl,--stack,33554432 \
+	g++ -Wl,--stack,33554432 $(OPT) -s \
 	-static-libstdc++ -static-libgcc -static -m64 $(OPT) \
 	-o ../../bin/pathtest.exe $^
 
