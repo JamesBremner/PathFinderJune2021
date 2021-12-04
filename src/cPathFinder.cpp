@@ -1070,30 +1070,30 @@ namespace raven
 
             std::vector<crash_t> vCrash; // identified crash sites
             {
-                                raven::set::cRunWatch watcher("find crach sites");
-            for (auto &n : nodes())
-            {
-                linkmap_t lm = inlinks(n.first);
-                if (lm.size() > 1)
+                raven::set::cRunWatch watcher("find crash sites");
+                for (auto &n : nodes())
                 {
-                    // node with more than obe incident edge
-                    // is a ppotential crash site
-                    crash_t crash;
-                    crash.first = n.first;
-
-                    for (auto t : lm)
+                    linkmap_t lm = inlinks(n.first);
+                    if (lm.size() > 1)
                     {
-                        // find the nodes on this tributary
-                        trib_t trib;
-                        trib.push_back(std::make_pair(
-                            t.first.first,
-                            1));
-                        buildtributary(trib);
-                        crash.second.push_back(trib);
+                        // node with more than one incident edge
+                        // is a potential crash site
+                        crash_t crash;
+                        crash.first = n.first;
+
+                        for (auto t : lm)
+                        {
+                            // find the nodes on this tributary
+                            trib_t trib;
+                            trib.push_back(std::make_pair(
+                                t.first.first,
+                                1));
+                            buildtributary(trib);
+                            crash.second.push_back(trib);
+                        }
+                        vCrash.push_back(crash);
                     }
-                    vCrash.push_back(crash);
                 }
-            }
             }
 
             // display crash site nodes and their tributaries
@@ -1134,12 +1134,17 @@ namespace raven
                             // loop over trib nodes
                             for (auto &n : trib)
                             {
+                                // check if still looking for a
                                 if (!afound)
                                 {
                                     if (a == n.first)
                                     {
+                                        // a found, record distance
                                         afound = true;
                                         adist = n.second;
+
+                                        // stop searching this trib
+                                        break;
                                     }
                                 }
                                 if (!bfound)
@@ -1148,6 +1153,7 @@ namespace raven
                                     {
                                         bfound = true;
                                         bdist = n.second;
+                                        break;
                                     }
                                 }
                             }
