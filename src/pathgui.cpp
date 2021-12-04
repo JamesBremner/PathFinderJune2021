@@ -306,6 +306,7 @@ int main()
 
                      RunDOT(finder);
                      editPanel.show(false);
+                     graphPanel.update();
                      form.text("Path Finder GUI " + fname);
 
                      form.update();
