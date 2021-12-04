@@ -84,7 +84,7 @@ namespace raven
 
             void KarupRandom();
 
-            void CollisionRandom();
+            void collision();
 
         private:
             cPathFinder &myFinder;

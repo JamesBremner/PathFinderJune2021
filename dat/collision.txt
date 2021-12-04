@@ -1,1 +1,2 @@
 format collision
+random 50

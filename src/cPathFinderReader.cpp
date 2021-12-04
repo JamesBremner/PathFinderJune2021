@@ -123,9 +123,15 @@ namespace raven
             }
             else if (line.find("collision") != -1)
             {
-                CollisionRandom();
+                collision();
                 myFinder.collision();
-                myFormat = eCalculation::collision;
+                if (myFinder.nodeCount() < 100)
+                    myFormat = eCalculation::costs;
+                else
+                {
+                    // suppress visual display of large graphs
+                    myFormat = eCalculation::collision;
+                }
             }
             return myFormat;
         }
@@ -397,15 +403,26 @@ namespace raven
             //std::cout << myFinder.linksText();
         }
 
-        void cPathFinderReader::CollisionRandom()
+        void cPathFinderReader::collision()
         {
-            const int nodeCount = 10e3;
-            myFinder.directed();
-            myFinder.makeNodes(nodeCount);
+            std::string line;
+            getline(myFile, line);
+            auto token = ParseSpaceDelimited(line);
+            if (!token.size())
+                throw std::runtime_error(
+                    "cPathFinderReader::collision input format error");
+            if (token[0] == "random")
+            {
+                const int nodeCount = atoi(token[1].c_str());
+                myFinder.directed();
+                myFinder.makeNodes(nodeCount);
 
-            // link each node to one other chosen at random
-            for (int x = 0; x < nodeCount; x++)
-                 myFinder.addLink( x, rand() % (int)nodeCount );
+                // link each node to one other chosen at random
+                for (int x = 0; x < nodeCount; x++)
+                    myFinder.addLink(x, rand() % nodeCount);
+            }
+            else
+                costs(false,true);
         }
 
         std::vector<int> cPathFinderReader::sales()

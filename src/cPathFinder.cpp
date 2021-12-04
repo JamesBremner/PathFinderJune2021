@@ -1051,6 +1051,12 @@ namespace raven
         typedef std::pair<int, std::vector<trib_t>> crash_t; // crash node ( index, vector of tributaries )
         void cPathFinder::buildtributary(trib_t &trib)
         {
+            // std::cout << "=>buildtributary ";
+            // for( auto& tn : trib )
+            // {
+            //     std:: cout << tn.first << " ";
+            // }
+            // std::cout << "\n";
             linkmap_t lm = inlinks(trib.back().first);
             if (!lm.size())
                 return;
