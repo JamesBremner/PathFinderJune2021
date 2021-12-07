@@ -168,7 +168,7 @@ void doPreReqs(
         auto path = finder.pathPick(finder.find(a));
 
         for (int s : path)
-            std::cout << finder.name(s) << " ";
+            std::cout << finder.userName(s) << " ";
         std::cout << "\n";
 
         //loop over prerequsites
@@ -182,7 +182,7 @@ void doPreReqs(
     std::cout << "Total skills needed "
               << setSkillsNeeded.size() << " ( ";
     for (int s : setSkillsNeeded)
-        std::cout << finder.name(s) << " ";
+        std::cout << finder.userName(s) << " ";
     std::cout << " )\n";
 }
 

@@ -1,0 +1,10 @@
+format collision
+input
+l 1 0
+l 2 1
+l 3 0
+l 4 3
+
+
+
+

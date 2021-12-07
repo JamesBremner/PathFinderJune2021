@@ -87,8 +87,8 @@ namespace raven
             // loop over links
             for (auto &e : links())
             {
-                f << name(e.first.first) << graphvizlink
-                  << name(e.first.second)
+                f << userName(e.first.first) << graphvizlink
+                  << userName(e.first.second)
                   << "\n";
             }
 
@@ -254,7 +254,7 @@ namespace raven
             for (auto n : myPath)
             {
                 std::string sn;
-                sn = name(n);
+                sn = userName(n);
 
                 if (sn == "???")
                     sn = std::to_string(n);
@@ -568,7 +568,7 @@ namespace raven
             {
                 ss << "clique: ";
                 for (int n : c)
-                    ss << name(n) << " ";
+                    ss << userName(n) << " ";
                 ss << "\n";
             }
             myResults = ss.str();
@@ -653,7 +653,7 @@ namespace raven
                         if (n.first > l.first)
                             continue;
                     ss << n.second.myName << " -- "
-                       << name(l.first) << " capacity "
+                       << userName(l.first) << " capacity "
                        << l.second.myCost << " used "
                        << l.second.myValue << "\n";
                 }
@@ -666,7 +666,7 @@ namespace raven
             double totalmultiflow = 0;
             for (int s : mySource)
             {
-                std::cout << "multisource " << name(s) << "\n";
+                std::cout << "multisource " << userName(s) << "\n";
                 myStart = s;
                 flows();
                 totalmultiflow += myPathCost;
@@ -770,7 +770,7 @@ namespace raven
             std::cout << "node reached at, then waited\n";
             for (int n : myPath)
             {
-                std::cout << name(n) << "\t"
+                std::cout << userName(n) << "\t"
                           << myDist[n] << "\t"
                           << wait[n] << "\n";
             }
@@ -825,7 +825,7 @@ namespace raven
                         if (n.first > l.first)
                             continue;
                     ss << n.second.myName << " -> "
-                       << name(l.first) << " capacity "
+                       << userName(l.first) << " capacity "
                        << l.second.myCost << " used "
                        << myPathCost * l.second.myValue / 100 << "\n";
                 }
@@ -886,7 +886,7 @@ namespace raven
 
                 std::cout << "skill " << a << " needs ";
                 for (int s : path)
-                    std::cout << name(s) << " ";
+                    std::cout << userName(s) << " ";
                 std::cout << "\n";
 
                 //loop over prerequsites
@@ -904,7 +904,7 @@ namespace raven
             ss << "Total skills needed "
                << setSkillsNeeded.size() << " ( ";
             for (int s : setSkillsNeeded)
-                ss << name(s) << " ";
+                ss << userName(s) << " ";
             ss << " )";
             myResults = ss.str();
             std::cout << myResults << "\n";
@@ -1049,41 +1049,65 @@ namespace raven
         typedef std::pair<int, int> tribnode_t;              // tributary node ( node index, distance from crash site )
         typedef std::vector<tribnode_t> trib_t;              // tributary to crash node ( vector of tributary nodes)
         typedef std::pair<int, std::vector<trib_t>> crash_t; // crash node ( index, vector of tributaries )
-        void cPathFinder::buildtributary(trib_t &trib)
+        void cPathFinder::buildtributary(
+            trib_t &trib,
+            std::map<int, linkmap_t>& mapInLinks)
         {
-            // std::cout << "=>buildtributary ";
-            // for( auto& tn : trib )
+            //std::cout << "=>buildtributary ";
+            //raven::set::cRunWatch watcher("buildtributary");
+            // for (auto &tn : trib)
             // {
-            //     std:: cout << tn.first << " ";
+            //     std::cout << tn.first << " ";
             // }
             // std::cout << "\n";
-            linkmap_t lm = inlinks(trib.back().first);
+
+            // std::cout << linksText() << "\n";
+
+            linkmap_t lm = mapInLinks[trib.back().first];
             if (!lm.size())
-                return;
-            if (lm.size() > 1)
             {
+                //std::cout << "trib end\n";
                 return;
             }
+            if (lm.size() > 1)
+            {
+                //std::cout << "trib split\n";
+                return;
+            }
+            // std::cout << "adding " << userName(lm.begin()->first.first)
+            //           << " to " << userName(trib.back().first) << "\n";
+
             trib.push_back(std::make_pair(
                 lm.begin()->first.first,
                 trib.back().second + 1));
-            buildtributary(trib);
+            buildtributary(trib,mapInLinks);
         }
 
         void cPathFinder::collision()
         {
+            std::cout << "Finding collisions in " << nodeCount() << " node graph\n";
+
             raven::set::cRunWatch::Start();
 
             std::vector<crash_t> vCrash; // identified crash sites
             {
                 raven::set::cRunWatch watcher("find crash sites");
+
+                std::map<int, linkmap_t> mapInLinks;
                 for (auto &n : nodes())
                 {
-                    linkmap_t lm = inlinks(n.first);
+                    mapInLinks[n.first] = inlinks(n.first);
+                }
+
+                for (auto &n : nodes())
+                {
+                    raven::set::cRunWatch watcher("tribs for crash site");
+                    linkmap_t lm = mapInLinks[n.first];
                     if (lm.size() > 1)
                     {
                         // node with more than one incident edge
                         // is a potential crash site
+                        //std::cout << "crash site " << userName(n.first) << "\n";
                         crash_t crash;
                         crash.first = n.first;
 
@@ -1094,7 +1118,7 @@ namespace raven
                             trib.push_back(std::make_pair(
                                 t.first.first,
                                 1));
-                            buildtributary(trib);
+                            buildtributary(trib, mapInLinks);
                             crash.second.push_back(trib);
                         }
                         vCrash.push_back(crash);
@@ -1103,20 +1127,23 @@ namespace raven
             }
 
             // display crash site nodes and their tributaries
-            for (auto &crash : vCrash)
+            if (vCrash.size() < 10)
             {
-                std::cout << crash.first << ": ";
-                for (auto &trib : crash.second)
+                for (auto &crash : vCrash)
                 {
-                    std::cout << "{ ";
-                    for (auto &n : trib)
+                    std::cout << userName(crash.first) << ": ";
+                    for (auto &trib : crash.second)
                     {
-                        // print tributary node and distance from crash
-                        std::cout << "( " << n.first << " " << n.second << " ) ";
+                        std::cout << "{ ";
+                        for (auto &n : trib)
+                        {
+                            // print tributary node and distance from crash
+                            std::cout << "( " << userName(n.first) << " " << n.second << " ) ";
+                        }
+                        std::cout << " }, ";
                     }
-                    std::cout << " }, ";
+                    std::cout << "\n";
                 }
-                std::cout << "\n";
             }
 
             // search for colliding nodes
@@ -1179,8 +1206,8 @@ namespace raven
                             continue;
                         }
                         // success!
-                        std::cout << a << " and " << b
-                                  << " collide at " << crash.first << "\n";
+                        // std::cout << userName(a) << " and " << userName(b)
+                        //           << " collide at " << userName(crash.first) << "\n";
                         break;
                     }
                 }

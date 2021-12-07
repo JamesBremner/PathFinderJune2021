@@ -1,2 +1,2 @@
 format collision
-random 50
+random 50000

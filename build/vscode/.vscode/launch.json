@@ -8,7 +8,7 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/../../bin/pathfinder.exe",
+            "program": "${workspaceFolder}/../../bin/graphtest.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/../../bin",

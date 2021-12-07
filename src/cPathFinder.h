@@ -216,7 +216,9 @@ We need to answer the queries of type : A, B, which asks time required when 2 ob
             typedef std::pair<int, int> tribnode_t;              // tributary node ( node index, distance from crash site )
             typedef std::vector<tribnode_t> trib_t;              // tributary to crash node ( vector of tributary nodes)
             typedef std::pair<int, std::vector<trib_t>> crash_t; // crash node ( index, vector of tributaries )
-            void buildtributary(trib_t &trib);
+            void buildtributary(
+                trib_t &trib,
+                std::map<int, linkmap_t>& mapInLinks );
             void collision();
 
             /////////////////////// get text output ///////////////////////////////////////////

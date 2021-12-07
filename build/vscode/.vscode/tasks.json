@@ -4,12 +4,12 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "test",
+            "label": "pathtest",
             "command": "mingw32-make.exe",
             "args": [
                 "-f",
-                "makefile",
-                "test"
+                "pathfinder.mk",
+                "pathtest"
             ],
             "options": {
                 "cwd": "C:/Users/James/code/PathFinder/build/vscode"
@@ -27,8 +27,27 @@
             "command": "mingw32-make.exe",
             "args": [
                 "-f",
-                "makefile",
+                "pathfinder.mk",
                 "gui"
+            ],
+            "options": {
+                "cwd": "C:/Users/James/code/PathFinder/build/vscode"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "graphtest",
+            "command": "mingw32-make.exe",
+            "args": [
+                "-f",
+                "pathfinder.mk",
+                "graphtest"
             ],
             "options": {
                 "cwd": "C:/Users/James/code/PathFinder/build/vscode"
@@ -46,7 +65,7 @@
             "command": "mingw32-make.exe",
             "args": [
                 "-f",
-                "makefile",
+                "pathfinder.mk",
                 "clean"
             ],
             "options": {

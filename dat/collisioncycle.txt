@@ -1,8 +1,11 @@
 format collision
 input
+l 0 1
 l 1 2
 l 2 3
-l 3 4
-l 4 1
-l 5 1
+l 3 1
+l 4 0
+l 5 0
+
+
 
