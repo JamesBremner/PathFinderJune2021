@@ -2,7 +2,8 @@
 # compiler include search paths
 INCS = \
 	-I../../../boost/boost1_72 \
-	-I../../../raven-set
+	-I../../../raven-set \
+	-I../../../windex/include
 
 WEXLIBS = \
 	-lstdc++fs -lgdiplus -lgdi32 -lcomdlg32
@@ -16,12 +17,12 @@ STATLibs = -static-libstdc++ -static-libgcc -static
 
 ### OBJECT FILES
 
-graphtestOBJs = $(ODIR)/graphtest.o $(ODIR)/cgraph.o $(ODIR)/cutest.o
+graphtestOBJs = $(ODIR)/graphtest.o $(ODIR)/cGraph.o $(ODIR)/cutest.o
 pathtestOBJs =  $(ODIR)/pathtest.o \
-	 $(ODIR)/cpathfinder.o $(ODIR)/cpathfinderreader.o $(ODIR)/cgraph.o \
+	 $(ODIR)/cPathFinder.o $(ODIR)/cPathFinderReader.o $(ODIR)/cGraph.o \
 	 $(ODIR)/cRunWatch.o
 guiOBJs = $(ODIR)/pathgui.o \
-	 $(ODIR)/cpathfinder.o $(ODIR)/cpathfinderreader.o $(ODIR)/cgraph.o \
+	 $(ODIR)/cPathFinder.o $(ODIR)/cPathFinderReader.o $(ODIR)/cGraph.o \
 	 $(ODIR)/cRunWatch.o
 
 ### COMPILE
@@ -34,29 +35,8 @@ $(ODIR)/cRunWatch.o :
 	g++ -o $@ -c ../../../raven-set/cRunWatch.cpp \
 	$(INCS) $(CCflags) 
 
-$(ODIR)/graphtest.o : $(SDIR)/cgraph.h
-	g++ -o $@ -c $(SDIR)/graphtest.cpp \
-		$(INCS) $(CCflags)
-
-$(ODIR)/pathtest.o : $(SDIR)/cgraph.h
-	g++ -o $@ -c $(SDIR)/pathtest.cpp \
-		$(INCS) $(CCflags)
-
-$(ODIR)/cpathfinderreader.o : $(SDIR)/cgraph.h
-	g++ -o $@ -c $(SDIR)/cpathfinderreader.cpp \
-		$(INCS) $(CCflags)
-
-$(ODIR)/pathgui.o :
-	g++ -o $@ \
-		-c $(SDIR)/pathgui.cpp \
-		-I../../../windex/include \
-		$(INCS) $(CCflags)
-
-$(ODIR)/cpathfinder.o : $(SDIR)/cgraph.h
-	g++ -o $@ -c $(SDIR)/cpathfinder.cpp $(INCS) $(CCflags)
-
-$(ODIR)/cgraph.o : $(SDIR)/cgraph.h
-	g++ -o $@ -c $(SDIR)/cgraph.cpp $(CCflags)
+$(ODIR)/%.o : $(SDIR)/%.cpp $(SDIR)/cGraph.h
+	g++ -o $@ -c $< $(CCflags) $(INCS)
 
 #### LINKS
 
