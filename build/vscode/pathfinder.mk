@@ -23,7 +23,7 @@ pathtestOBJs =  $(ODIR)/pathtest.o \
 	 $(ODIR)/cRunWatch.o
 guiOBJs = $(ODIR)/pathgui.o \
 	 $(ODIR)/cPathFinder.o $(ODIR)/cPathFinderReader.o $(ODIR)/cGraph.o \
-	 $(ODIR)/cRunWatch.o
+	 $(ODIR)/cMaze.o $(ODIR)/cRunWatch.o
 
 ### COMPILE
 
@@ -46,7 +46,7 @@ graphtest : $(graphtestOBJs)
 
 gui : $(guiOBJs)
 	g++ -o ../../bin/pathfinder.exe \
-		$(guiOBJs) $(WEXLIBS) $(STATLibs) $(OPT) -s -m64
+		$(guiOBJs) $(WEXLIBS) $(STATLibs) $(OPT) -m64
 
 pathtest : $(pathtestOBJs)
 	g++ -o ../../bin/pathtest.exe \

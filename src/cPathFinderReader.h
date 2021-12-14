@@ -68,8 +68,8 @@ namespace raven
             std::vector<int> sales();
 
             /** read orthogonal grid of cell values
-     * @return grid of cell values
-     */
+             * @return grid of cell values
+             */
             std::vector<std::vector<float>>
             orthogonalGrid();
 
@@ -99,13 +99,8 @@ namespace raven
             std::vector<std::string> ParseSpaceDelimited(
                 const std::string &l);
 
-            /** Create a name for a grid node
-     * @param[in] 0-based row position
-     * @param[in] 0-based col position
-     * @return 1 based node name, format "r<row+1>c<col+1>"
-     */
-            std::string orthogonalGridNodeName(
-                int row, int col);
-        };
-    }
+
+    };
 }
+}
+

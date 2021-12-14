@@ -5,6 +5,7 @@
 #include <boost/property_tree/json_parser.hpp>
 #include "cPathFinderReader.h"
 #include "cRunWatch.h"
+#include "cMaze.h"
 
 namespace raven
 {
@@ -132,6 +133,14 @@ namespace raven
                     // suppress visual display of large graphs
                     myFormat = eCalculation::collision;
                 }
+            }
+            else if (line.find("maze") != -1)
+            {
+                cMaze maze;
+                maze.read( myFile );
+                maze.graph( myFinder );
+                myFinder.path();
+                myFormat = eCalculation::costs;
             }
             return myFormat;
         }
@@ -619,7 +628,7 @@ namespace raven
                 for (int col = 0; col < ColCount; col++)
                 {
                     int n = myFinder.findoradd(
-                        orthogonalGridNodeName(row, col));
+                        myFinder.orthogonalGridNodeName(row, col));
                 }
             }
             myFinder.start(start);
@@ -659,11 +668,6 @@ namespace raven
                     }
                 }
             return grid;
-        }
-        std::string cPathFinderReader::orthogonalGridNodeName(
-            int row, int col)
-        {
-            return "c" + std::to_string(col + 1) + "r" + std::to_string(row + 1);
         }
         std::vector<std::string> cPathFinderReader::singleParentTree()
         {

@@ -218,7 +218,7 @@ We need to answer the queries of type : A, B, which asks time required when 2 ob
             typedef std::pair<int, std::vector<trib_t>> crash_t; // crash node ( index, vector of tributaries )
             void buildtributary(
                 trib_t &trib,
-                std::map<int, linkmap_t>& mapInLinks );
+                std::map<int, linkmap_t> &mapInLinks);
             void collision();
 
             /////////////////////// get text output ///////////////////////////////////////////
@@ -269,24 +269,36 @@ We need to answer the queries of type : A, B, which asks time required when 2 ob
             */
             void depthFirst(int v, std::function<void(int v)> visitor);
 
-        private:
-            int myStart; // starting node index
-            std::vector<int> mySource;
-            int myEnd;                // ending node index
-            std::vector<int> myPath;  // vector of node indices visited
-            std::vector<int> myDist;  // cost to reach each node from start
-            std::vector<int> myPred;  // previous node to each node from start
-            graph::cGraph mySpanTree; // minimum spanning tree
-            double myPathCost;        // total cost of links in path
-            int myMaxNegCost;
-            std::string myResults;
+            /** Create a name for a grid node
+             * @param[in] 0-based row position
+             * @param[in] 0-based col position
+             * @return 1 based node name, format "r<row+1>c<col+1>"
+             */
+            static std::string orthogonalGridNodeName(
+                int row, int col)
+            {
+                return "c" + std::to_string(col + 1) 
+                    + "r" + std::to_string(row + 1);
+            }
 
-            void depthRecurse(int v, std::function<void(int v)> visitor);
+    private:
+        int myStart; // starting node index
+        std::vector<int> mySource;
+        int myEnd;                // ending node index
+        std::vector<int> myPath;  // vector of node indices visited
+        std::vector<int> myDist;  // cost to reach each node from start
+        std::vector<int> myPred;  // previous node to each node from start
+        graph::cGraph mySpanTree; // minimum spanning tree
+        double myPathCost;        // total cost of links in path
+        int myMaxNegCost;
+        std::string myResults;
 
-            /** Breadth First Search
-     * @param[in] visitor function to call on each new node visited
-     */
-            void breadth(std::function<void(int v, int p)> visitor);
-        };
-    }
+        void depthRecurse(int v, std::function<void(int v)> visitor);
+
+        /** Breadth First Search
+             * @param[in] visitor function to call on each new node visited
+             */
+        void breadth(std::function<void(int v, int p)> visitor);
+    };
+}
 }
