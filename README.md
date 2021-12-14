@@ -33,6 +33,7 @@ Calculation Options are:
  - __Water__ Calulate shortest time to flow though pipe network with timed valve openings.
  - __Hills__ Find easiest path through hilly terrain. [Detailed Documentation](https://github.com/JamesBremner/PathFinder2/wiki/Hills)
  - __Prerequistes__ This option finds paths through ordered requirements. "Before you can do B, you must have done A" [Detailed Documentation](https://github.com/JamesBremner/PathFinder2/wiki/Prerequisites)
+ - __Maze__ This option finds the path through a 2D grid maze. [Detailed Documentation](https://github.com/JamesBremner/PathFinder/wiki/Maze)
 
 ## Installation
 
