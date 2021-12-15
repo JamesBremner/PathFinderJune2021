@@ -1,0 +1,2 @@
+format maze
+gen -rows 5 -cols 5 binary -file mazgen.txt

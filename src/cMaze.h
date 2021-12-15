@@ -32,7 +32,6 @@ namespace raven
             }
 
         private:
-
             /// represents a single cell in a maze
             class cCell
             {
@@ -50,7 +49,30 @@ namespace raven
             std::vector<std::vector<cCell>> myMaze;
 
             /// 0-based indices of start and end cells
-            int myStart, myEnd;        
+            int myStart, myEnd;
+
+            /// Parse generate command line and run requested generator
+            void generate(const std::string &cmd);
+
+            /** Generate maze using binary tree algorithm
+        https://en.wikipedia.org/wiki/Maze_generation_algorithm#Simple_algorithms
+            */
+            void generate_binary_tree(int rows, int cols);
+
+            /** Start maze generation using recursive division algorithm
+        https://en.wikipedia.org/wiki/Maze_generation_algorithm#Recursive_division_method
+            */
+            void generate_recursive_init(int rows, int cols);
+
+            /// Recursive division generator
+            void generate_recursive( int x, int y, int w, int h );
+
+            std::vector< std::string >  displayText();
+
+            bool onPath( int r, int c )
+            {
+                return false;
+            }
         };
     }
 }
