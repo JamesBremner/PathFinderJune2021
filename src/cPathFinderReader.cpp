@@ -137,10 +137,20 @@ namespace raven
             else if (line.find("maze") != -1)
             {
                 cMaze maze;
-                maze.read( myFile );
-                maze.graph( myFinder );
+                maze.read(myFile);
+                maze.graph(myFinder);
                 myFinder.path();
                 myFormat = eCalculation::costs;
+            }
+            else if (line.find("paths") != -1)
+            {
+                costs();
+                myFormat = eCalculation::paths;
+            }
+            else if (line.find("srcnuzn") != -1)
+            {
+                nodecosts(true);
+                return eCalculation::srcnuzn;
             }
             return myFormat;
         }
@@ -231,7 +241,75 @@ namespace raven
                 //        myFinder.makeCostsPositive(maxNegCost);
             }
 
-            //std::cout << "<-costs\n" <<myFinder.linksText() << "\n";
+            // std::cout << "<-costs\n" <<myFinder.linksText() << "\n";
+        }
+
+        void cPathFinderReader::nodecosts(
+            bool directed)
+        {
+            myFinder.clear();
+            if (directed)
+                myFinder.directed();
+            int cost;
+            int maxNegCost = 0;
+            std::string line;
+            while (std::getline(myFile, line))
+            {
+                std::cout << line << "\n";
+                auto token = ParseSpaceDelimited(line);
+                if (!token.size())
+                    continue;
+                switch (token[0][0])
+                {
+                case 'g':
+                    if (myFinder.linkCount())
+                        throw std::runtime_error("cPathFinderReader:: g ( directed ) must occurr before any links");
+                    myFinder.directed();
+                    break;
+
+                case 'n':
+                    if (token.size() != 3)
+                        throw std::runtime_error("cPathFinder::read bad node line");
+                    myFinder.findNode(myFinder.findoradd( token[1] )).myCost 
+                        = atoi( token[2].c_str());
+                    break;
+
+                case 'l':
+                    if (3 > token.size() || token.size() > 4)
+                        throw std::runtime_error("cPathFinder::read bad link line");
+                    cost = 1;
+                    if (cost < maxNegCost)
+                        maxNegCost = cost;
+                    myFinder.addLink(
+                        token[1],
+                        token[2],
+                        cost);
+                    break;
+
+                case 's':
+                    if (token.size() != 2)
+                        throw std::runtime_error("cPathFinder::read bad start line");
+                    if (myFormat == eCalculation::multiflows)
+                        myFinder.addSource(token[1]);
+                    else
+                        myFinder.start(token[1]);
+                    break;
+
+                case 'e':
+                    if (token.size() != 2)
+                        throw std::runtime_error("cPathFinder::read bad end line");
+                    myFinder.end(token[1]);
+                    break;
+                }
+            }
+            if (maxNegCost < 0)
+            {
+                std::cout << "Negative link costs present\n"
+                          << "Adding positive offset to all link costs\n";
+                //        myFinder.makeCostsPositive(maxNegCost);
+            }
+
+            // std::cout << "<-costs\n" <<myFinder.linksText() << "\n";
         }
 
         std::vector<int> cPathFinderReader::valves(
@@ -315,7 +393,7 @@ namespace raven
                 //        myFinder.makeCostsPositive(maxNegCost);
             }
 
-            //std::cout << "<-costs\n" <<myFinder.linksText() << "\n";
+            // std::cout << "<-costs\n" <<myFinder.linksText() << "\n";
 
             return valveTimes;
         }
@@ -328,13 +406,13 @@ namespace raven
             std::string line;
             while (std::getline(myFile, line))
             {
-                //std::cout << line << " | ";
+                // std::cout << line << " | ";
                 auto token = ParseSpaceDelimited(line);
                 myFinder.addLinkFast(
                     atoi(token[0].c_str()),
                     atoi(token[1].c_str()));
             }
-            //std::cout << "<-costs\n" <<myFinder.linksText() << "\n";
+            // std::cout << "<-costs\n" <<myFinder.linksText() << "\n";
         }
         void cPathFinderReader::bonesi()
         {
@@ -409,7 +487,7 @@ namespace raven
                 myFinder.addLink(nodeCount + x, a);
             }
 
-            //std::cout << myFinder.linksText();
+            // std::cout << myFinder.linksText();
         }
 
         void cPathFinderReader::collision()
@@ -431,7 +509,7 @@ namespace raven
                     myFinder.addLink(x, rand() % nodeCount);
             }
             else
-                costs(false,true);
+                costs(false, true);
         }
 
         std::vector<int> cPathFinderReader::sales()

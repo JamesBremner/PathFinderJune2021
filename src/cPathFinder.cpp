@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <queue>
 #include <set>
+#include <list>
 #include "cPathFinder.h"
 #include "cRunWatch.h"
 
@@ -15,6 +16,7 @@ namespace raven
             cGraph::clear();
             myPath.clear();
             mySource.clear();
+            myPathCost = 0;
         }
 
         std::string cPathFinder::pathViz()
@@ -215,8 +217,13 @@ namespace raven
         std::vector<int> cPathFinder::pathPick(int end)
         {
             myPath.clear();
-            // std::cout << "->cPathFinder::pathPick "
-            //     << myStart <<" " << end << "\n";
+            std::cout << "->cPathFinder::pathPick "
+                      << myStart << " " << end << "\n";
+            for (int d : myPred)
+            {
+                std::cout << d << " ";
+            }
+            std::cout << "\n";
 
             if (end < 0)
                 throw std::runtime_error("cPathFinder::pathPick bad end node");
@@ -239,9 +246,15 @@ namespace raven
             // reverse so path goes from start to goal
             std::reverse(myPath.begin(), myPath.end());
 
-            // std::cout << "\n dbg " << myPath.size() << " " << myDist.size() << " " << myPath.back() << "\n";
-            //if (myDist.size() < myPath.back() + 1)
-            myPathCost = myDist[myPath.back()] + myMaxNegCost * (myPath.size() - 1);
+            std::cout << "\n dbg " << myPath.size() << " " << myDist.size()
+                      << " " << myPath.back() << "\n";
+            for (auto d : myDist)
+                std::cout << d << " ";
+            std::cout << "\n";
+            // if (myDist.size() < myPath.back() + 1)
+            myPathCost = myDist[myPath.back()]
+                //    + myMaxNegCost * (myPath.size() - 1)
+                ;
             // else
             //     myPathCost = -1;
 
@@ -292,7 +305,7 @@ namespace raven
             while (1)
             {
                 int v;      // node in span
-                int w = -1; //node not yet in span
+                int w = -1; // node not yet in span
                 int min_cost = INT_MAX;
 
                 // loop over nodes in span
@@ -416,10 +429,9 @@ namespace raven
             pf.depthFirst(0, [this](int v)
                           {
                               // record new node on the search
-                              myPath.push_back(v);
-                          });
+                              myPath.push_back(v); });
 
-            //return to starting point
+            // return to starting point
             myPath.push_back(myPath[0]);
 
             // cost
@@ -519,7 +531,7 @@ namespace raven
 
                 while (work.nodeCount())
                 {
-                    //std::cout << "work.nodeCount " << work.nodeCount() << " " << clique.size() << "\n";
+                    // std::cout << "work.nodeCount " << work.nodeCount() << " " << clique.size() << "\n";
                     if (!clique.size())
                     {
                         // start by moving an arbitrary node to the clique from the work graph
@@ -541,7 +553,7 @@ namespace raven
                             {
                                 // found node in work that is connected to clique nodes.
                                 // move it to clique
-                                //std::cout << "add " << myGraph.name(u.first) << "\n";
+                                // std::cout << "add " << myGraph.name(u.first) << "\n";
                                 clique.push_back(u.first);
                                 work.removeNode(u.first);
                                 found = true;
@@ -591,12 +603,12 @@ namespace raven
             while (1)
             {
                 // find path
-                //std::cout << "links:\n" << linksText() << "\n";
+                // std::cout << "links:\n" << linksText() << "\n";
                 path();
-                //std::cout << "pathsize " << myPath.size() << " ";
+                // std::cout << "pathsize " << myPath.size() << " ";
                 if (!myPath.size())
                     break;
-                //std::cout << "Path " << pathText() << "\n";
+                // std::cout << "Path " << pathText() << "\n";
 
                 // maximum flow through path
                 int maxflow = INT_MAX;
@@ -864,6 +876,30 @@ namespace raven
             std::cout << pathText();
         }
 
+        void cPathFinder::allPaths()
+        {
+            std::vector<int> p;
+            std::vector<std::vector<int>> vp;
+            p.push_back(myStart);
+            breadth(
+                [&, this](int v, int prev)
+                {
+                    std::cout << userName(v) << ", ";
+                    p.push_back(v);
+                });
+            std::cout << "\n";
+            vp.push_back(p);
+            myStart = p[p.size() - 2];
+            p.clear();
+            p.push_back(myStart);
+            breadth(
+                [&, this](int v, int prev)
+                {
+                    std::cout << userName(v) << ", ";
+                    p.push_back(v);
+                });
+            std::cout << "\n";
+        }
         void cPathFinder::PreReqs(
             const std::vector<std::string> &va)
         {
@@ -881,7 +917,7 @@ namespace raven
             // loop over required skills
             for (auto &a : va)
             {
-                //skills needed to get required skill
+                // skills needed to get required skill
                 auto path = pathPick(find(a));
 
                 std::cout << "skill " << a << " needs ";
@@ -889,10 +925,10 @@ namespace raven
                     std::cout << userName(s) << " ";
                 std::cout << "\n";
 
-                //loop over prerequsites
+                // loop over prerequsites
                 for (auto s : path)
                 {
-                    //record skill if not already learned
+                    // record skill if not already learned
                     setSkillsNeeded.insert(s);
                 }
             }
@@ -929,9 +965,9 @@ namespace raven
             catch (std::runtime_error &e)
             {
                 // std::cout << "catch " << e.what() << "\n";
-                //if (e.what() == "done")
+                // if (e.what() == "done")
                 return true;
-                //throw e;
+                // throw e;
             }
         }
 
@@ -1051,27 +1087,27 @@ namespace raven
         typedef std::pair<int, std::vector<trib_t>> crash_t; // crash node ( index, vector of tributaries )
         void cPathFinder::buildtributary(
             trib_t &trib,
-            std::map<int, linkmap_t>& mapInLinks)
+            std::map<int, linkmap_t> &mapInLinks)
         {
-            //std::cout << "=>buildtributary ";
-            //raven::set::cRunWatch watcher("buildtributary");
-            // for (auto &tn : trib)
-            // {
-            //     std::cout << tn.first << " ";
-            // }
-            // std::cout << "\n";
+            // std::cout << "=>buildtributary ";
+            // raven::set::cRunWatch watcher("buildtributary");
+            //  for (auto &tn : trib)
+            //  {
+            //      std::cout << tn.first << " ";
+            //  }
+            //  std::cout << "\n";
 
             // std::cout << linksText() << "\n";
 
             linkmap_t lm = mapInLinks[trib.back().first];
             if (!lm.size())
             {
-                //std::cout << "trib end\n";
+                // std::cout << "trib end\n";
                 return;
             }
             if (lm.size() > 1)
             {
-                //std::cout << "trib split\n";
+                // std::cout << "trib split\n";
                 return;
             }
             // std::cout << "adding " << userName(lm.begin()->first.first)
@@ -1080,7 +1116,151 @@ namespace raven
             trib.push_back(std::make_pair(
                 lm.begin()->first.first,
                 trib.back().second + 1));
-            buildtributary(trib,mapInLinks);
+            buildtributary(trib, mapInLinks);
+        }
+
+        std::vector<std::pair<int, int>> cPathFinder::srcnuzn_forbidden()
+        {
+            std::vector<std::pair<int, int>> vforbidden;
+            for (auto &n : nodes())
+            {
+                for (auto a : adjacent(n.first))
+                {
+                    // check for back edge
+                    if (node(a).myCost - n.second.myCost <= -2)
+                    {
+                        // path must not contain this pair of nodes
+                        vforbidden.push_back(std::make_pair(n.first, a));
+
+                        // remove the edge
+                        removeLink(n.first, a);
+                    }
+                }
+            }
+            return vforbidden;
+        }
+        void cPathFinder::srcnuzn()
+        {
+            // backup the full graph
+            auto backup = myG;
+
+            // identify and remove potential back edges
+            auto vforbidden = srcnuzn_forbidden();
+
+            try
+            {
+                // recursively visit all possible paths
+                visitAllPaths(
+                    myStart, myEnd,
+                    [this, &vforbidden](int pathlength)
+                    {
+                        // this "visitor" is called whenever a possible path is found
+                        int prev = -1;
+                        bool fOK = true;
+                        for (int i = 0; i < pathlength; i++)
+                        {
+                            int n = myPath[i];
+                            if (prev < 0)
+                            {
+                                prev = n;
+                                continue;
+                            }
+
+                            // check of path contains any node pairs forbidden by backedges
+                            for (auto &f : vforbidden)
+                            {
+                                if (f.first == n && f.second == prev)
+                                {
+                                    fOK = false;
+                                    break;
+                                }
+                            }
+                            if( !fOK )
+                                break;
+                        }
+                        if (fOK)
+                        {
+                            // feasible path found, mark and throw wxception to escape from recursion
+                            myPath.resize(pathlength);
+                            throw std::domain_error("srcnuzn_ok");
+                        }
+
+                        // path is not feasible, return to continue recusion to next path
+                        return;
+                    });
+
+                // all possible paths visited witn no feasible found
+                std::cout << "no feasible path\n";
+                myPath.clear();
+            }
+
+            catch (std::domain_error &e)
+            {
+                // esception thrown, indicating a feasible path found
+                std::cout << "srcnuzn_ok ";
+                for (auto n : myPath)
+                    std::cout << userName(n) << " ";
+                std::cout << "\n";
+            }
+
+            // restore full path
+            myG = backup;
+        }
+
+        void cPathFinder::visitAllPaths(
+            int s, int d,
+            std::function<void(int pathlength)> pathVisitor)
+        {
+            int V = nodeCount();
+
+            // Mark all the vertices as not visited
+            std::vector<bool> visited;
+            visited.resize(V, false);
+
+            myPath.resize(V, -1);
+            int path_index = 0; // Initialize path[] as empty
+
+            // Call the recursive 
+            visitAllPathsRecurse(s, d, visited, path_index,
+                              pathVisitor);
+        }
+
+        // A recursive function to print all paths from 'u' to 'd'.
+        // visited[] keeps track of vertices in current path.
+        // path[] stores actual vertices and path_index is current
+        // index in path[]
+        void cPathFinder::visitAllPathsRecurse(int u, int d,
+                                            std::vector<bool> &visited,
+                                            int &path_index,
+                                            std::function<void(int pthlength)> pathVisitor)
+        {
+            // Mark the current node and store it in path[]
+            visited[u] = true;
+            myPath[path_index] = u;
+            path_index++;
+
+            // If current vertex is same as destination, then vist current path
+            if (u == d)
+                pathVisitor(path_index);
+
+            else // If current vertex is not destination
+            {
+                // Recur for all the vertices adjacent to current vertex
+                for (auto a : adjacent(u))
+                {
+                    if (!visited[a])
+                    {
+                        visitAllPathsRecurse(
+                            a, d,
+                            visited, path_index,
+                            pathVisitor);
+                    }
+                }
+            }
+
+            // Remove current vertex from path[] and mark it as unvisited
+            path_index--;
+            visited[u] = false;
         }
 
         void cPathFinder::collision()
@@ -1107,7 +1287,7 @@ namespace raven
                     {
                         // node with more than one incident edge
                         // is a potential crash site
-                        //std::cout << "crash site " << userName(n.first) << "\n";
+                        // std::cout << "crash site " << userName(n.first) << "\n";
                         crash_t crash;
                         crash.first = n.first;
 

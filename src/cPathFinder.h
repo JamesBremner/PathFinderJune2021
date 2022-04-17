@@ -29,33 +29,35 @@ namespace raven
             reqs,
             bonesi,
             collision,
+            paths,
+            srcnuzn,
         };
 
         /** @brief general purpose path finder
- * 
+ *
  **** Usage: Node indices
- * 
+ *
  * Use addLink( int u, int v, float cost )
  * to add a costed link between nodes referred by their index
- * 
+ *
  * Use start() and end()
  * to specify starting and ending node indices
- * 
- * Use path() 
+ *
+ * Use path()
  * to calculate optimim path from start to end
- * 
+ *
  * Use pathText()
  * to get a string listing the node indices visited
- * 
+ *
  **** Usage: Node names
  *
  * To refer to nodes by name,
  * rather than keeping track of their indices,
  * use findoradd( std::string& name )
  * PathText() will return a list of nodes visited by their name
- * 
+ *
  * <pre>
- 
+
    cPathFinder f;
    f.addLink(
        f.findoradd("A"),
@@ -67,7 +69,7 @@ namespace raven
     f.path();
     std::cout << f.pathText() << "\n";
   </pre>
- * 
+ *
  */
         class cPathFinder : public cGraph
         {
@@ -106,26 +108,26 @@ namespace raven
             ///////////////////////// methods applying algorithms //////////////////////
 
             /** @brief Find optimum path from start to end node
- *
- * The path from attributes myStart to myEnd
- * is saved into myPath
- * The path can be listed by call to pathText()
- */
+             *
+             * The path from attributes myStart to myEnd
+             * is saved into myPath
+             * The path can be listed by call to pathText()
+             */
             void path();
 
             /** Find paths from start to all nodes
- */
+             */
             void paths(int start);
 
             /** @brief Find path to end node, after call to paths( int start )
-     * 
-     * @param[in] end index of end vertex
-     * 
-     * The path is stored in attribute myPath.
-     * The path can be listed by call to pathText()
-     * 
-     * If no path exists, an exception is thrown.
- */
+             *
+             * @param[in] end index of end vertex
+             *
+             * The path is stored in attribute myPath.
+             * The path can be listed by call to pathText()
+             *
+             * If no path exists, an exception is thrown.
+             */
             std::vector<int> pathPick(int end);
 
             /// true if all nodes are connected together
@@ -142,11 +144,11 @@ namespace raven
             void makeComplete();
 
             /** make costs positive
-     * @param[in] cost the maximum negative cost
-     * 
-     * The absolute value of cost will be added to every cost
-     * cost will be saved to to attribute myMaxNegCost
-     */
+             * @param[in] cost the maximum negative cost
+             *
+             * The absolute value of cost will be added to every cost
+             * cost will be saved to to attribute myMaxNegCost
+             */
             void makeCostsPositive(int cost);
 
             /// Find minimum edge set that connects all nodes together
@@ -154,7 +156,7 @@ namespace raven
 
             /** Find path that visits every requested node
              * @parasm[in] v vector of node indices to be visited
-             * 
+             *
              * If v is empty, all nodes must be visited
              */
             void tsp(const std::vector<int> &v);
@@ -189,6 +191,15 @@ namespace raven
             void PreReqs(
                 const std::vector<std::string> &va);
 
+            void allPaths();
+
+            void visitAllPaths(int s, int d,
+                               std::function<void(int pathlength)> pathVisitor);
+            void visitAllPathsRecurse(int u, int d,
+                                   std::vector<bool> &visited,
+                                   int &path_index,
+                                   std::function<void(int pathlength)> pathVisitor);
+
             /** Given a bi-partite graph with node weights for both type A and type B nodes
 1 For each node of type B we sum over node weights of type A that this node has an edge with and multiply the sum with its own node weight to get the node value.
 2 Select the node from type B which has the highest value and append it to the output set S.
@@ -203,12 +214,12 @@ The output, an ordered vector of node indices, is stored in myPath attribute
             void karup();
 
             /**
-We are given a graph of N nodes where each node has exactly 1 directed edge to some node 
+We are given a graph of N nodes where each node has exactly 1 directed edge to some node
 (this node can be the same node).
 
 We need to answer the queries of type : A, B, which asks time required when 2 objects collide
  if one start at A and other start at B.
-  Both moves 1 hop in 1 sec. 
+  Both moves 1 hop in 1 sec.
   If it's not possible for them to collide time would be -1.
 
   https://stackoverflow.com/q/70200925/16582
@@ -220,6 +231,10 @@ We need to answer the queries of type : A, B, which asks time required when 2 ob
                 trib_t &trib,
                 std::map<int, linkmap_t> &mapInLinks);
             void collision();
+
+            /// https://stackoverflow.com/questions/71869646
+            void srcnuzn();
+            std::vector<std::pair<int,int>>  srcnuzn_forbidden();
 
             /////////////////////// get text output ///////////////////////////////////////////
 
@@ -237,16 +252,16 @@ We need to answer the queries of type : A, B, which asks time required when 2 ob
             ////////////////// get graphViz output ////////////////////////////////////////////
 
             /** @brief graphical display of graph with path in red.
-     * 
-     * @return display in graphviz dot format
-     * 
-     * render at https://dreampuf.github.io/GraphvizOnline
-     * 
-     * or install graphviz and use command
-     * 
-     * dot -Kfdp -n -Tpng -o sample.png sample.dot
-     * 
-     */
+             *
+             * @return display in graphviz dot format
+             *
+             * render at https://dreampuf.github.io/GraphvizOnline
+             *
+             * or install graphviz and use command
+             *
+             * dot -Kfdp -n -Tpng -o sample.png sample.dot
+             *
+             */
             std::string pathViz();
 
             std::string pathViz(
@@ -254,19 +269,19 @@ We need to answer the queries of type : A, B, which asks time required when 2 ob
                 bool all = true);
 
             /** graphical display of graph with spanning tree
-     * 
-     * @param[in] all true to see all links, spanning tree in red
-     * @param[in] all false to see spanning tree
-     * @return display in graphviz dot format
-     */
+             *
+             * @param[in] all true to see all links, spanning tree in red
+             * @param[in] all false to see spanning tree
+             * @return display in graphviz dot format
+             */
             std::string spanViz(bool all = true);
 
             std::string camsViz();
 
             /** Depth First search
-            * @param[in] v index of starting node
-            * @param[in] visitor function to call on each new node visited
-            */
+             * @param[in] v index of starting node
+             * @param[in] visitor function to call on each new node visited
+             */
             void depthFirst(int v, std::function<void(int v)> visitor);
 
             /** Create a name for a grid node
@@ -277,28 +292,27 @@ We need to answer the queries of type : A, B, which asks time required when 2 ob
             static std::string orthogonalGridNodeName(
                 int row, int col)
             {
-                return "c" + std::to_string(col + 1) 
-                    + "r" + std::to_string(row + 1);
+                return "c" + std::to_string(col + 1) + "r" + std::to_string(row + 1);
             }
 
-    private:
-        int myStart; // starting node index
-        std::vector<int> mySource;
-        int myEnd;                // ending node index
-        std::vector<int> myPath;  // vector of node indices visited
-        std::vector<int> myDist;  // cost to reach each node from start
-        std::vector<int> myPred;  // previous node to each node from start
-        graph::cGraph mySpanTree; // minimum spanning tree
-        double myPathCost;        // total cost of links in path
-        int myMaxNegCost;
-        std::string myResults;
+        private:
+            int myStart; // starting node index
+            std::vector<int> mySource;
+            int myEnd;                // ending node index
+            std::vector<int> myPath;  // vector of node indices visited
+            std::vector<int> myDist;  // cost to reach each node from start
+            std::vector<int> myPred;  // previous node to each node from start
+            graph::cGraph mySpanTree; // minimum spanning tree
+            double myPathCost;        // total cost of links in path
+            int myMaxNegCost;
+            std::string myResults;
 
-        void depthRecurse(int v, std::function<void(int v)> visitor);
+            void depthRecurse(int v, std::function<void(int v)> visitor);
 
-        /** Breadth First Search
+            /** Breadth First Search
              * @param[in] visitor function to call on each new node visited
              */
-        void breadth(std::function<void(int v, int p)> visitor);
-    };
-}
+            void breadth(std::function<void(int v, int p)> visitor);
+        };
+    }
 }

@@ -56,6 +56,7 @@ namespace raven
 
         typedef std::pair<std::pair<int, int>, cLink> link_t;
 
+		/// Store the nodes and links of a graph
         class cGraph
         {
         public:
@@ -76,11 +77,11 @@ namespace raven
                     myG.insert(std::make_pair(k, cNode(std::to_string(k))));
             }
             /** set graph links type
-     * 
+     *
      * @param[in] f true for directed, false for undirected, default directed
-     * 
+     *
      * If not called, the graph will be undirected
-     * 
+     *
      */
             void directed(bool f = true)
             {
@@ -112,7 +113,7 @@ namespace raven
             /** Add costed link between two indexed nodes
          * @param[in] u src node index
          * @param[in] v dst node index
-         * 
+         *
          * Exception thrown if nodes do not extist
          */
             void addLink(int u, int v, double cost = 1)
@@ -129,7 +130,7 @@ namespace raven
                 myG.find(u)->second.myLink.insert(std::make_pair(v, cLink()));
             }
             /** Find node by name
-             * 
+             *
              * @param[in] name
              * @return node index, -1 if named node does not exist
             */
@@ -145,10 +146,10 @@ namespace raven
                 return -1;
             }
             /** Find or add node by name
- * 
+ *
  * @param[in] name
  * @return node index
- * 
+ *
  * If a node of specified name does not exist, it is added.
  */
             int findoradd(const std::string &name)
@@ -182,12 +183,14 @@ namespace raven
 
             void removeLink(int u, int v)
             {
-                std::cout << "remove link " << userName(u) << " " << userName(v) << "\n";
                 try
                 {
+                    //std::cout << "remove link " << userName(u) << " " << userName(v) << "\n";
                     myG.at(u).removeLink(v);
-                    if (!myfDirected)
+                    if (!myfDirected) {
+                        //std::cout << "remove link " << userName(v) << " " << userName(u) << "\n";
                         myG.at(v).removeLink(u);
+                    }
                 }
                 catch (...)
                 {
@@ -262,12 +265,17 @@ namespace raven
             }
             /** Reference to node from internal index
              * @param[in] i internal index
-             * 
+             *
              * If node does not exist, exception thrown
              */
             cNode &node(int i)
             {
                 return myG.at(i);
+            }
+            /// index of node
+            int node( const cNode& node )
+            {
+                return myMapNameToIndex.find( node.myName )->second;
             }
             cLink &link(int u, int v)
             {
@@ -332,7 +340,7 @@ namespace raven
             }
             /** get count of real links in graph
              * @return link count
-             * 
+             *
              * Note that each link in an undirected graph
              * is stored as two directed links,
              * one goung in each direction
@@ -377,8 +385,8 @@ namespace raven
             std::map<std::string, int> myMapNameToIndex;
 
             /** myfDirected is true if the graph links are directed
-         * 
-         * Internally all links are always directed.  
+         *
+         * Internally all links are always directed.
          * When myfDirected is false, whenever a link is added
          * two directed links in opposite direction are added between the end nodes
          */

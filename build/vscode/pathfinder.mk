@@ -1,7 +1,7 @@
 
 # compiler include search paths
 INCS = \
-	-I../../../boost/boost1_72 \
+	-I../../../boost/boost1_78 \
 	-I../../../raven-set \
 	-I../../../windex/include
 

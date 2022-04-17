@@ -39,18 +39,19 @@ void RunDOT(raven::graph::cPathFinder &finder)
     // C:\Users\<userName>\AppData\Local\Temp
 
     auto path = std::filesystem::temp_directory_path();
-    std::cout << "RunDOT " << path <<"\n";
+    std::cout << "RunDOT " << path << "\n";
     auto gdot = path / "g.dot";
     std::ofstream f(gdot);
     if (!f.is_open())
         throw std::runtime_error("Cannot open " + gdot.string());
 
-using raven::graph::eCalculation;
+    using raven::graph::eCalculation;
     switch (opt)
     {
     case eCalculation::costs:
     case eCalculation::sales:
     case eCalculation::bonesi:
+    case eCalculation::srcnuzn:
         f << finder.pathViz() << "\n";
         break;
     case eCalculation::spans:
@@ -164,17 +165,17 @@ void doPreReqs(
 
         std::cout << "skill " << a << " needs ";
 
-        //skills needed to get reuired skill
+        // skills needed to get reuired skill
         auto path = finder.pathPick(finder.find(a));
 
         for (int s : path)
             std::cout << finder.userName(s) << " ";
         std::cout << "\n";
 
-        //loop over prerequsites
+        // loop over prerequsites
         for (auto s : path)
         {
-            //record skill if not already learned
+            // record skill if not already learned
             setSkillsNeeded.insert(s);
         }
     }
@@ -222,8 +223,7 @@ int main()
                      editPanel.text(snr);
                      editPanel.show();
                      graphPanel.show(false);
-                     editPanel.update();
-                 });
+                     editPanel.update(); });
     mfile.append("Save", [&](const std::string &title)
                  {
                      wex::filebox fb(form);
@@ -238,8 +238,7 @@ int main()
                      }
                      auto s = editPanel.text();
                      replaceAll(s, "\r\n", "\n");
-                     f << s;
-                 });
+                     f << s; });
     mfile.append("Calculate", [&](const std::string &title)
                  {
                      using raven::graph::cPathFinderReader;
@@ -271,6 +270,9 @@ int main()
                          case eCalculation::bonesi:
                             opt = eCalculation::costs;
                              break;
+                        case eCalculation::paths:
+                            finder.allPaths();
+                            break;
                         case eCalculation::reqs:
                             opt = eCalculation::reqs;
                             break;
@@ -292,6 +294,10 @@ int main()
                              break;
                          case eCalculation::maze_ascii_art:
                              break;
+                        case eCalculation::srcnuzn:
+                            finder.srcnuzn();
+                            opt = eCalculation::costs;
+                            break;
 
                          default:
                              throw std::runtime_error(
@@ -309,8 +315,7 @@ int main()
                      graphPanel.update();
                      form.text("Path Finder GUI " + fname);
 
-                     form.update();
-                 });
+                     form.update(); });
     mbar.append("File", mfile);
 
     form.events().draw(
@@ -338,10 +343,10 @@ int main()
                 //     {5, 5});
                 break;
             case eCalculation::reqs:
-                   s.text(
+                s.text(
                     finder.resultsText(),
                     {5, 5});
-                break;         
+                break;
             }
         });
 
@@ -361,7 +366,7 @@ int main()
     // show the application
     form.show();
 
-    //Pass the control of the application to the windows message queue.
+    // Pass the control of the application to the windows message queue.
     form.run();
 
     return 0;

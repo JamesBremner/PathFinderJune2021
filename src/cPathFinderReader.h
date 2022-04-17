@@ -40,6 +40,9 @@ namespace raven
                 bool weights = true,
                 bool directed = false);
 
+            void nodecosts(
+                bool directed = false );
+
             /** Read input file specifying pipes and valves
          */
             std::vector<int> valves(
