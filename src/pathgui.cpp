@@ -4,6 +4,7 @@
 #include "inputbox.h"
 #include "window2file.h"
 #include <gdiplus.h>
+#include "cRunWatch.h"
 #include "cPathFinder.h"
 #include "cPathFinderReader.h"
 
@@ -244,6 +245,7 @@ int main()
                      f << s; });
     mfile.append("Calculate", [&](const std::string &title)
                  {
+                     raven::set::cRunWatch::Start();
                      using raven::graph::cPathFinderReader;
                      finder.clear();
                      wex::filebox fb(form);
@@ -318,7 +320,9 @@ int main()
                      graphPanel.update();
                      form.text("Path Finder GUI " + fname);
 
-                     form.update(); });
+                     form.update();
+                     raven::set::cRunWatch::Report();
+                      });
     mbar.append("File", mfile);
 
     form.events().draw(

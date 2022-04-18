@@ -11,7 +11,7 @@ WEXLIBS = \
 SDIR = ../../src
 ODIR = ./obj
 
-OPT = -g
+OPT = -O2
 CCflags = -std=c++17 $(OPT)
 STATLibs = -static-libstdc++ -static-libgcc -static
 

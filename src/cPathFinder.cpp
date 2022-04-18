@@ -1121,6 +1121,8 @@ namespace raven
 
         void cPathFinder::srcnuzn()
         {
+            raven::set::cRunWatch aWatcher("srcnuzn");
+
             // backup the full graph
             auto backup = myG;
 
@@ -1130,7 +1132,7 @@ namespace raven
             {
                 if (node(source(l)).myCost - node(target(l)).myCost >= 2)
                 {
-                    std::cout << userName(source(l)) << " -> " << userName(target(l)) << "\n";
+                    //std::cout << userName(source(l)) << " -> " << userName(target(l)) << "\n";
 
                     // path must not contain this pair of nodes
                     vforbidden.push_back(std::make_pair(source(l), target(l)));
@@ -1190,7 +1192,7 @@ namespace raven
 
             catch (std::domain_error &e)
             {
-                // esception thrown, indicating a feasible path found
+                // exception thrown, indicating a feasible path found
                 std::cout << "srcnuzn_ok ";
                 for (auto n : myPath)
                     std::cout << userName(n) << " ";
@@ -1203,9 +1205,9 @@ namespace raven
 
         void cPathFinder::srcnuzn_generate()
         {
-            const int layerCount = 8;
-            const int nodesLayer = 3;
-            const int backsLayer = 2;
+            const int layerCount = 10;
+            const int nodesLayer = 10;
+            const int backsLayer = 4;
             clear();
             directed();
             myStart = findoradd("L0");
