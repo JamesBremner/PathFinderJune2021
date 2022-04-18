@@ -35,6 +35,9 @@ void replaceAll(std::string &str, const std::string &from, const std::string &to
 
 void RunDOT(raven::graph::cPathFinder &finder)
 {
+
+    if( finder.nodeCount() > 200 )
+        return;
     // temp firectory is usually
     // C:\Users\<userName>\AppData\Local\Temp
 
