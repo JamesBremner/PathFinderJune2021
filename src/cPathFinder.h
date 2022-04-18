@@ -234,7 +234,7 @@ We need to answer the queries of type : A, B, which asks time required when 2 ob
 
             /// https://stackoverflow.com/questions/71869646
             void srcnuzn();
-            std::vector<std::pair<int,int>>  srcnuzn_forbidden();
+            void srcnuzn_generate();
 
             /////////////////////// get text output ///////////////////////////////////////////
 

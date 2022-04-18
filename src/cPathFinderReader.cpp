@@ -147,11 +147,17 @@ namespace raven
                 costs();
                 myFormat = eCalculation::paths;
             }
+            else if (line.find("generate_srcnuzn") != -1)
+            {
+                myFinder.srcnuzn_generate();
+                return eCalculation::srcnuzn;
+            }
             else if (line.find("srcnuzn") != -1)
             {
                 nodecosts(true);
                 return eCalculation::srcnuzn;
             }
+
             return myFormat;
         }
 
@@ -270,8 +276,7 @@ namespace raven
                 case 'n':
                     if (token.size() != 3)
                         throw std::runtime_error("cPathFinder::read bad node line");
-                    myFinder.findNode(myFinder.findoradd( token[1] )).myCost 
-                        = atoi( token[2].c_str());
+                    myFinder.findNode(myFinder.findoradd(token[1])).myCost = atoi(token[2].c_str());
                     break;
 
                 case 'l':

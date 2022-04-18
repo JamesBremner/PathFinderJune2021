@@ -1119,33 +1119,26 @@ namespace raven
             buildtributary(trib, mapInLinks);
         }
 
-        std::vector<std::pair<int, int>> cPathFinder::srcnuzn_forbidden()
-        {
-            std::vector<std::pair<int, int>> vforbidden;
-            for (auto &n : nodes())
-            {
-                for (auto a : adjacent(n.first))
-                {
-                    // check for back edge
-                    if (node(a).myCost - n.second.myCost <= -2)
-                    {
-                        // path must not contain this pair of nodes
-                        vforbidden.push_back(std::make_pair(n.first, a));
-
-                        // remove the edge
-                        removeLink(n.first, a);
-                    }
-                }
-            }
-            return vforbidden;
-        }
         void cPathFinder::srcnuzn()
         {
             // backup the full graph
             auto backup = myG;
 
             // identify and remove potential back edges
-            auto vforbidden = srcnuzn_forbidden();
+            std::vector<std::pair<int, int>> vforbidden;
+            for (auto &l : links())
+            {
+                if (node(source(l)).myCost - node(target(l)).myCost >= 2)
+                {
+                    std::cout << userName(source(l)) << " -> " << userName(target(l)) << "\n";
+
+                    // path must not contain this pair of nodes
+                    vforbidden.push_back(std::make_pair(source(l), target(l)));
+
+                    // remove the edge
+                    removeLink(source(l), target(l));
+                }
+            }
 
             try
             {
@@ -1155,27 +1148,28 @@ namespace raven
                     [this, &vforbidden](int pathlength)
                     {
                         // this "visitor" is called whenever a possible path is found
-                        int prev = -1;
                         bool fOK = true;
                         for (int i = 0; i < pathlength; i++)
                         {
                             int n = myPath[i];
-                            if (prev < 0)
+                            for (int ip = 0; ip < i; ip++)
                             {
-                                prev = n;
-                                continue;
-                            }
+                                int prev = myPath[ip];
 
-                            // check of path contains any node pairs forbidden by backedges
-                            for (auto &f : vforbidden)
-                            {
-                                if (f.first == n && f.second == prev)
+                                // check if path contains any node pairs forbidden by backedges
+                                for (auto &f : vforbidden)
                                 {
-                                    fOK = false;
-                                    break;
+
+                                    if (f.first == n && f.second == prev)
+                                    {
+                                        fOK = false;
+                                        break;
+                                    }
                                 }
+                                if (!fOK)
+                                    break;
                             }
-                            if( !fOK )
+                            if (!fOK)
                                 break;
                         }
                         if (fOK)
@@ -1207,6 +1201,59 @@ namespace raven
             myG = backup;
         }
 
+        void cPathFinder::srcnuzn_generate()
+        {
+            const int layerCount = 8;
+            const int nodesLayer = 3;
+            const int backsLayer = 2;
+            clear();
+            directed();
+            myStart = findoradd("L0");
+            node(myStart).myCost = 0;
+            for (int layer = 1; layer < layerCount - 1; layer++)
+            {
+                for (int vl = 0; vl < nodesLayer; vl++)
+                {
+                    int n = findoradd(
+                        "L" + std::to_string(layer) + "N" + std::to_string(vl));
+                    node(n).myCost = layer;
+                    if (layer == 1)
+                        addLink(0, n);
+                    else
+                    {
+                        for (int bv = 0; bv < nodesLayer; bv++)
+                        {
+                            addLink(
+                                (layer - 2) * nodesLayer + bv + 1,
+                                n);
+                        }
+                    }
+                }
+            }
+            myEnd = findoradd("L" + std::to_string(layerCount - 1));
+            node(myEnd).myCost = layerCount;
+            for (int bv = 0; bv < nodesLayer; bv++)
+            {
+                addLink(
+                    (layerCount - 3) * nodesLayer + bv + 1,
+                    myEnd);
+            }
+
+            // add random back edges
+            for (int sl = 3; sl < layerCount - 1; sl++)
+            {
+                for (int kb = 0; kb < backsLayer; kb++)
+                {
+                    int s = rand() % nodesLayer;
+                    int d = rand() % nodesLayer;
+                    int sn = (sl - 1) * nodesLayer + s + 1;
+                    int dn = (sl - 3) * nodesLayer + d + 1;
+                    std::cout << userName(sn) << " back to " << userName(dn) << "\n";
+                    addLink(sn, dn);
+                }
+            }
+        }
+
         void cPathFinder::visitAllPaths(
             int s, int d,
             std::function<void(int pathlength)> pathVisitor)
@@ -1220,9 +1267,9 @@ namespace raven
             myPath.resize(V, -1);
             int path_index = 0; // Initialize path[] as empty
 
-            // Call the recursive 
+            // Call the recursive
             visitAllPathsRecurse(s, d, visited, path_index,
-                              pathVisitor);
+                                 pathVisitor);
         }
 
         // A recursive function to print all paths from 'u' to 'd'.
@@ -1230,9 +1277,9 @@ namespace raven
         // path[] stores actual vertices and path_index is current
         // index in path[]
         void cPathFinder::visitAllPathsRecurse(int u, int d,
-                                            std::vector<bool> &visited,
-                                            int &path_index,
-                                            std::function<void(int pthlength)> pathVisitor)
+                                               std::vector<bool> &visited,
+                                               int &path_index,
+                                               std::function<void(int pthlength)> pathVisitor)
         {
             // Mark the current node and store it in path[]
             visited[u] = true;
