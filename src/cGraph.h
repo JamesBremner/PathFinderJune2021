@@ -5,6 +5,8 @@
 #include <vector>
 #include <map>
 
+#include "cRunWatch.h"
+
 namespace raven
 {
     namespace graph
@@ -182,7 +184,7 @@ namespace raven
             }
 
             void removeLink(int u, int v)
-            {
+            { 
                 try
                 {
                     //std::cout << "remove link " << userName(u) << " " << userName(v) << "\n";

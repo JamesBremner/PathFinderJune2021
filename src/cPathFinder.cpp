@@ -1128,17 +1128,23 @@ namespace raven
 
             // identify and remove potential back edges
             std::vector<std::pair<int, int>> vforbidden;
-            for (auto &l : links())
             {
-                if (node(source(l)).myCost - node(target(l)).myCost >= 2)
+                raven::set::cRunWatch aWatcher("backedge_find");
+
+                for (auto &n : nodes())
                 {
-                    //std::cout << userName(source(l)) << " -> " << userName(target(l)) << "\n";
 
-                    // path must not contain this pair of nodes
-                    vforbidden.push_back(std::make_pair(source(l), target(l)));
+                    for (int a : adjacent(n.first))
+                    {
+                        if (n.second.myCost - node(a).myCost >= 2)
+                        {
+                            // path must not contain this pair of nodes
+                            vforbidden.push_back(std::make_pair(n.first, a));
 
-                    // remove the edge
-                    removeLink(source(l), target(l));
+                            // remove the edge
+                            n.second.removeLink(a);
+                        }
+                    }
                 }
             }
 
@@ -1147,10 +1153,15 @@ namespace raven
                 // recursively visit all possible paths
                 visitAllPaths(
                     myStart, myEnd,
-                    [this, &vforbidden](int pathlength)
+                    [this, &vforbidden](int pathlength) -> int
                     {
+                        raven::set::cRunWatch aWatcher("visitor");
                         // this "visitor" is called whenever a possible path is found
-                        bool fOK = true;
+
+                        // for (int i = 0; i < pathlength; i++)
+                        //     std::cout << userName(myPath[i]) << " ";
+                        // std::cout << "\n";
+
                         for (int i = 0; i < pathlength; i++)
                         {
                             int n = myPath[i];
@@ -1161,28 +1172,21 @@ namespace raven
                                 // check if path contains any node pairs forbidden by backedges
                                 for (auto &f : vforbidden)
                                 {
-
                                     if (f.first == n && f.second == prev)
                                     {
-                                        fOK = false;
-                                        break;
+                                        // std::cout << userName(f.first) << " " << userName(f.second)
+                                        //           << " forbidden"
+                                        //           <<" stop " << userName(myPath[i-1]) <<" "<< userName(myPath[i])
+                                        //           << "\n";
+                                        return f.first;
                                     }
                                 }
-                                if (!fOK)
-                                    break;
                             }
-                            if (!fOK)
-                                break;
-                        }
-                        if (fOK)
-                        {
-                            // feasible path found, mark and throw wxception to escape from recursion
-                            myPath.resize(pathlength);
-                            throw std::domain_error("srcnuzn_ok");
                         }
 
-                        // path is not feasible, return to continue recusion to next path
-                        return;
+                        // feasible path found, mark and throw exception to escape from recursion
+                        myPath.resize(pathlength);
+                        throw std::domain_error("srcnuzn_ok");
                     });
 
                 // all possible paths visited witn no feasible found
@@ -1206,7 +1210,7 @@ namespace raven
         void cPathFinder::srcnuzn_generate()
         {
             const int layerCount = 10;
-            const int nodesLayer = 10;
+            const int nodesLayer = 50;
             const int backsLayer = 4;
             clear();
             directed();
@@ -1258,7 +1262,7 @@ namespace raven
 
         void cPathFinder::visitAllPaths(
             int s, int d,
-            std::function<void(int pathlength)> pathVisitor)
+            std::function<int(int pathlength)> pathVisitor)
         {
             int V = nodeCount();
 
@@ -1270,37 +1274,47 @@ namespace raven
             int path_index = 0; // Initialize path[] as empty
 
             // Call the recursive
-            visitAllPathsRecurse(s, d, visited, path_index,
+            visitAllPathsRecurse(s, visited, path_index,
                                  pathVisitor);
         }
 
-        // A recursive function to print all paths from 'u' to 'd'.
+        // A recursive function to print all paths from 'u' to myEnd.
         // visited[] keeps track of vertices in current path.
         // path[] stores actual vertices and path_index is current
         // index in path[]
-        void cPathFinder::visitAllPathsRecurse(int u, int d,
+        void cPathFinder::visitAllPathsRecurse(int u,
                                                std::vector<bool> &visited,
                                                int &path_index,
-                                               std::function<void(int pthlength)> pathVisitor)
+                                               std::function<int(int pthlength)> pathVisitor)
         {
+            raven::set::cRunWatch aWatcher("visitAllPathsRecurse");
+
             // Mark the current node and store it in path[]
+            // std::cout << "add " << userName(u) << " at " << path_index << "\n";
             visited[u] = true;
             myPath[path_index] = u;
             path_index++;
 
+            // for( int i = 0; i < path_index; i++ )
+            //     std::cout << userName(myPath[i]) << " ";
+            // std::cout << " inc path\n";
+
             // If current vertex is same as destination, then vist current path
-            if (u == d)
-                pathVisitor(path_index);
+            if (u == myEnd)
+            {
+                int forbidden = pathVisitor(path_index);
+            }
 
             else // If current vertex is not destination
             {
-                // Recur for all the vertices adjacent to current vertex
+                // Recurse for all the vertices adjacent to current vertex
                 for (auto a : adjacent(u))
                 {
                     if (!visited[a])
                     {
+                        // std::cout << "try " << userName(u) <<" " << userName(a) << "\n";
                         visitAllPathsRecurse(
-                            a, d,
+                            a,
                             visited, path_index,
                             pathVisitor);
                     }

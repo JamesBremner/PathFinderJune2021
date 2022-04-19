@@ -194,11 +194,11 @@ namespace raven
             void allPaths();
 
             void visitAllPaths(int s, int d,
-                               std::function<void(int pathlength)> pathVisitor);
-            void visitAllPathsRecurse(int u, int d,
+                               std::function<int(int pathlength)> pathVisitor);
+            void visitAllPathsRecurse(int u,
                                    std::vector<bool> &visited,
                                    int &path_index,
-                                   std::function<void(int pathlength)> pathVisitor);
+                                   std::function<int(int pathlength)> pathVisitor);
 
             /** Given a bi-partite graph with node weights for both type A and type B nodes
 1 For each node of type B we sum over node weights of type A that this node has an edge with and multiply the sum with its own node weight to get the node value.
