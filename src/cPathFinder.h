@@ -294,6 +294,10 @@ We need to answer the queries of type : A, B, which asks time required when 2 ob
             {
                 return "c" + std::to_string(col + 1) + "r" + std::to_string(row + 1);
             }
+            std::vector<int> getPath()
+            {
+                return myPath;
+            }
 
         private:
             int myStart; // starting node index
