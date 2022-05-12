@@ -217,12 +217,12 @@ namespace raven
         std::vector<int> cPathFinder::pathPick(int end)
         {
             myPath.clear();
-            std::cout << "->cPathFinder::pathPick "
-                      << myStart << " " << end << "\n";
-            for (int d : myPred)
-            {
-                std::cout << d << " ";
-            }
+            // std::cout << "->cPathFinder::pathPick "
+            //           << myStart << " " << end << "\n";
+            // for (int d : myPred)
+            // {
+            //     std::cout << d << " ";
+            // }
             std::cout << "\n";
 
             if (end < 0)
@@ -246,11 +246,11 @@ namespace raven
             // reverse so path goes from start to goal
             std::reverse(myPath.begin(), myPath.end());
 
-            std::cout << "\n dbg " << myPath.size() << " " << myDist.size()
-                      << " " << myPath.back() << "\n";
-            for (auto d : myDist)
-                std::cout << d << " ";
-            std::cout << "\n";
+            // std::cout << "\n dbg " << myPath.size() << " " << myDist.size()
+            //           << " " << myPath.back() << "\n";
+            // for (auto d : myDist)
+            //     std::cout << d << " ";
+            // std::cout << "\n";
             // if (myDist.size() < myPath.back() + 1)
             myPathCost = myDist[myPath.back()]
                 //    + myMaxNegCost * (myPath.size() - 1)
