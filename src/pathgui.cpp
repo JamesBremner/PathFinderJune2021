@@ -82,9 +82,10 @@ void RunDOT(raven::graph::cPathFinder &finder)
     // char cmd[100];
     // snprintf(cmd, 99, "dot -Kfdp -n -Tpng -o sample.png g.dot");
 
-    std::string scmd = "dot -Kfdp -n -Tpng -o ";
-    auto sample = path / "sample.png";
-    scmd += sample.string() + " " + gdot.string();
+    std::string scmd = "dot -Kfdp -n -Tpng -Tdot -o " + gdot.string();
+    // auto sample = path / "sample.png";
+    // scmd += sample.string() + " " + gdot.string();
+    // scmd += " -Tdot laid_out.dot"
 
     // Retain keyboard focus, minimize module2 window
     si.wShowWindow = SW_SHOWNOACTIVATE | SW_MINIMIZE;
@@ -303,7 +304,10 @@ int main()
                             finder.srcnuzn();
                             opt = eCalculation::costs;
                             break;
-
+                        case eCalculation::pickup:
+                            finder.pickup();
+                            opt = eCalculation::costs;
+                            break;
                          default:
                              throw std::runtime_error(
                                  "UNrecognized file format");

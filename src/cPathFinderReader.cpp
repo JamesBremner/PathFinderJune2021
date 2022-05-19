@@ -157,6 +157,11 @@ namespace raven
                 nodecosts(true);
                 return eCalculation::srcnuzn;
             }
+            else if (line.find("pickup") != -1)
+            {
+                pickup();
+                return eCalculation::pickup;
+            }
 
             return myFormat;
         }
@@ -315,6 +320,30 @@ namespace raven
             }
 
             // std::cout << "<-costs\n" <<myFinder.linksText() << "\n";
+        }
+
+        void cPathFinderReader::pickup()
+        {
+            myFinder.clear();
+            int cost;
+            int maxNegCost = 0;
+            std::string line;
+            while (std::getline(myFile, line))
+            {
+                std::cout << line << "\n";
+                auto token = ParseSpaceDelimited(line);
+                if (!token.size())
+                    continue;
+                std::string nodeType;
+                switch (token[0][0])
+                {
+                    case 'd': nodeType = "driver"; break;
+                    case 'c': nodeType = "cargo"; break;
+                    case 'e': nodeType = "destination"; break;
+                }
+                myFinder.findNode(myFinder.findoradd(token[3])).myColor = 
+                    nodeType +" at " + token[1] + " " + token[2];
+            }
         }
 
         std::vector<int> cPathFinderReader::valves(

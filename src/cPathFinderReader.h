@@ -89,6 +89,8 @@ namespace raven
 
             void collision();
 
+            void pickup();
+
         private:
             cPathFinder &myFinder;
             std::string myfname;

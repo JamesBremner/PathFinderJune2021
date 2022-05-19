@@ -31,6 +31,7 @@ namespace raven
             collision,
             paths,
             srcnuzn,
+            pickup,
         };
 
         /** @brief general purpose path finder
@@ -212,6 +213,8 @@ https://stackoverflow.com/q/62338424/16582
 The output, an ordered vector of node indices, is stored in myPath attribute
 */
             void karup();
+
+            void pickup();
 
             /**
 We are given a graph of N nodes where each node has exactly 1 directed edge to some node

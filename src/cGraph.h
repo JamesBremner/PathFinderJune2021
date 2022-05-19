@@ -39,6 +39,10 @@ namespace raven
                 if (it != myLink.end())
                     myLink.erase(it);
             }
+            void removeAllLinks()
+            {
+                myLink.clear();
+            }
             int linkCost(int dst)
             {
                 auto it = myLink.find(dst);
@@ -78,7 +82,7 @@ namespace raven
                 for (int k = 0; k < count; k++)
                     myG.insert(std::make_pair(k, cNode(std::to_string(k))));
             }
-            /** set graph links type
+    /** set graph links type
      *
      * @param[in] f true for directed, false for undirected, default directed
      *
@@ -198,6 +202,11 @@ namespace raven
                 {
                     // just ignore requests to remove links that do not exist
                 }
+            }
+            void removeAllLinks()
+            {
+                for (auto &n : myG)
+                    n.second.removeAllLinks();
             }
             void removeNode(int n)
             {

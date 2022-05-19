@@ -971,6 +971,152 @@ namespace raven
             }
         }
 
+        void cPathFinder::pickup()
+        {
+#define color_format "%*s %*s %lf %lf"
+
+            // find driver locations
+            struct sdriver
+            {
+                int index;
+                double x;
+                double y;
+            };
+            std::vector<sdriver> vdriver;
+            for (auto &mn : nodes())
+            {
+                auto color = mn.second.myColor;
+                if (color.find("driver") == 0)
+                {
+                    sdriver sd;
+                    sd.index = mn.first;
+                    sscanf(
+                        color.c_str(),
+                        color_format,
+                        &sd.x, &sd.y);
+                    vdriver.push_back(sd);
+                }
+            }
+            // assign cargos to nearest driver
+            struct sassign
+            {
+                int cargo;
+                int driver;
+            };
+            std::vector<sassign> vassign;
+            for (auto &mn : nodes())
+            {
+                if (mn.second.myColor.find("cargo") == 0)
+                {
+                    double cx, cy;
+                    sscanf(
+                        mn.second.myColor.c_str(),
+                        color_format,
+                        &cx, &cy);
+                    double dmin = 1e10;
+                    int nearest = -1;
+                    for (auto &sd : vdriver)
+                    {
+                        double dx = cx - sd.x;
+                        double dy = cy - sd.y;
+                        double dist2 = dx * dx + dy * dy;
+                        if (dist2 < dmin)
+                        {
+                            dmin = dist2;
+                            nearest = sd.index;
+                        }
+                    }
+                    sassign a;
+                    a.cargo = mn.first;
+                    a.driver = nearest;
+                    vassign.push_back(a);
+                }
+            }
+
+            // combine all cargos assigned to each driver
+            struct sassign_multi
+            {
+                std::vector<int> cargo;
+                int driver;
+            };
+            std::vector<sassign_multi> vsam;
+            for (auto &sd : vdriver)
+            {
+                sassign_multi sam;
+                sam.driver = sd.index;
+                for (auto &sa : vassign)
+                {
+                    if (sa.driver != sd.index)
+                        continue;
+                    sam.cargo.push_back(sa.cargo);
+                }
+                vsam.push_back(sam);
+            }
+
+            // loop over drivers with assigned cargos
+            for (auto &sam : vsam)
+            {
+                // create graph with just driver and assigned cargos
+                cPathFinder gdriver;
+                auto &n = findNode(sam.driver);
+                int ndriver = gdriver.findoradd(n.myName);
+                gdriver.findNode(ndriver).myColor = n.myColor;
+                for (auto &ci : sam.cargo)
+                {
+                    auto &cn = findNode(ci);
+                    int ncargo = gdriver.findoradd(cn.myName);
+                    gdriver.findNode(ncargo).myColor = cn.myColor;
+                }
+
+                double x1, y1, x2, y2, dx, dy, dist;
+                auto &dn = gdriver.findNode(ndriver);
+                sscanf(
+                    dn.myColor.c_str(),
+                    color_format,
+                    &x1, &y1);
+
+                // loop over cargos
+                for (auto &cn : sam.cargo)
+                {
+                    int index_c1 = gdriver.find( userName(cn) );
+                    // add link from driver to cargo
+                    sscanf(
+                        findNode(cn).myColor.c_str(),
+                        color_format,
+                        &x2, &y2);
+                    dx = x1 - x2;
+                    dy = y1 - y2;
+                    dist = sqrt(dx * dx + dy * dy);
+                    gdriver.addLink(ndriver, index_c1, dist);
+
+                    // add link from cargo to all other assigned cargos
+                    x1 = x2;
+                    y1 = y2;
+                    for (auto &cn2 : sam.cargo)
+                    {
+                        if (cn == cn2)
+                            continue;
+
+                        int index_c2 = gdriver.find( userName(cn2) );
+                        sscanf(
+                            findNode(cn2).myColor.c_str(),
+                            color_format,
+                            &x2, &y2);
+                        dx = x1 - x2;
+                        dy = y1 - y2;
+                        dist = sqrt(dx * dx + dy * dy);
+                        gdriver.addLink(index_c1, index_c2, dist);
+                    }
+                    int dbg5 = nodeCount();
+                }
+
+                // solve travelling salesman problem
+                gdriver.tsp();
+
+                std::cout << gdriver.pathText() << "\n";
+
+            }
+        }
         void cPathFinder::karup()
         {
             raven::set::cRunWatch aWatcher("karup");
