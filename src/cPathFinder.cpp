@@ -971,32 +971,57 @@ namespace raven
             }
         }
 
-        void cPathFinder::pickup()
+        double cPathFinder::pickup_link_cost_pythagorus(
+            int in1, cNode &n1, int in2, cNode &n2)
         {
 #define color_format "%*s %*s %lf %lf"
+            double x1, y1, x2, y2, dx, dy;
+            sscanf(
+                n1.myColor.c_str(),
+                color_format,
+                &x1, &y1);
+            sscanf(
+                n2.myColor.c_str(),
+                color_format,
+                &x2, &y2);
+            dx = x1 - x2;
+            dy = y1 - y2;
+            return sqrt(dx * dx + dy * dy);
+        }
+        void cPathFinder::pickup()
+        {
+            /* Variable names
+             * pgi* node index in problem graph
+             * dgi* node index in driver grasph
+             */
 
-            // find driver locations
-            struct sdriver
+            // pythagorean cost of links between all nodes
+            for (auto &mn1 : nodes())
             {
-                int index;
-                double x;
-                double y;
-            };
-            std::vector<sdriver> vdriver;
-            for (auto &mn : nodes())
-            {
-                auto color = mn.second.myColor;
-                if (color.find("driver") == 0)
+                for (auto &mn2 : nodes())
                 {
-                    sdriver sd;
-                    sd.index = mn.first;
-                    sscanf(
-                        color.c_str(),
-                        color_format,
-                        &sd.x, &sd.y);
-                    vdriver.push_back(sd);
+                    if (mn2.first <= mn1.first)
+                        continue;
+                    addLink(
+                        mn1.first,
+                        mn2.first,
+                        pickup_link_cost_pythagorus(
+                            mn1.first, mn1.second,
+                            mn2.first, mn2.second));
                 }
             }
+
+            // find driver locations
+            std::vector<int> vdriver;
+            for (auto &mn : nodes())
+            {
+                auto &color = mn.second.myColor;
+                if (color.find("driver") == 0)
+                {
+                    vdriver.push_back(mn.first);
+                }
+            }
+
             // assign cargos to nearest driver
             struct sassign
             {
@@ -1004,30 +1029,23 @@ namespace raven
                 int driver;
             };
             std::vector<sassign> vassign;
-            for (auto &mn : nodes())
+            for (auto &mcargo : nodes())
             {
-                if (mn.second.myColor.find("cargo") == 0)
+                if (mcargo.second.myColor.find("cargo") == 0)
                 {
-                    double cx, cy;
-                    sscanf(
-                        mn.second.myColor.c_str(),
-                        color_format,
-                        &cx, &cy);
                     double dmin = 1e10;
                     int nearest = -1;
-                    for (auto &sd : vdriver)
+                    for (auto &id : vdriver)
                     {
-                        double dx = cx - sd.x;
-                        double dy = cy - sd.y;
-                        double dist2 = dx * dx + dy * dy;
-                        if (dist2 < dmin)
+                        double d = findLink(id, mcargo.first).myCost;
+                        if (d < dmin)
                         {
-                            dmin = dist2;
-                            nearest = sd.index;
+                            dmin = d;
+                            nearest = id;
                         }
                     }
                     sassign a;
-                    a.cargo = mn.first;
+                    a.cargo = mcargo.first;
                     a.driver = nearest;
                     vassign.push_back(a);
                 }
@@ -1040,13 +1058,13 @@ namespace raven
                 int driver;
             };
             std::vector<sassign_multi> vsam;
-            for (auto &sd : vdriver)
+            for (auto id : vdriver)
             {
                 sassign_multi sam;
-                sam.driver = sd.index;
+                sam.driver = id;
                 for (auto &sa : vassign)
                 {
-                    if (sa.driver != sd.index)
+                    if (sa.driver != id)
                         continue;
                     sam.cargo.push_back(sa.cargo);
                 }
@@ -1058,63 +1076,46 @@ namespace raven
             {
                 // create graph with just driver and assigned cargos
                 cPathFinder gdriver;
-                auto &n = findNode(sam.driver);
-                int ndriver = gdriver.findoradd(n.myName);
-                gdriver.findNode(ndriver).myColor = n.myColor;
+                int dgidriver = gdriver.findoradd(
+                    findNode(sam.driver).myName);
                 for (auto &ci : sam.cargo)
                 {
-                    auto &cn = findNode(ci);
-                    int ncargo = gdriver.findoradd(cn.myName);
-                    gdriver.findNode(ncargo).myColor = cn.myColor;
+                    gdriver.findoradd(
+                        findNode(ci).myName);
                 }
 
-                double x1, y1, x2, y2, dx, dy, dist;
-                auto &dn = gdriver.findNode(ndriver);
-                sscanf(
-                    dn.myColor.c_str(),
-                    color_format,
-                    &x1, &y1);
-
                 // loop over cargos
-                for (auto &cn : sam.cargo)
+                for (auto &pgic1 : sam.cargo)
                 {
-                    int index_c1 = gdriver.find( userName(cn) );
                     // add link from driver to cargo
-                    sscanf(
-                        findNode(cn).myColor.c_str(),
-                        color_format,
-                        &x2, &y2);
-                    dx = x1 - x2;
-                    dy = y1 - y2;
-                    dist = sqrt(dx * dx + dy * dy);
-                    gdriver.addLink(ndriver, index_c1, dist);
+                    gdriver.addLink(
+                        dgidriver,
+                        gdriver.find(userName(pgic1)),
+                        findLink(
+                            sam.driver,
+                            pgic1)
+                            .myCost);
 
-                    // add link from cargo to all other assigned cargos
-                    x1 = x2;
-                    y1 = y2;
-                    for (auto &cn2 : sam.cargo)
+                    // add links from cargo to all other assigned cargos
+                    for (auto &pgic2 : sam.cargo)
                     {
-                        if (cn == cn2)
+                        if (pgic2 <= pgic1)
                             continue;
 
-                        int index_c2 = gdriver.find( userName(cn2) );
-                        sscanf(
-                            findNode(cn2).myColor.c_str(),
-                            color_format,
-                            &x2, &y2);
-                        dx = x1 - x2;
-                        dy = y1 - y2;
-                        dist = sqrt(dx * dx + dy * dy);
-                        gdriver.addLink(index_c1, index_c2, dist);
+                        gdriver.addLink(
+                            gdriver.find(userName(pgic1)),
+                            gdriver.find(userName(pgic2)),
+                            findLink(
+                                pgic1,
+                                pgic2)
+                                .myCost);
                     }
-                    int dbg5 = nodeCount();
                 }
 
                 // solve travelling salesman problem
                 gdriver.tsp();
 
                 std::cout << gdriver.pathText() << "\n";
-
             }
         }
         void cPathFinder::karup()

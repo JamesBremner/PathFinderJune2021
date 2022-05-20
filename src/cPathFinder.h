@@ -215,6 +215,8 @@ The output, an ordered vector of node indices, is stored in myPath attribute
             void karup();
 
             void pickup();
+            double pickup_link_cost_pythagorus(
+                 int in1, cNode &n1, int in2, cNode &n2);
 
             /**
 We are given a graph of N nodes where each node has exactly 1 directed edge to some node
