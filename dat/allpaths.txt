@@ -1,0 +1,8 @@
+format allpaths
+l A B 1
+l B C 1
+l B D 1
+l B A 1 
+l C D 1
+s A
+e D

@@ -37,7 +37,7 @@ void replaceAll(std::string &str, const std::string &from, const std::string &to
 void RunDOT(raven::graph::cPathFinder &finder)
 {
 
-    if( finder.nodeCount() > 200 )
+    if (finder.nodeCount() > 200)
         return;
     // temp firectory is usually
     // C:\Users\<userName>\AppData\Local\Temp
@@ -65,6 +65,9 @@ void RunDOT(raven::graph::cPathFinder &finder)
     case eCalculation::reqs:
         f << finder.camsViz() << "\n";
         break;
+    case eCalculation::pickup:
+        f << finder.pickupViz() << "\n";
+        break;
     default:
         std::cout << "RunDOT bad option\n";
         return;
@@ -79,13 +82,10 @@ void RunDOT(raven::graph::cPathFinder &finder)
     si.cb = sizeof(si);
     ZeroMemory(&pi, sizeof(pi));
 
-    // char cmd[100];
-    // snprintf(cmd, 99, "dot -Kfdp -n -Tpng -o sample.png g.dot");
+    auto sample = path / "sample.png";
+    std::string scmd = "dot -Kfdp -n -Tpng -Tdot -o " + sample.string() + " " + gdot.string();
 
-    std::string scmd = "dot -Kfdp -n -Tpng -Tdot -o " + gdot.string();
-    // auto sample = path / "sample.png";
-    // scmd += sample.string() + " " + gdot.string();
-    // scmd += " -Tdot laid_out.dot"
+    //std::cout << scmd << "\n";
 
     // Retain keyboard focus, minimize module2 window
     si.wShowWindow = SW_SHOWNOACTIVATE | SW_MINIMIZE;
@@ -306,7 +306,10 @@ int main()
                             break;
                         case eCalculation::pickup:
                             finder.pickup();
-                            opt = eCalculation::costs;
+                            opt = eCalculation::pickup;
+                            break;
+                        case eCalculation::allpaths:
+                            finder.allPaths();
                             break;
                          default:
                              throw std::runtime_error(
@@ -325,8 +328,7 @@ int main()
                      form.text("Path Finder GUI " + fname);
 
                      form.update();
-                     raven::set::cRunWatch::Report();
-                      });
+                     raven::set::cRunWatch::Report(); });
     mbar.append("File", mfile);
 
     form.events().draw(
@@ -354,6 +356,7 @@ int main()
                 //     {5, 5});
                 break;
             case eCalculation::reqs:
+            case eCalculation::pickup:
                 s.text(
                     finder.resultsText(),
                     {5, 5});
@@ -364,6 +367,7 @@ int main()
     graphPanel.events().draw(
         [&](PAINTSTRUCT &ps)
         {
+            // fill graph panel with image produced by graphviz
             wex::window2file w2f;
             auto path = std::filesystem::temp_directory_path();
             auto sample = path / "sample.png";

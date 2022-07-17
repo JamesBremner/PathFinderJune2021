@@ -32,6 +32,7 @@ namespace raven
             paths,
             srcnuzn,
             pickup,
+            allpaths,
         };
 
         /** @brief general purpose path finder
@@ -216,7 +217,9 @@ The output, an ordered vector of node indices, is stored in myPath attribute
 
             void pickup();
             double pickup_link_cost_pythagorus(
-                 int in1, cNode &n1, int in2, cNode &n2);
+                 cNode &n1, cNode &n2);
+            std::pair<double,double> pickup_node_loc(
+                cNode& n ) const;
 
             /**
 We are given a graph of N nodes where each node has exactly 1 directed edge to some node
@@ -258,6 +261,7 @@ We need to answer the queries of type : A, B, which asks time required when 2 ob
 
             /** @brief graphical display of graph with path in red.
              *
+             * @param[in] all true show all links, false show path links only, default true
              * @return display in graphviz dot format
              *
              * render at https://dreampuf.github.io/GraphvizOnline
@@ -267,11 +271,13 @@ We need to answer the queries of type : A, B, which asks time required when 2 ob
              * dot -Kfdp -n -Tpng -o sample.png sample.dot
              *
              */
-            std::string pathViz();
-
             std::string pathViz(
-                const std::vector<int> &vp,
-                bool all = true);
+                bool all = true );
+            std::string pickupViz();
+
+            // std::string pathViz(
+            //     const std::vector<int> &vp,
+            //     bool all = true);
 
             /** graphical display of graph with spanning tree
              *

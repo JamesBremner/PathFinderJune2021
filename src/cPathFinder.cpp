@@ -19,7 +19,7 @@ namespace raven
             myPathCost = 0;
         }
 
-        std::string cPathFinder::pathViz()
+        std::string cPathFinder::pathViz(bool all)
         {
             std::string graphvizgraph = "graph";
             std::string graphvizlink = "--";
@@ -36,6 +36,8 @@ namespace raven
                 f << n.second.myName
                   << " [color=\"" << n.second.myColor << "\"  penwidth = 3.0 ];\n";
             }
+
+            std::cout << "pathViz " << pathText() << "\n";
 
             // loop over links
             for (auto &e : links())
@@ -55,13 +57,83 @@ namespace raven
                 auto pathItdst = std::find(myPath.begin(), myPath.end(), e.first.second);
                 if (pathItsrc != myPath.end() && pathItdst != myPath.end())
                     if (pathItsrc == pathItdst + 1 || pathItsrc == pathItdst - 1)
+                    {
                         onpath = true;
-
-                f << node(e.first.first).myName << graphvizlink
-                  << node(e.first.second).myName;
-                if (onpath)
-                    f << "[color=\"red\"] ";
+                        std::cout << "onpath " << node(e.first.first).myName
+                                  << " - " << node(e.first.second).myName << "\n";
+                    }
+                if (all)
+                {
+                    f << node(e.first.first).myName << graphvizlink
+                      << node(e.first.second).myName;
+                    if (onpath)
+                        f << "[color=\"red\"] ";
+                }
+                else if (onpath)
+                {
+                    f << node(e.first.first).myName << graphvizlink
+                      << node(e.first.second).myName
+                      << "[color=\"red\"] ";
+                }
                 f << "\n";
+            }
+
+            f << "}\n";
+            return f.str();
+        }
+        std::string cPathFinder::pickupViz()
+        {
+            std::string graphvizgraph = "graph";
+            std::string graphvizlink = "--";
+            if (isDirected())
+            {
+                graphvizgraph = "digraph";
+                graphvizlink = "->";
+            }
+
+            std::stringstream f;
+            f << graphvizgraph << " G {\n";
+            for (auto n : nodes())
+            {
+                auto loc = pickup_node_loc( n.second );
+                f << n.second.myName
+                  << " [color=\"" << n.second.myColor 
+                  << "\"  penwidth = 3.0 "
+                  << "pos =\"" << loc.first << "," << loc.second << "!\"];\n";
+            }
+
+            std::cout << "pathViz " << pathText() << "\n";
+
+            // loop over links
+            for (auto &e : links())
+            {
+                if (!isDirected())
+
+                    /* an undirected graph has a pair of directed links
+                    beteen every pair of linked nodes. Suppress the display
+                    of the second link of the pair
+                    */
+                    if (e.first.first > e.first.second)
+                        continue;
+
+                // check if link between two nodes on path
+                bool onpath = false;
+                auto pathItsrc = std::find(myPath.begin(), myPath.end(), e.first.first);
+                auto pathItdst = std::find(myPath.begin(), myPath.end(), e.first.second);
+                if (pathItsrc != myPath.end() && pathItdst != myPath.end())
+                    if (pathItsrc == pathItdst + 1 || pathItsrc == pathItdst - 1)
+                    {
+                        onpath = true;
+                        std::cout << "onpath " << node(e.first.first).myName
+                                  << " - " << node(e.first.second).myName << "\n";
+                    }
+                if (onpath)
+                {
+                    f << node(e.first.first).myName << graphvizlink
+                      << node(e.first.second).myName
+                      << "[color=\"red\"] "
+                      << "\n";
+                }
             }
 
             f << "}\n";
@@ -970,30 +1042,33 @@ namespace raven
                 // throw e;
             }
         }
-
-        double cPathFinder::pickup_link_cost_pythagorus(
-            int in1, cNode &n1, int in2, cNode &n2)
+        std::pair<double,double> cPathFinder::pickup_node_loc( cNode& n ) const
         {
-#define color_format "%*s %*s %lf %lf"
-            double x1, y1, x2, y2, dx, dy;
-            sscanf(
-                n1.myColor.c_str(),
+            #define color_format "%*s %*s %lf %lf"
+            std::pair<double,double> ret;
+                 sscanf(
+                n.myColor.c_str(),
                 color_format,
-                &x1, &y1);
-            sscanf(
-                n2.myColor.c_str(),
-                color_format,
-                &x2, &y2);
-            dx = x1 - x2;
-            dy = y1 - y2;
+                &ret.first, &ret.second);   
+            return ret;    
+        }
+        double cPathFinder::pickup_link_cost_pythagorus(
+            cNode &n1, cNode &n2)
+        {
+            auto loc1 = pickup_node_loc( n1 );
+            auto loc2 = pickup_node_loc( n2 );
+            double dx = loc1.first - loc2.first;
+            double dy = loc1.first - loc2.second;
             return sqrt(dx * dx + dy * dy);
         }
         void cPathFinder::pickup()
         {
             /* Variable names
              * pgi* node index in problem graph
-             * dgi* node index in driver grasph
+             * dgi* node index in driver graph
              */
+
+            myResults = "";
 
             // pythagorean cost of links between all nodes
             for (auto &mn1 : nodes())
@@ -1006,13 +1081,14 @@ namespace raven
                         mn1.first,
                         mn2.first,
                         pickup_link_cost_pythagorus(
-                            mn1.first, mn1.second,
-                            mn2.first, mn2.second));
+                            mn1.second,
+                            mn2.second));
                 }
             }
 
             // find driver locations
             std::vector<int> vdriver;
+            int indexdestination;
             for (auto &mn : nodes())
             {
                 auto &color = mn.second.myColor;
@@ -1020,6 +1096,8 @@ namespace raven
                 {
                     vdriver.push_back(mn.first);
                 }
+                if( color.find("destination") != -1 )
+                    indexdestination = mn.first;
             }
 
             // assign cargos to nearest driver
@@ -1115,7 +1193,17 @@ namespace raven
                 // solve travelling salesman problem
                 gdriver.tsp();
 
-                std::cout << gdriver.pathText() << "\n";
+
+                
+
+                myPath.clear();
+                for (auto n : gdriver.myPath)
+                {
+                    myPath.push_back(find(gdriver.userName(n)));
+                }
+                myPath.back() = indexdestination;
+
+                myResults += pathText() + "\n\r";
             }
         }
         void cPathFinder::karup()

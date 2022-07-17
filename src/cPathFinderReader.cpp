@@ -142,6 +142,11 @@ namespace raven
                 myFinder.path();
                 myFormat = eCalculation::costs;
             }
+            else if (line.find("allpaths") != -1)
+            {
+                costs();
+                return eCalculation::allpaths;
+            }
             else if (line.find("paths") != -1)
             {
                 costs();
