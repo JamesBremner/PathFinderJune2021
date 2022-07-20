@@ -2,8 +2,8 @@ format pickup
 d 1 3 start
 e 6 5 end
 c 1 1 c1
-c 5 5 c2
-c 3 3 c3
-c 4 4 c4
-c 2 2 c5
-c 6 6 c6
+c 6 1 c2
+c 6 3 c3
+c 7 7 c4
+c 3 9 c5
+c 6 9 c6

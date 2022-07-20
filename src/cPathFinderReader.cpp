@@ -333,6 +333,8 @@ namespace raven
             int cost;
             int maxNegCost = 0;
             std::string line;
+            bool fd = false;
+            bool fe = false;
             while (std::getline(myFile, line))
             {
                 std::cout << line << "\n";
@@ -342,13 +344,19 @@ namespace raven
                 std::string nodeType;
                 switch (token[0][0])
                 {
-                    case 'd': nodeType = "driver"; break;
+                    case 'd': nodeType = "driver"; fd = true; break;
                     case 'c': nodeType = "cargo"; break;
-                    case 'e': nodeType = "destination"; break;
+                    case 'e': nodeType = "destination"; fe = true; break;
                 }
                 myFinder.findNode(myFinder.findoradd(token[3])).myColor = 
                     nodeType +" at " + token[1] + " " + token[2];
             }
+            if( ! fd )
+                throw std::runtime_error(
+                    "Invalid pickup input - no driver");
+            if( ! fe )
+                throw std::runtime_error(
+                    "Invalid pickup input - no e destination");
         }
 
         std::vector<int> cPathFinderReader::valves(

@@ -437,18 +437,22 @@ namespace raven
             int v,
             std::function<void(int v)> visitor)
         {
+            // Call the visitor
             visitor(v);
 
             // remember this node has been visted
             myPath[v] = 1;
 
-            // look for new adjacent nodes
-            for (int w : adjacent(v))
+            // look at adjacent nodes
+            for (int w : adjacent(v)) {
+
+                // check node has not been visited
                 if (!myPath[w])
                 {
-                    // search from new node
+                    // continue search from new node
                     depthRecurse(w, visitor);
                 }
+            }
         }
 
         void cPathFinder::breadth(
@@ -1088,7 +1092,7 @@ namespace raven
 
             // find driver locations
             std::vector<int> vdriver;
-            int indexdestination;
+            int indexdestination = -1;
             for (auto &mn : nodes())
             {
                 auto &color = mn.second.myColor;
@@ -1099,6 +1103,9 @@ namespace raven
                 if( color.find("destination") != -1 )
                     indexdestination = mn.first;
             }
+            if( indexdestination == -1 )
+                throw std::runtime_error(
+                    "cPathFinder::pickup no detination");
 
             // assign cargos to nearest driver
             struct sassign
