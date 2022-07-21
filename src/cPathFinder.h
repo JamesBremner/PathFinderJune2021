@@ -257,6 +257,8 @@ We need to answer the queries of type : A, B, which asks time required when 2 ob
             /// Human readable list of edges that connects all nodes together
             std::string spanText();
 
+            bool isLinkOnPath( const link_t& e ) const;
+
             ////////////////// get graphViz output ////////////////////////////////////////////
 
             /** @brief graphical display of graph with path in red.

@@ -19,6 +19,21 @@ namespace raven
             myPathCost = 0;
         }
 
+        bool cPathFinder::isLinkOnPath(const link_t &e) const
+        {
+            auto pathItsrc = std::find(myPath.begin(), myPath.end(), e.first.first);
+            auto pathItdst = std::find(myPath.begin(), myPath.end(), e.first.second);
+            if (pathItsrc == myPath.end() && pathItdst == myPath.end())
+                return false;
+            if (pathItsrc == pathItdst + 1 || pathItsrc == pathItdst - 1)
+            {
+                return true;
+                // std::cout << "onpath " << node(e.first.first).myName
+                //           << " - " << node(e.first.second).myName << "\n";
+            }
+            return false;
+        }
+
         std::string cPathFinder::pathViz(bool all)
         {
             std::string graphvizgraph = "graph";
@@ -52,16 +67,8 @@ namespace raven
                         continue;
 
                 // check if link between two nodes on path
-                bool onpath = false;
-                auto pathItsrc = std::find(myPath.begin(), myPath.end(), e.first.first);
-                auto pathItdst = std::find(myPath.begin(), myPath.end(), e.first.second);
-                if (pathItsrc != myPath.end() && pathItdst != myPath.end())
-                    if (pathItsrc == pathItdst + 1 || pathItsrc == pathItdst - 1)
-                    {
-                        onpath = true;
-                        // std::cout << "onpath " << node(e.first.first).myName
-                        //           << " - " << node(e.first.second).myName << "\n";
-                    }
+                bool onpath = isLinkOnPath( e );
+
                 if (all)
                 {
                     f << node(e.first.first).myName << graphvizlink
@@ -95,9 +102,9 @@ namespace raven
             f << graphvizgraph << " G {\n";
             for (auto n : nodes())
             {
-                auto loc = pickup_node_loc( n.second );
+                auto loc = pickup_node_loc(n.second);
                 f << n.second.myName
-                  << " [color=\"" << n.second.myColor 
+                  << " [color=\"" << n.second.myColor
                   << "\"  penwidth = 3.0 "
                   << "pos =\"" << loc.first << "," << loc.second << "!\"];\n";
             }
@@ -116,24 +123,15 @@ namespace raven
                     if (e.first.first > e.first.second)
                         continue;
 
-                // check if link between two nodes on path
-                bool onpath = false;
-                auto pathItsrc = std::find(myPath.begin(), myPath.end(), e.first.first);
-                auto pathItdst = std::find(myPath.begin(), myPath.end(), e.first.second);
-                if (pathItsrc != myPath.end() && pathItdst != myPath.end())
-                    if (pathItsrc == pathItdst + 1 || pathItsrc == pathItdst - 1)
-                    {
-                        onpath = true;
-                        // std::cout << "onpath " << node(e.first.first).myName
-                        //           << " - " << node(e.first.second).myName << "\n";
-                    }
-                if (onpath)
-                {
-                    f << node(e.first.first).myName << graphvizlink
-                      << node(e.first.second).myName
-                      << "[color=\"red\"] "
-                      << "\n";
-                }
+                // check if link on path
+                if (!isLinkOnPath(e))
+                    continue;
+
+                f
+                    << node(e.first.first).myName << graphvizlink
+                    << node(e.first.second).myName
+                    << "[color=\"red\"] "
+                    << "\n";
             }
 
             f << "}\n";
@@ -444,7 +442,8 @@ namespace raven
             myPath[v] = 1;
 
             // look at adjacent nodes
-            for (int w : adjacent(v)) {
+            for (int w : adjacent(v))
+            {
 
                 // check node has not been visited
                 if (!myPath[w])
@@ -1046,21 +1045,21 @@ namespace raven
                 // throw e;
             }
         }
-        std::pair<double,double> cPathFinder::pickup_node_loc( cNode& n ) const
+        std::pair<double, double> cPathFinder::pickup_node_loc(cNode &n) const
         {
-            #define color_format "%*s %*s %lf %lf"
-            std::pair<double,double> ret;
-                 sscanf(
+#define color_format "%*s %*s %lf %lf"
+            std::pair<double, double> ret;
+            sscanf(
                 n.myColor.c_str(),
                 color_format,
-                &ret.first, &ret.second);   
-            return ret;    
+                &ret.first, &ret.second);
+            return ret;
         }
         double cPathFinder::pickup_link_cost_pythagorus(
             cNode &n1, cNode &n2)
         {
-            auto loc1 = pickup_node_loc( n1 );
-            auto loc2 = pickup_node_loc( n2 );
+            auto loc1 = pickup_node_loc(n1);
+            auto loc2 = pickup_node_loc(n2);
             double dx = loc1.first - loc2.first;
             double dy = loc1.second - loc2.second;
             return sqrt(dx * dx + dy * dy);
@@ -1100,10 +1099,10 @@ namespace raven
                 {
                     vdriver.push_back(mn.first);
                 }
-                if( color.find("destination") != -1 )
+                if (color.find("destination") != -1)
                     indexdestination = mn.first;
             }
-            if( indexdestination == -1 )
+            if (indexdestination == -1)
                 throw std::runtime_error(
                     "cPathFinder::pickup no detination");
 
@@ -1199,9 +1198,6 @@ namespace raven
 
                 // solve travelling salesman problem
                 gdriver.tsp();
-
-
-                
 
                 myPath.clear();
                 for (auto n : gdriver.myPath)
