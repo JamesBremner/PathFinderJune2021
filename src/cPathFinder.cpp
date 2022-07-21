@@ -59,8 +59,8 @@ namespace raven
                     if (pathItsrc == pathItdst + 1 || pathItsrc == pathItdst - 1)
                     {
                         onpath = true;
-                        std::cout << "onpath " << node(e.first.first).myName
-                                  << " - " << node(e.first.second).myName << "\n";
+                        // std::cout << "onpath " << node(e.first.first).myName
+                        //           << " - " << node(e.first.second).myName << "\n";
                     }
                 if (all)
                 {
@@ -124,8 +124,8 @@ namespace raven
                     if (pathItsrc == pathItdst + 1 || pathItsrc == pathItdst - 1)
                     {
                         onpath = true;
-                        std::cout << "onpath " << node(e.first.first).myName
-                                  << " - " << node(e.first.second).myName << "\n";
+                        // std::cout << "onpath " << node(e.first.first).myName
+                        //           << " - " << node(e.first.second).myName << "\n";
                     }
                 if (onpath)
                 {
@@ -1062,7 +1062,7 @@ namespace raven
             auto loc1 = pickup_node_loc( n1 );
             auto loc2 = pickup_node_loc( n2 );
             double dx = loc1.first - loc2.first;
-            double dy = loc1.first - loc2.second;
+            double dy = loc1.second - loc2.second;
             return sqrt(dx * dx + dy * dy);
         }
         void cPathFinder::pickup()
