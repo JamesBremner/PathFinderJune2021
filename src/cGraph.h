@@ -15,12 +15,12 @@ namespace raven
         class cLink
         {
         public:
-            cLink(int c = 1)
+            cLink(double c = 1)
                 : myCost(c)
             {
             }
-            int myCost;  // a constraint e.g. distance of a road, max xapacity of a pipe
-            int myValue; // a calculated value, e.g. actual flow through a pipe
+            double myCost; // a constraint e.g. distance of a road, max xapacity of a pipe
+            int myValue;   // a calculated value, e.g. actual flow through a pipe
         };
 
         /// node properties
@@ -43,7 +43,7 @@ namespace raven
             {
                 myLink.clear();
             }
-            int linkCost(int dst)
+            double linkCost(int dst)
             {
                 auto it = myLink.find(dst);
                 if (it == myLink.end())
@@ -62,7 +62,7 @@ namespace raven
 
         typedef std::pair<std::pair<int, int>, cLink> link_t;
 
-		/// Store the nodes and links of a graph
+        /// Store the nodes and links of a graph
         class cGraph
         {
         public:
@@ -82,13 +82,13 @@ namespace raven
                 for (int k = 0; k < count; k++)
                     myG.insert(std::make_pair(k, cNode(std::to_string(k))));
             }
-    /** set graph links type
-     *
-     * @param[in] f true for directed, false for undirected, default directed
-     *
-     * If not called, the graph will be undirected
-     *
-     */
+            /** set graph links type
+             *
+             * @param[in] f true for directed, false for undirected, default directed
+             *
+             * If not called, the graph will be undirected
+             *
+             */
             void directed(bool f = true)
             {
                 myfDirected = f;
@@ -98,14 +98,14 @@ namespace raven
                 return myfDirected;
             }
             /** Add costed link between two named nodes
- *
- * @param[in] srcname
- * @param[in] dstname
- * @param[in] cost link cost
- *
- * If the nodes do not exist, they will be added.
- *
- */
+             *
+             * @param[in] srcname
+             * @param[in] dstname
+             * @param[in] cost link cost
+             *
+             * If the nodes do not exist, they will be added.
+             *
+             */
             void addLink(
                 const std::string &srcname,
                 const std::string &dstname,
@@ -117,11 +117,11 @@ namespace raven
                     cost);
             }
             /** Add costed link between two indexed nodes
-         * @param[in] u src node index
-         * @param[in] v dst node index
-         *
-         * Exception thrown if nodes do not extist
-         */
+             * @param[in] u src node index
+             * @param[in] v dst node index
+             *
+             * Exception thrown if nodes do not extist
+             */
             void addLink(int u, int v, double cost = 1)
             {
                 if (0 > u || u > myG.size() || 0 > v || v > myG.size())
@@ -139,7 +139,7 @@ namespace raven
              *
              * @param[in] name
              * @return node index, -1 if named node does not exist
-            */
+             */
             int find(const std::string &name)
             {
                 try
@@ -152,12 +152,12 @@ namespace raven
                 return -1;
             }
             /** Find or add node by name
- *
- * @param[in] name
- * @return node index
- *
- * If a node of specified name does not exist, it is added.
- */
+             *
+             * @param[in] name
+             * @return node index
+             *
+             * If a node of specified name does not exist, it is added.
+             */
             int findoradd(const std::string &name)
             {
                 // search among the existing nodes
@@ -188,13 +188,14 @@ namespace raven
             }
 
             void removeLink(int u, int v)
-            { 
+            {
                 try
                 {
-                    //std::cout << "remove link " << userName(u) << " " << userName(v) << "\n";
+                    // std::cout << "remove link " << userName(u) << " " << userName(v) << "\n";
                     myG.at(u).removeLink(v);
-                    if (!myfDirected) {
-                        //std::cout << "remove link " << userName(v) << " " << userName(u) << "\n";
+                    if (!myfDirected)
+                    {
+                        // std::cout << "remove link " << userName(v) << " " << userName(u) << "\n";
                         myG.at(v).removeLink(u);
                     }
                 }
@@ -283,10 +284,24 @@ namespace raven
             {
                 return myG.at(i);
             }
-            /// index of node
-            int node( const cNode& node )
+            /** Refrence to node at source of link
+             * @param[in] e link from linkmap
+             */
+            cNode &src(const linkmap_t::value_type &e)
             {
-                return myMapNameToIndex.find( node.myName )->second;
+                return node(e.first.first);
+            }
+            /** Refrence to node at destination of link
+             * @param[in] e link from linkmap
+             */
+            cNode &dst(const linkmap_t::value_type &e)
+            {
+                return node(e.first.second);
+            }
+            /// index of node
+            int node(const cNode &node)
+            {
+                return myMapNameToIndex.find(node.myName)->second;
             }
             cLink &link(int u, int v)
             {
@@ -315,15 +330,16 @@ namespace raven
                 return true;
             }
             /** link cost
- * @param[in] u node index
- * @param[in] v node index
- * @return cost of link between u and v
- * If u and v are not adjacent, returns INT_MAX
- */
-            int cost(int u, int v)
+             * @param[in] u node index
+             * @param[in] v node index
+             * @return cost of link between u and v
+             * If u and v are not adjacent, returns INT_MAX
+             */
+            double cost(int u, int v)
             {
                 try
                 {
+                    std::cout << "cGraph::cost " << userName(u) << " " << userName(v) << " " << link(u, v).myCost << "\n";
                     return link(u, v).myCost;
                 }
                 catch (...)
@@ -332,9 +348,9 @@ namespace raven
                 }
             }
             /** Adjacent nodes
-         * @param[in] i index of node to find which nodes it connects to
-         * @return vector of connected node indices
-         */
+             * @param[in] i index of node to find which nodes it connects to
+             * @return vector of connected node indices
+             */
             std::vector<int> adjacent(int i)
             {
                 std::vector<int> ret;
@@ -396,11 +412,11 @@ namespace raven
             std::map<std::string, int> myMapNameToIndex;
 
             /** myfDirected is true if the graph links are directed
-         *
-         * Internally all links are always directed.
-         * When myfDirected is false, whenever a link is added
-         * two directed links in opposite direction are added between the end nodes
-         */
+             *
+             * Internally all links are always directed.
+             * When myfDirected is false, whenever a link is added
+             * two directed links in opposite direction are added between the end nodes
+             */
             bool myfDirected;
         };
 
