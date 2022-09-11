@@ -317,7 +317,7 @@ We need to answer the queries of type : A, B, which asks time required when 2 ob
             std::vector<int> mySource;
             int myEnd;                // ending node index
             std::vector<int> myPath;  // vector of node indices visited
-            std::vector<int> myDist;  // cost to reach each node from start
+            std::vector<double> myDist;  // cost to reach each node from start
             std::vector<int> myPred;  // previous node to each node from start
             graph::cGraph mySpanTree; // minimum spanning tree
             double myPathCost;        // total cost of links in path
@@ -330,6 +330,8 @@ We need to answer the queries of type : A, B, which asks time required when 2 ob
              * @param[in] visitor function to call on each new node visited
              */
             void breadth(std::function<void(int v, int p)> visitor);
+
+            void select( const std::vector<int>& v );
         };
     }
 }

@@ -274,7 +274,7 @@ namespace raven
 
                     // Update dist[v] only if total weight of path from src to  v through u is
                     // smaller than current value of dist[v]
-                    int linkcost = cost(u, v);
+                    double linkcost = cost(u, v);
                     if (myDist[u] + linkcost < myDist[v])
                     {
                         myDist[v] = myDist[u] + linkcost;
@@ -287,8 +287,8 @@ namespace raven
         std::vector<int> cPathFinder::pathPick(int end)
         {
             myPath.clear();
-            // std::cout << "->cPathFinder::pathPick "
-            //           << myStart << " " << end << "\n";
+            std::cout << "->cPathFinder::pathPick "
+                      << userName(myStart) << " " << userName(end) << "\n";
             // for (int d : myPred)
             // {
             //     std::cout << d << " ";
@@ -305,7 +305,8 @@ namespace raven
             int prev = end;
             while (1)
             {
-                // std::cout << prev << " " << myPred[prev] << ", ";
+                std::cout << userName(prev) << " " 
+                    << userName(myPred[prev]) << ", ";
                 int next = myPred[prev];
                 myPath.push_back(next);
                 if (next == myStart)
@@ -316,11 +317,12 @@ namespace raven
             // reverse so path goes from start to goal
             std::reverse(myPath.begin(), myPath.end());
 
-            // std::cout << "\n dbg " << myPath.size() << " " << myDist.size()
-            //           << " " << myPath.back() << "\n";
-            // for (auto d : myDist)
-            //     std::cout << d << " ";
-            // std::cout << "\n";
+            std::cout << "\npathpick dbg " << myPath.size() << " " << myDist.size()
+                      << " " << myPath.back() 
+                      << " cost " <<  myDist[myPath.back()] << "\n";
+            for (auto d : myDist)
+                std::cout << d << " ";
+            std::cout << "\n";
             // if (myDist.size() < myPath.back() + 1)
             myPathCost = myDist[myPath.back()]
                 //    + myMaxNegCost * (myPath.size() - 1)
@@ -487,9 +489,34 @@ namespace raven
         {
             if (!v.size())
             {
+                // visit every node
                 tsp();
                 return;
             }
+            select( v );
+        }
+        void cPathFinder::select( const std::vector<int>& vVisit )
+        {
+            cPathFinder gSelected;
+            for( int v : vVisit )
+            {
+                gSelected.findoradd(
+                    userName( v ) );
+            }
+            for( int v1 : vVisit ) {
+                myStart = v1;
+                paths( v1 );
+                for( int v2 : vVisit ) {
+                    if( v2 <= v1 )
+                        continue;
+                    pathPick( v2 );
+                    gSelected.addLink(
+                        userName(v1),
+                        userName(v2),
+                        myPathCost );
+                }
+            }
+            std::cout << "select " << gSelected.linksText();
         }
         std::vector<int> cPathFinder::tsp()
         {

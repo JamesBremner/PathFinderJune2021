@@ -167,6 +167,11 @@ namespace raven
                 pickup();
                 return eCalculation::pickup;
             }
+            else if (line.find("polygon") != -1)
+            {
+                polygon();
+                return eCalculation::costs;
+            }
 
             return myFormat;
         }
@@ -327,6 +332,31 @@ namespace raven
             // std::cout << "<-costs\n" <<myFinder.linksText() << "\n";
         }
 
+        void cPathFinderReader::polygon()
+        {
+            myFinder.clear();
+            std::string line;
+            while (std::getline(myFile, line))
+            {
+                std::istringstream ss( line );
+                std::string token;
+                ss >> token;
+                if( token == "v") {
+                    ss >> token;
+                    auto& n = myFinder.findNode( myFinder.findoradd( token ) );
+                    ss >> token;
+                    std::string color = token;
+                    ss >> token;
+                    n.myColor = color + " " + token;
+                }
+                else if( token == "e") {
+                    std::string v1, v2;
+                    ss >> v1 >> v2;
+                    myFinder.addLink( v1, v2 );
+                }
+            }
+        }
+
         void cPathFinderReader::pickup()
         {
             myFinder.clear();
@@ -344,17 +374,25 @@ namespace raven
                 std::string nodeType;
                 switch (token[0][0])
                 {
-                    case 'd': nodeType = "driver"; fd = true; break;
-                    case 'c': nodeType = "cargo"; break;
-                    case 'e': nodeType = "destination"; fe = true; break;
+                case 'd':
+                    nodeType = "driver";
+                    fd = true;
+                    break;
+                case 'c':
+                    nodeType = "cargo";
+                    break;
+                case 'e':
+                    nodeType = "destination";
+                    fe = true;
+                    break;
                 }
-                myFinder.findNode(myFinder.findoradd(token[3])).myColor = 
-                    nodeType +" at " + token[1] + " " + token[2];
+                myFinder.findNode(myFinder.findoradd(token[3])).myColor =
+                    nodeType + " at " + token[1] + " " + token[2];
             }
-            if( ! fd )
+            if (!fd)
                 throw std::runtime_error(
                     "Invalid pickup input - no driver");
-            if( ! fe )
+            if (!fe)
                 throw std::runtime_error(
                     "Invalid pickup input - no e destination");
         }
@@ -615,7 +653,7 @@ namespace raven
                     myFinder.addLink(
                         myFinder.findoradd(token[1]),
                         myFinder.findoradd(token[2]),
-                        atoi(token[3].c_str()));
+                        atof(token[3].c_str()));
                     break;
                 case 'v':
                     token.erase(token.begin());
@@ -626,7 +664,7 @@ namespace raven
                         int iv = myFinder.find(v);
                         if (iv < 0)
                             throw std::runtime_error("Visit request to non existent node");
-                        v.push_back(iv);
+                        visit.push_back(iv);
                     }
                     break;
                 default:

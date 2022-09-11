@@ -91,6 +91,8 @@ namespace raven
 
             void pickup();
 
+            void polygon();
+
         private:
             cPathFinder &myFinder;
             std::string myfname;
