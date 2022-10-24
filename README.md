@@ -35,7 +35,7 @@ Calculation Options are:
  - __Prerequistes__ Finds paths through ordered requirements. "Before you can do B, you must have done A" [Detailed Documentation](https://github.com/JamesBremner/PathFinder2/wiki/Prerequisites)
  - __Maze__ Finds the path through a 2D grid maze. [Detailed Documentation](https://github.com/JamesBremner/PathFinder/wiki/Maze)
  - __Pickup__  Find reasonable routes for drivers that must pickup cargos and deliver them to locations. [Detailed Documentation](https://github.com/JamesBremner/PathFinder/wiki/Pickup)
- - __Allocation__ Finds an allocation of agents to tasks that optimizes the number of tasks completed. [Detailed Documentation](https://github.com/JamesBremner/PathFinder/wiki/Allocation)
+
 
 ## Installation
 
